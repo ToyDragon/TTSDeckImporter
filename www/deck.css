@@ -1,0 +1,55 @@
+.stage-top{
+	border: 2px solid black;
+	border-bottom: 0px;
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+}
+
+.stage{
+	border: 2px solid black;
+	border-bottom: 0px;
+}
+
+.stage-bottom{
+	border: 2px solid black;
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+h2{
+	color: white;
+	margin: 0px;
+	padding: 15px;
+	border-bottom: 2px solid black;
+	background: repeating-linear-gradient(
+	  45deg,
+	  #606dbc,
+	  #606dbc 10px,
+	  #465298 10px,
+	  #465298 20px
+	);
+}
+
+h4{
+	margin: 0px;
+	padding: 15px;
+}
+
+img{
+	display:block;
+	text-align: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	margin-left:auto;
+	margin-right:auto;
+	max-width: 100%;
+}
+
+#save{
+	margin-top: -2px;
+}
+
+body{
+	margin-top: 50px;
+	margin-bottom: 50px;
+}

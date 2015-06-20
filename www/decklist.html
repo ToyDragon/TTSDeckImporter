@@ -1,0 +1,35 @@
+<html>
+	<head>
+		<title>Decklists</title>
+		
+		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script src="decklist.js"></script>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+		<link href="decklist.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="/">Frogtown</a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li><a href="/deckmaker.html">Deck Maker <span class="sr-only">(current)</span></a></li>
+						<li class="active"><a href="/decklist.html">Deck Lists</a></li>
+						<li><a href="/help.html">Help</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="container">
+			<div class="well">
+				<h1>Recent decks</h1>
+				<ul id="decks">
+					<li>Loading decks...</li>
+				</ul>
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,8 @@
+*.class
+*.tar
+*.jar
+logs/
+images/
+lists/
+decks/
+node_modules/

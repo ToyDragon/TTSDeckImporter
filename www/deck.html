@@ -1,0 +1,51 @@
+<html>
+	<head>
+		<title>Download Deck</title>
+		
+		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script src="FileSaver.js"></script>
+		<script src="deck.js"></script>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+		<link href="deck.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="/">Frogtown</a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="/deckmaker.html">Deck Maker <span class="sr-only">(current)</span></a></li>
+						<li><a href="/decklist.html">Deck Lists</a></li>
+						<li><a href="/help.html">Help</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="container">
+			<h1 class="deckname"></h1>
+			<div class="stage-top">
+				<h2>1. Save The Deck</h2>
+				<h4><a id="decka" download><button class="btn btn-lg btn-default" id="save">Right click here</button></a> and choose Save As to My Games/Tabletop Simulator/Saves/Chest</h4>
+			</div>
+			<div class="stage">
+				<h2>2. Click Host>>Chest</h2>
+				<img src="install1.png"></img>
+			</div>
+			<div class="stage">
+				<h2>3. Open Saved Objects</h2>
+				<img src="install2.png"></img>
+			</div>
+			<div class="stage">
+				<h2>4. Select Your Deck</h2>
+				<img src="install3.png"></img>
+			</div>
+			<div class="stage-bottom">
+				<h2>5. Play</h2>
+				<img src="install4.png"></img>
+			</div>
+		</div>
+	</body>
+</html>

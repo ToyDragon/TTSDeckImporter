@@ -1,0 +1,115 @@
+<html>
+	<head>
+		<title>Create Deck</title>
+		
+		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script src="deckmaker.js"></script>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+		<link href="deckmaker.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="/">Frogtown</a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="/deckmaker.html">Deck Maker <span class="sr-only">(current)</span></a></li>
+						<li><a href="/decklist.html">Deck Lists</a></li>
+						<li><a href="/help.html">Help</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		
+		<div class="container">
+			<h1>Tabletop Simulator MTG Deck Creator</h1>
+			<div class="stage">
+				<h2>1. Select Deck Components</h2>
+				<div>
+					<div class="checkcol-thin">
+						<input type="checkbox" id="toggleSideboard" onchange="toggleSideboard()" checked> Sideboard<br>
+						<input type="checkbox" id="toggleCommander" onchange="toggleCommander()" checked> Commander
+					</div>
+					<div class="checkcol">
+						<input type="checkbox" id="toggleBack" onchange="toggleBack()"> Custom Card Back<br>
+						<input type="checkbox" id="toggleHidden" onchange="toggleHidden()" checked> Custom Hidden Card
+					</div>
+					<div class="checkcol">
+						<input type="checkbox" id="toggleCool" checked> Cool Basics<br/>
+						<input type="checkbox" id="toggleComp" checked> High Compression
+					</div>
+				</div>
+			</div>
+			<div class="stage">
+				<h2>2. Enter Deck Name</h2>
+				<input type="text" class="form-control" id="deckName" placeholder="(Modern)Only Counters" onkeyup="updateName()">
+			</div>
+			<div class="stage">
+				<h4 class="bar-hint"><a href="/help.html#chooseSet" target="_blank">Change Set</a> or <a href="/help.html#chooseLanguage" target="_blank">Change Language</a></h4>
+				<h2>3. Enter Deck List</h2>
+				<h3>Mainboard</h2>
+				<textarea id="decklist" placeholder="56 Island
+4 Counterspell"></textarea>	
+				<span id="sideboard">
+					<h3>Sideboard</h2>
+					<textarea id="sidelist" placeholder="4 Negate"></textarea>
+				</span>
+				<span id="commander">
+					<h3>Commander</h2>
+					<textarea id="commandername" placeholder="Kira, Great Glass-Spinner"></textarea>
+				</span>
+			</div>
+			<div class="stage" id="options">
+				<h2>4. Options</h2>
+				<div class="container">
+					<div class="spacer"></div>
+					<div class="form-group" id="back">
+						<label>Card Back URL</label>
+						<input type="text" class="form-control" id="backURL" placeholder="http://i.imgur.com/P7qYTcI.png" value="http://i.imgur.com/P7qYTcI.png">
+					</div>
+					<div class="form-group" id="hidden">
+						<label>Hidden Card URL</label>
+						<input type="text" class="form-control" id="hideURL" placeholder="http://images5.fanpop.com/image/polls/856000/856722_1318729024930_full.png" value="http://images5.fanpop.com/image/polls/856000/856722_1318729024930_full.png">
+					</div>
+				</div>
+			</div>
+			<div class="stage">
+				<h2 id="hostingName">4. Choose Hosting Service</h2>
+				<div class="container">
+					<div class="col-md-6 host-info frogback">
+						<br></br>
+						<div class="well">
+							<button class="btn host-btn btn-danger" id="frogtown">Frogtown</button>
+							<ul>
+								<li>Always high quality</li>
+								<li>Use for large decks, like EDH</li>
+								<li>Decks may have to be recreated</li>
+							</ul>		
+						</div>
+					</div>
+					<div class="col-md-6 host-info imgback">
+						<br></br>
+						<div class="well">
+							<button class="btn host-btn" id="imgur">Imgur</button>
+							<ul>
+								<li>Low quality for large decks</li>
+								<li>Use for smaller decks, like Standard</li>
+								<li>Reliable long-term hosting</li>
+								<li>Quicker downloads for small decks</li>
+							</ul>	
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="stage-bottom">
+				<h2 id="generateName">5. Generate Deck File</h2>
+				<button class="btn btn-lg btn-success" id="generate">Generate!</button>
+			</div>
+			<div id="wrong"></div>
+		</div>
+		<div class="modal"></div>
+	</body>
+</html>

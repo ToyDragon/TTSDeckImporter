@@ -1,0 +1,197 @@
+#wrong{
+	color: red;
+}
+
+.error{
+	border: 3px solid red !important;
+}
+
+.hider{
+	visibility: hidden;
+}
+
+.stage-top{
+	border: 2px solid black;
+	border-bottom: 0px;
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+}
+
+.stage{
+	border: 2px solid black;
+	border-bottom: 0px;
+}
+
+.stage-bottom{
+	border: 2px solid black;
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+h2{
+	color: white;
+	margin: 0px;
+	padding: 15px;
+	border-bottom: 2px solid black;
+	background: repeating-linear-gradient(
+	  45deg,
+	  #606dbc,
+	  #606dbc 10px,
+	  #465298 10px,
+	  #465298 20px
+	);
+}
+
+h3{
+	margin:0px;
+	padding: 10px;
+	background: repeating-linear-gradient(
+	  135deg,
+	  #cccccc,
+	  #cccccc 10px,
+	  #dddddd 10px,
+	  #dddddd 20px
+	);
+}
+
+#options, #back, #hidden{
+	display: none;
+}
+
+.spacer{
+	height: 10px;
+}
+
+.form-group{
+	padding-right: 35px;
+}
+
+textarea{
+	width: 100%;
+}
+
+#decklist{
+	height: 450px;
+}
+
+#sidelist{
+	height:305px;
+}
+
+#commander{
+	height:26px;
+}
+
+input[type=checkbox]{
+	margin:8px;
+}
+
+.checkcol{
+	width: 175px;
+	display: inline-block;
+}
+
+.checkcol-thin{
+	width: 120px;
+	display: inline-block;
+}
+
+body{
+	margin-top: 50px;
+	margin-bottom: 50px;
+}
+
+.bar-hint{
+	float:right;
+	color: darkgray;
+	margin: 0px;
+	padding: 23px;
+}
+.bar-hint a{
+	color: lightgray;
+}
+.bar-hint a:link{
+	color: lightgray;
+}
+.bar-hint a:visited{
+	color: lightgray;
+}
+.bar-hint a:hover{
+	color: lightgray;
+}
+.bar-hint a:active{
+	color: lightgray;
+}
+
+
+.well{
+	margin: auto;
+	width: 265px;
+	opacity: 0.85;
+}
+
+.well ul{
+	opacity: 1;
+}
+
+.frogback{
+	height: 461px;
+	background: url('/FaerieFrog.png');
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.imgback{
+	height: 461px;
+	background: url('/FaerieImg.png');
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+#generate{
+	margin: 15px !important;
+	margin-left: 25px !important;
+}
+
+ul{
+	padding-left:0px;
+}
+
+.host-info{
+	text-align: center;
+}
+
+.host-info ul li{
+	display: block;
+}
+
+/* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+.modal {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('http://i.stack.imgur.com/FhHRx.gif') 
+                50% 50% 
+                no-repeat;
+}
+
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+body.loading {
+    overflow: hidden;   
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+body.loading .modal {
+    display: block;
+}

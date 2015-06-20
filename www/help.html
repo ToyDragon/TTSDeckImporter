@@ -1,0 +1,102 @@
+<html>
+	<head>
+		<title>Frogtown</title>
+		
+		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script src="help.js"></script>
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+		<link href="help.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="/">Frogtown</a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li><a href="/deckmaker.html">Deck Maker <span class="sr-only">(current)</span></a></li>
+						<li><a href="/decklist.html">Deck Lists</a></li>
+						<li class="active"><a href="/help.html">Help</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div class="container">
+			<h1>Help</h1>
+			<div class="stage">
+				<h2>Card Entry</h2>
+				<p>Cards images are gathered from <a href="http://www.magiccards.info" target="_blank">magiccards.info</a>, so all card names should match their format.</p>
+				<p>Some clean up is done on card names, so if you enter a two sided card like <strong>"Breaking//Entering"</strong> it will be automatically converted to the correct but counter-intuitive <strong>"Breaking (Breaking/Entering)."</strong> Or, if you enter <strong>"AEtherize"</strong> instead of <strong>"Ætherize,"</strong> we'll automatically convert that wierd unicode character for you.</p>
+				<p>We don't catch everything though, so if you have trouble entering a card name search for it on <a href="http://www.magiccards.info" target="_blank">magiccards.info</a> to find the appropriate spelling.</p>
+				<div class="spacer"></div>
+			</div>
+			<div class="stage" id="chooseSet">
+				<h2>Choosing Sets</h2>
+				<p>Cards can have sets specified by adding a set tag to the end of the card name enclosed in square brackets, [ and ], such as</p>
+				<ul>
+					<li>Island [guru]</li>
+					<li>Forest [zen]</li>
+					<li>Swamp [uh]</li>
+				</ul>
+				<p>The list of set codes can be found at <a href="http://www.magiccards.info/sitemap.html" target="_blank">magiccards.info/sitemap.html</a>, right next to the set names.</p>
+				<div class="spacer"></div>
+				<h3>Cool Lands</h3>
+				<p>When you leave any basic lands with unspecified sets, the "Coolify Basics" feature will distribute them randomly between the four coolest arts, Zendikar, Guru, Unhinged, and Alpha.</p>
+				<div class="spacer"></div>
+			</div>
+			<div class="stage" id="tokens">
+				<h2>Tokens</h2>
+				<p>Tokens do not need to be entered manually, tokens are automatically included when you download your deck, and will appear along side it as a seperate pile of cards.</p>
+				<p>Our database is only missing a few tokens, like ones from early sets that have no official art. For the most part you can rely on the automatic token generation to provide exactly what you need.</p>
+				<div class="spacer"></div>
+				<h3>Token Sources</h3>
+				<p>The token names and token producing card information was taken from the <a href="http://mtgsalvation.gamepedia.com/Token/Full_List">mtgsalvation wiki</a>, and the images were gathered manually from google as there is no reliable public source for them.</p>
+				<p>If you want the resources for development or any other reason, here are our processed computer-readable versions</p>
+				<ul>
+					<li><a href="/misc/tokenproducers.csv">Token names and producers</a></li>
+					<li><a href="/misc/tokenimages.tar">Token images</a></li>
+				</ul>
+				<div class="spacer"></div>
+			</div>
+			<div class="stage" id="compression">
+				<h2>Deck Compression</h2>
+				<p>Deck images are put through a high JPEG compression compared to normal images, this is a because deck images are around 10 mega pixels with some decks requiring multiple images. In order to shorten download times in game, images are ran through either 50% or 80% compression, depending on your chosen settings. Below are examples of these images and their resulting sizes.</p>
+				<p>Tabletop simulator does similar compression after downloading the files, depending on your video settings the level 0 compression and level 50 compression will be identical. If you are unsatisfied with the levels of compression they are decided client side and with a little javascript know how you can change it to whatever you want. This is left difficult to deter large file sized decks.</p>
+				<div class="spacer"></div>
+				<div class="row comps">
+					<div class="col-md-4">
+						<img src="highcomp.png"></img>
+						<p>Compression Level 80</p>
+						<p>File Size 1MB</p>
+					</div>
+					<div class="col-md-4">
+						<img src="lowcomp.png"></img>
+						<p>Compression Level 50</p>
+						<p>File Size 1.7MB</p>
+					</div>
+					<div class="col-md-4">
+						<img src="nocomp.png"></img>
+						<p>Compression Level 0</p>
+						<p>File Size 9.6MB</p>
+					</div>
+				</div>
+				<div class="spacer"></div>
+				<div class="spacer"></div>
+			</div>
+			<div class="stage-bottom" id="chooseLanguage">
+				<h2>Choosing Languages(Experimental)</h2>
+				<p>Similar to how <a href="http://www.magiccards.info" target="_blank">magiccards.info</a> offers search features for different sets, it offers search features for different languages. The card images that it offers though are of low quality, typically mislabeled and actually in english. If you are able to find your card you can add it to your deck as in the examples below, but don't expect to work for all cards. Cards in foreign languages must be entered with their foreign spelling, which can be found on <a href="http://www.magiccards.info" target="_blank">magiccards.info</a>.</p>
+				<p>Languages are entered with language tags at the end of the card name enclosed in curly brackets, { and }, such as</p>
+				<ul>
+					<li>Anafenza, Geist des Sippenbaums {de}</li>
+					<li>伊莫库之手 {cn}</li>
+					<li>원소 돌파 {ko}</li>
+				</ul>
+				<p>The list of language codes can be found at <a href="http://www.magiccards.info/sitemap.html" target="_blank">magiccards.info/sitemap.html</a>, right next to the language headers.</p>
+				<div class="spacer"></div>
+			</div>
+		</div>
+	</body>
+</html>
