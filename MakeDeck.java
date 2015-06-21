@@ -22,7 +22,11 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -30,13 +34,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 public class MakeDeck{
-	public static final String[] RARITIES={"Mythic","Rare","Uncommon","Common"};
+	public static final String[] RARITIES={"Mythic","Rare","Uncommon","Common","Basic"};
 	public static final int CARD_MAINBOARD = 0, CARD_SIDEBOARD = 1, CARD_COMMANDER = 2;
 	public static int parseType = CARD_MAINBOARD;
 
-	public static ArrayList<Card>[] draftSetCards = new ArrayList[]{new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>()};
+	public static ArrayList<Card>[] draftSetCards = new ArrayList[]{new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>()};
 	public static int draftSetSize = 5;
 	public static int draftSetDecks = 1;
+	public static float compressionLevel = 80f;
 	public static HashMap<String, Card> cardMap = new HashMap<String, Card>();
 	public static ArrayList<Card> tokenList = new ArrayList<Card>();
 	public static HashMap<String, String> transformMap = new HashMap<String,String>();
@@ -88,7 +93,7 @@ public class MakeDeck{
 			}
 			
 			if(args[i].equalsIgnoreCase("-draft") && i < args.length-1){
-				draftSet = args[i+1];
+				draftSet = args[i+1].replaceAll("_", " ");
 			}
 			
 			if(args[i].equalsIgnoreCase("-n") && i < args.length-1){
@@ -97,6 +102,10 @@ public class MakeDeck{
 			
 			if(args[i].equalsIgnoreCase("-coolifyBasics")){
 				coolifyBasics = true;
+			}
+			
+			if(args[i].equalsIgnoreCase("-compression")){
+				compressionLevel = Float.parseFloat(args[i+1]);
 			}
 		}
 		
@@ -180,7 +189,7 @@ public class MakeDeck{
 		JsonObject mainStateDecks = new JsonObject();
 		for(int j = 0; j < draftSetDecks; j++){
 			JsonObject deckObj = new JsonObject();
-			deckObj.add("FaceURL", new JsonPrimitive(localHostName+"setAssets/"+draftSet+j+".jpg"));
+			deckObj.add("FaceURL", new JsonPrimitive((localHostName+"setAssets/"+draftSet+j+".jpg").replaceAll(" ", "%20")));
 			deckObj.add("BackURL", new JsonPrimitive(backLink));
 			mainStateDecks.add(""+(j+1), deckObj);
 		}
@@ -190,7 +199,7 @@ public class MakeDeck{
 		for(int i = 0; i < draftCount; i++){
 			JsonObject packState = new JsonObject();
 			packState.add("Name", new JsonPrimitive("DeckCustom"));
-			packState.add("Nickname", new JsonPrimitive(""));
+			packState.add("Nickname", new JsonPrimitive("Pack "+(i+1)));
 			packState.add("Description", new JsonPrimitive(""));
 			packState.add("Grid", new JsonPrimitive(true));
 			packState.add("Locked", new JsonPrimitive(false));
@@ -200,9 +209,9 @@ public class MakeDeck{
 			packState.add("ColorDiffuse", stateColor);
 			
 			JsonObject packStatePos = new JsonObject();
-			packStatePos.add("posX", new JsonPrimitive(2.5*i));
+			packStatePos.add("posX", new JsonPrimitive(2.5*(i%6)));
 			packStatePos.add("posY", new JsonPrimitive(1));
-			packStatePos.add("posZ", new JsonPrimitive(0));
+			packStatePos.add("posZ", new JsonPrimitive(3.5*(i/6)));
 			packStatePos.add("rotX", new JsonPrimitive(0));
 			packStatePos.add("rotY", new JsonPrimitive(180));
 			packStatePos.add("rotZ", new JsonPrimitive(180));
@@ -220,6 +229,79 @@ public class MakeDeck{
 			packState.add("CustomDeck", mainStateDecks);
 			
 			objectStates.add(packState);
+		}
+		//basics
+		JsonObject basicState = new JsonObject();
+		basicState.add("Name", new JsonPrimitive("DeckCustom"));
+		basicState.add("Nickname", new JsonPrimitive("basicPack"));
+		basicState.add("Description", new JsonPrimitive(""));
+		basicState.add("Grid", new JsonPrimitive(true));
+		basicState.add("Locked", new JsonPrimitive(false));
+		basicState.add("SidewaysCard", new JsonPrimitive(false));
+		basicState.add("GUID", new JsonPrimitive(getGUID()));
+		
+		basicState.add("ColorDiffuse", stateColor);
+		
+		JsonObject basicStatePos = new JsonObject();
+		basicStatePos.add("posX", new JsonPrimitive(-2.5));
+		basicStatePos.add("posY", new JsonPrimitive(1));
+		basicStatePos.add("posZ", new JsonPrimitive(0));
+		basicStatePos.add("rotX", new JsonPrimitive(0));
+		basicStatePos.add("rotY", new JsonPrimitive(180));
+		basicStatePos.add("rotZ", new JsonPrimitive(0));
+		basicStatePos.add("scaleX", new JsonPrimitive(1));
+		basicStatePos.add("scaleY", new JsonPrimitive(1));
+		basicStatePos.add("scaleZ", new JsonPrimitive(1));
+		basicState.add("Transform", basicStatePos);
+		
+		JsonArray basicStateIDs = new JsonArray();
+		for(Card card : draftSetCards[4]){
+			basicStateIDs.add(new JsonPrimitive(card.ID));
+		}
+		basicState.add("DeckIDs", basicStateIDs);
+
+		basicState.add("CustomDeck", mainStateDecks);
+		
+		objectStates.add(basicState);
+		//tokens
+		if(tokenSet.size() > 0){
+			JsonObject tokenState = new JsonObject();
+			tokenState.add("Name", new JsonPrimitive(tokenSet.size()==1?"Card":"DeckCustom"));
+			tokenState.add("Nickname", new JsonPrimitive("tokenPack"));
+			tokenState.add("Description", new JsonPrimitive(""));
+			tokenState.add("Grid", new JsonPrimitive(true));
+			tokenState.add("Locked", new JsonPrimitive(false));
+			tokenState.add("SidewaysCard", new JsonPrimitive(false));
+			tokenState.add("GUID", new JsonPrimitive(getGUID()));
+			
+			//use same color
+			tokenState.add("ColorDiffuse", stateColor);
+			
+			JsonObject tokenStatePos = new JsonObject();
+			tokenStatePos.add("posX", new JsonPrimitive(-2.5));
+			tokenStatePos.add("posY", new JsonPrimitive(1));
+			tokenStatePos.add("posZ", new JsonPrimitive(3.5));
+			tokenStatePos.add("rotX", new JsonPrimitive(0));
+			tokenStatePos.add("rotY", new JsonPrimitive(180));
+			tokenStatePos.add("rotZ", new JsonPrimitive(0));
+			tokenStatePos.add("scaleX", new JsonPrimitive(1.0));
+			tokenStatePos.add("scaleY", new JsonPrimitive(1.0));
+			tokenStatePos.add("scaleZ", new JsonPrimitive(1.0));
+			tokenState.add("Transform", tokenStatePos);
+			
+			JsonArray tokenStateIDs = new JsonArray();
+			for(Card card : tokenSet){
+				tokenStateIDs.add(new JsonPrimitive(card.ID));
+			}
+			if(tokenStateIDs.size() == 1){
+				tokenState.add("CardID", tokenStateIDs.get(0));
+			}else{
+				tokenState.add("DeckIDs", tokenStateIDs);
+			}
+	
+			tokenState.add("CustomDeck", mainStateDecks);
+			
+			objectStates.add(tokenState);
 		}
 		
 		deckJSON.add("ObjectStates", objectStates);
@@ -308,7 +390,8 @@ public class MakeDeck{
 			
 			for(int i = 0; i < draftSetDecks; i++){
 				try{
-					ImageIO.write(images[i], "jpg", new File(deckFileNames[i]));
+					//ImageIO.write(images[i], "jpg", new File(deckFileNames[i]));
+					saveCompressed(deckFileNames[i], images[i]);
 				}catch(Exception e){
 					System.out.println("Error writing deck to file");
 					e.printStackTrace();
@@ -467,7 +550,7 @@ public class MakeDeck{
 				card.ID = idcounter;
 				card.cardKey = card.name+"[uh]{}";
 				if(++idcounter % 100 == 69) idcounter = idcounter+31;
-				draftSetCards[rarity].add(card);
+				draftSetCards[4].add(card);
 				draftSetSize++;
 				int deckID = (int)Math.ceil(card.ID/100.0);
 				if(deckID-1 > draftSetDecks)draftSetDecks = deckID-1;
@@ -927,7 +1010,8 @@ public class MakeDeck{
 		
 		for(int i = 0; i < deckAmt; i++){
 			try{
-				ImageIO.write(buffers[i], "jpg", new File(deckFileNames[i]));
+				//ImageIO.write(buffers[i], "jpg", new File(deckFileNames[i]));
+				saveCompressed(deckFileNames[i],buffers[i]);
 				deckLinks[i] = localHostName+deckFileNames[i];
 			}catch(Exception e){
 				System.out.println("Error writing deck to file");
@@ -1210,6 +1294,22 @@ public class MakeDeck{
 				}
 			}
 		}
+	}
+	
+	public static void saveCompressed(String destination, BufferedImage source){
+		ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
+		ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
+		jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		jpgWriteParam.setCompressionQuality(compressionLevel);
+
+		try {
+			jpgWriter.setOutput(new FileImageOutputStream(new File(destination)));
+			IIOImage outputImage = new IIOImage(source, null, null);
+			jpgWriter.write(null, outputImage, jpgWriteParam);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		jpgWriter.dispose();
 	}
 	
 	public static void saveImage(String imageUrl, String destinationFile) throws IOException {

@@ -54,15 +54,43 @@ app.get('/sets', function(req, res){
 
 app.get('/decks', function(req, res){
 	var decks = [];
-	collection.find().sort({_id:-1}).limit(20).toArray(function(err, arr){
-		console.log('err: ' + err);
-		arr.forEach(function(item){
-			decks.push(item);
-			console.log(JSON.stringify(item));
+	if(collection){
+		collection.find().sort({_id:-1}).limit(20).toArray(function(err, arr){
+			console.log('err: ' + err);
+			arr.forEach(function(item){
+				decks.push(item);
+				console.log(JSON.stringify(item));
+			});
+			console.log('decks: ' + JSON.stringify(decks));
+			res.end(JSON.stringify(decks));
 		});
-		console.log('decks: ' + JSON.stringify(decks));
-		res.end(JSON.stringify(decks));
+	}
+});
+
+app.post('/newdraft', function(req, res){
+	var cmdStr = 'java -cp gson-2.3.1.jar:. MakeDeck ' + req.body.deckName;
+	if(os.platform().indexOf('win')!=-1)cmdStr = 'java -cp gson-2.3.1.jar;. MakeDeck ' + req.body.deckName;
+	cmdStr += ' -draft ' + req.body.set;
+	cmdStr += ' -n ' + req.body.n;
+	cmdStr += ' -compression .7';
+	if(debug){
+		console.log("cmd: "+cmdStr);
+	}
+	var proc = exec(cmdStr, function(error, stdout, stderr){
+		if(debug){
+			console.log('err:'+error);
+			console.log('out:'+stdout);
+			console.log('ser:'+stderr);
+		}
 	});
+
+	proc.on('exit', function(code){
+		if(debug){
+			console.log('ended with code ' + code);
+		}
+		res.end(JSON.stringify({status:code}));
+	});
+
 });
 
 app.post('/newdeck', function(req, res){

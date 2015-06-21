@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<title>Create Deck</title>
+		
+		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.5/js/bootstrap-select.min.js"></script>
+		<script src="draft.js"></script>
+		<link href="cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.5/css/bootstrap-select.min.css" rel="stylesheet">
+		<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+		<link href="draft.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="/">Frogtown</a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li><a href="/deckmaker.html">Deck Maker <span class="sr-only">(current)</span></a></li>
+						<li><a href="/decklist.html">Deck Lists</a></li>
+						<li class="active"><a href="/draft.html">Drafting</a></li>
+						<li><a href="/help.html">Help</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		
+		<div class="container">
+			<h1>Tabletop Simulator MTG Draft Creator</h1>
+			<div class="stage-top">
+				<h2>1. Select Draft Parameters</h2>
+				<div>
+					<div class="spacer"></div>
+					<div class="spacer"></div>
+					<div class="form-group">
+						<label>Set to Draft</label><br>
+						<select></select>
+					</div>
+					<div class="form-group">
+						<label>Number of Packs</label>
+						<input type="number" class="form-control" id="packCount" value="18">
+						<div id="packErr"></div>
+					</div>
+					<div class="spacer"></div>
+				</div>
+			</div>
+			<div class="stage-bottom">
+				<h2 id="generateName">2. Generate Packs</h2>
+				<button class="btn btn-lg btn-success" id="generate">Generate!</button>
+			</div>
+		</div>
+		<div class="modal"></div>
+	</body>
+</html>
