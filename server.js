@@ -31,6 +31,7 @@ MongoClient.connect('mongodb://localhost/mtg', function(err, dbt){
 app.use(express.static('www'));
 app.use('/decks', express.static('decks'));
 app.use('/misc', express.static('misc'));
+app.use('/setAssets', express.static('setAssets'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 function getDeckID(){
@@ -41,6 +42,15 @@ function getDeckID(){
 	}
 	return name;
 }
+
+app.get('/sets', function(req, res){
+	fs.readdir('sets',function(err, files){
+		for(var i in files){
+			files[i] = files[i].substring(0,files[i].indexOf('.'));
+		}
+		res.end(JSON.stringify(files));
+	});
+});
 
 app.get('/decks', function(req, res){
 	var decks = [];

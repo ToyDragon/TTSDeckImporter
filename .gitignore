@@ -3,6 +3,7 @@
 *.jar
 .classpath
 .project
+setAssets/
 logs/
 images/
 lists/
