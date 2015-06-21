@@ -35,6 +35,7 @@ public class MakeDeck{
 
 	public static HashMap<String, Card> cardMap = new HashMap<String, Card>();
 	public static ArrayList<Card> tokenList = new ArrayList<Card>();
+	public static HashMap<String, String> transformMap = new HashMap<String,String>();
 	public static String fileName;
 	public static String deckName = "default";
 	public static String backLink = "default";
@@ -43,6 +44,7 @@ public class MakeDeck{
 	public static HashSet<Card> tokenSet = new HashSet<Card>();
 	public static String localHostName = "http://www.frogtown.me/";
 	public static String tokenFile = "tokens.csv";
+	public static String transformFile = "transforms.csv";
 	
 	public static boolean coolifyBasics;
 	public static BufferedImage hiddenCard;
@@ -92,6 +94,7 @@ public class MakeDeck{
 		}
 		
 		loadTokens();
+		loadTransforms();
 		
 		loadCards(fileName);
 		downloadImages();
@@ -136,6 +139,23 @@ public class MakeDeck{
 			//System.out.println("Uploaded to imgur");
 		}catch(Exception e){
 			System.out.println("Error getting imgur links");
+		}
+	}
+	
+	public static void loadTransforms(){
+		File tFile = new File(transformFile);
+		try{
+			Scanner fscan = new Scanner(tFile);
+			while(fscan.hasNextLine()){
+				String line = fscan.nextLine().toLowerCase();
+				Scanner lscan = new Scanner(line);
+				lscan.useDelimiter(",");
+				String a=lscan.next().replaceAll(";", ","),b=lscan.next().replaceAll(";", ",");
+				transformMap.put(a, b);
+				System.out.println("added {" + a+","+b+"}");
+			}
+		}catch(Exception e){
+			System.out.println("Unable to find transform file!");
 		}
 	}
 	
@@ -509,7 +529,7 @@ public class MakeDeck{
 			int realY = gridY * cardHeight + cardOffsetY;
 			try{
 				BufferedImage cardImage = ImageIO.read(new File(card.imageFileName));
-				buffers[deck].getGraphics().drawImage(cardImage, realX, realY, null);
+				buffers[deck].getGraphics().drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 			}catch(Exception e){
 				e.printStackTrace();
 			}
@@ -530,7 +550,7 @@ public class MakeDeck{
 			int realY = gridY * cardHeight + cardOffsetY;
 			try{
 				BufferedImage cardImage = ImageIO.read(new File(token.imageFileName));
-				buffers[deck].getGraphics().drawImage(cardImage, realX, realY, null);
+				buffers[deck].getGraphics().drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 			}catch(Exception e){
 				System.out.println("Couldn't add " + token.imageFileName + " to deck");
 				e.printStackTrace();
@@ -581,13 +601,43 @@ public class MakeDeck{
 			try{
 				String processedName = card.name.trim().toLowerCase();
 				
-				if(card.set != null && card.set.length() > 0){
-					processedName +=" e:"+card.set;
-				}
-				if(card.lang != null && card.lang.length() > 0){
-					processedName +=" l:"+card.lang;
-				}
+				if(card.set != null && card.set.length() > 0) processedName +=" e:"+card.set;
+				if(card.lang != null && card.lang.length() > 0)	processedName +=" l:"+card.lang;
 				
+				uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName+"&v=card&s=cname", null);
+				qstr = uri.toURL().toString();
+			}catch(Exception e){e.printStackTrace();}
+			
+			String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".")+".jpg";
+			
+			card.imageFileName = imageFileName;
+			File f = new File(card.imageFileName);
+			if(!f.exists()){
+				String result = getHTML(qstr);
+				String regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\""+(card.name.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"))+"\"";
+				regexStr = regexStr.replaceAll("(?i)ae", "(((?i)ae)|(Æ))");
+				Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
+				Matcher matcher = regex.matcher(result);
+				matcher.find();
+				if(matcher.groupCount() > 0){
+					try {
+						saveImage(matcher.group(1), card.imageFileName);
+					} catch (Exception e) {
+						badCardList.add(card.getDisplay());
+					}
+				}else{
+					badCardList.add(card.getDisplay());
+				}
+			}
+		}
+		
+		for(Card card : tokenSet){
+			if(!card.transform)continue;
+			
+			URI uri = null;
+			String qstr = null;
+			try{
+				String processedName = card.name.trim().toLowerCase();
 				uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName+"&v=card&s=cname", null);
 				qstr = uri.toURL().toString();
 			}catch(Exception e){e.printStackTrace();}
@@ -715,6 +765,15 @@ public class MakeDeck{
 						if(parseType == CARD_SIDEBOARD) card.sideAmt = amt;
 						if(parseType == CARD_COMMANDER) card.commanderAmt = amt;
 						cardMap.put(cardKey, card);
+						
+						if(transformMap.containsKey(card.name)){
+							Card transformCard = new Card();
+							transformCard.transform = true;
+							transformCard.name = transformMap.get(card.name);
+							transformCard.cardKey = transformCard.name;
+							tokenSet.add(transformCard);
+							System.out.println("added " + transformCard);
+						}
 						System.out.println("added " + card);
 					}
 				}
@@ -778,7 +837,6 @@ public class MakeDeck{
 		
 		for(String s : cardMap.keySet()){
 			Card card = cardMap.get(s);
-			System.out.println(card+": " + s);
 			for(Card token : tokenList){
 				if(token.cardlist.toLowerCase().contains("||"+card.name.replaceAll(",", ";").toLowerCase()+"||")){
 					tokenSet.add(token);
@@ -812,6 +870,7 @@ public class MakeDeck{
 		String pt;
 		String cardlist;
 		boolean token;
+		boolean transform;
 		int ID;
 		int commanderAmt;
 		int mainAmt;
