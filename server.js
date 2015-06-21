@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var fs = require('fs');
 var exec = require('child_process').exec;
 var MongoClient = require('mongodb').MongoClient;
+var os = require('os');
 
 var app = express();
 var db;
@@ -82,6 +83,7 @@ app.post('/newdeck', function(req, res){
 		var backClean = clean(backURL);
 		
 		var cmdStr = 'java -cp gson-2.3.1.jar:. MakeDeck ' + deckID;
+		if(os.platform().indexOf('win')!=-1)cmdStr = 'java -cp gson-2.3.1.jar;. MakeDeck ' + deckID;
 		cmdStr += ' -name ' + nameClean;
 		cmdStr += ' -backURL ' + backClean;
 		cmdStr += ' -hiddenURL ' + hideClean;
@@ -101,6 +103,9 @@ app.post('/newdeck', function(req, res){
 		var dateString = new Date().toLocaleDateString();
 		
 		console.log('('+dateString+')Saved decklist'+imgurI+' ' + deckID+' '+deckName);
+		if(debug){
+			console.log("cmd: "+cmdStr);
+		}
 		var proc = exec(cmdStr, function(error, stdout, stderr){
 			if(debug){
 				console.log('err:'+error);
@@ -112,7 +117,8 @@ app.post('/newdeck', function(req, res){
 		proc.on('exit', function(code){
 			if(code == 0 && deckName != deckID){
 				//success!
-				collection.insert({name:deckName,uid:deckID});
+				if(collection)
+					collection.insert({name:deckName,uid:deckID});
 			}
 			if(debug){
 				console.log('ended with code ' + code);
