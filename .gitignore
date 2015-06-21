@@ -1,8 +1,11 @@
 *.class
 *.tar
 *.jar
+.classpath
+.project
 logs/
 images/
 lists/
 decks/
 node_modules/
+/bin/
