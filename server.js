@@ -44,11 +44,8 @@ function getDeckID(){
 }
 
 app.get('/sets', function(req, res){
-	fs.readdir('sets',function(err, files){
-		for(var i in files){
-			files[i] = files[i].substring(0,files[i].indexOf('.'));
-		}
-		res.end(JSON.stringify(files));
+	fs.readFile('sets/setlist',function(err, data){
+		res.end(data);
 	});
 });
 
@@ -90,7 +87,6 @@ app.post('/newdraft', function(req, res){
 		}
 		res.end(JSON.stringify({status:code}));
 	});
-
 });
 
 app.post('/newdeck', function(req, res){

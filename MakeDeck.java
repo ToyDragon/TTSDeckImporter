@@ -34,13 +34,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 public class MakeDeck{
-	public static final String[] RARITIES={"Mythic","Rare","Uncommon","Common","Basic"};
+	public static final String[] RARITIES={"Mythic Rare","Rare","Uncommon","Common","Basic Land","Special"};
 	public static final int CARD_MAINBOARD = 0, CARD_SIDEBOARD = 1, CARD_COMMANDER = 2;
 	public static int parseType = CARD_MAINBOARD;
 
-	public static ArrayList<Card>[] draftSetCards = new ArrayList[]{new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>()};
+	public static ArrayList<Card>[] draftSetCards = new ArrayList[]{new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>()};
 	public static int draftSetSize = 5;
 	public static int draftSetDecks = 1;
+	public static String draftSetName;
+	public static String draftSetCode;
+	public static int[] draftBoosters = new int[RARITIES.length];
 	public static float compressionLevel = 80f;
 	public static HashMap<String, Card> cardMap = new HashMap<String, Card>();
 	public static ArrayList<Card> tokenList = new ArrayList<Card>();
@@ -54,7 +57,6 @@ public class MakeDeck{
 	public static String localHostName = "http://www.frogtown.me/";
 	public static String tokenFile = "tokens.csv";
 	public static String transformFile = "transforms.csv";
-	public static String draftSet;
 	public static int draftCount;
 	
 	public static boolean coolifyBasics;
@@ -93,7 +95,7 @@ public class MakeDeck{
 			}
 			
 			if(args[i].equalsIgnoreCase("-draft") && i < args.length-1){
-				draftSet = args[i+1].replaceAll("_", " ");
+				draftSetName = args[i+1].replaceAll("_", " ");
 			}
 			
 			if(args[i].equalsIgnoreCase("-n") && i < args.length-1){
@@ -116,7 +118,7 @@ public class MakeDeck{
 		loadTokens();
 		loadTransforms();
 		
-		if(draftSet != null){
+		if(draftSetName != null){
 			
 			loadDraftSet();
 			downloadDraftImages();
@@ -154,19 +156,31 @@ public class MakeDeck{
 				cardIDS[i][x++]=card.ID;
 			}
 		}
-		int[][] decks = new int[draftCount][15];
+		int totalCards = 0;
+		for(int i = 1; i < draftBoosters.length; i++){
+			if(RARITIES[i].equalsIgnoreCase("Basic Land")) draftBoosters[i] = 0;
+			totalCards += draftBoosters[i];
+		}
+		int[][] decks = new int[draftCount][totalCards];
 		for(int i = 0; i < decks.length; i++){
-			boolean mythic = Math.random()<=(1/8.0);
-			if(mythic){
-				decks[i][0] = cardIDS[0][(int)(Math.random()*cardIDS[0].length)];
-			}else{
-				decks[i][0] = cardIDS[1][(int)(Math.random()*cardIDS[1].length)];
+			int z = 0;
+			//rares and mythics together
+			for(int start = z; z < start+Math.max(draftBoosters[0],draftBoosters[1]); z++){
+				boolean mythic = Math.random()<=(1/8.0);
+				if(mythic && cardIDS[0].length > 0){
+					decks[i][0] = cardIDS[0][(int)(Math.random()*cardIDS[0].length)];
+					System.out.println("mythic: " + decks[i][0]);
+				}else if(cardIDS[1].length > 0){
+					decks[i][0] = cardIDS[1][(int)(Math.random()*cardIDS[1].length)];
+					System.out.println("rare: " + decks[i][0]);
+				}
 			}
-			for(int z = 1; z < 4; z ++){
-				decks[i][z] = cardIDS[2][(int)(Math.random()*cardIDS[2].length)];
-			}
-			for(int z = 4; z < 15; z ++){
-				decks[i][z] = cardIDS[3][(int)(Math.random()*cardIDS[3].length)];
+			for(int j = 2; j < cardIDS.length; j++){
+				if(cardIDS[j].length > 0 && draftBoosters[j] > 0){
+					for(int start = z; z < start+draftBoosters[j]; z++){
+						decks[i][z] = cardIDS[j][(int)(Math.random()*cardIDS[j].length)];
+					}
+				}
 			}
 		}
 		
@@ -189,7 +203,7 @@ public class MakeDeck{
 		JsonObject mainStateDecks = new JsonObject();
 		for(int j = 0; j < draftSetDecks; j++){
 			JsonObject deckObj = new JsonObject();
-			deckObj.add("FaceURL", new JsonPrimitive((localHostName+"setAssets/"+draftSet+j+".jpg").replaceAll(" ", "%20")));
+			deckObj.add("FaceURL", new JsonPrimitive((localHostName+"setAssets/"+draftSetName+j+".jpg").replaceAll(" ", "%20")));
 			deckObj.add("BackURL", new JsonPrimitive(backLink));
 			mainStateDecks.add(""+(j+1), deckObj);
 		}
@@ -323,7 +337,7 @@ public class MakeDeck{
 		
 		File[] assets = new File[draftSetDecks];
 		for(int i = 0; i < draftSetDecks; i++){
-			assets[i] = new File("setAssets/"+draftSet+i+".jpg");
+			assets[i] = new File("setAssets/"+draftSetName+i+".jpg");
 		}
 		if(!assets[0].exists()){
 			BufferedImage[] images = new BufferedImage[draftSetDecks];
@@ -336,7 +350,7 @@ public class MakeDeck{
 			int cardHeight = 445 + 2*cardOffsetY;
 			
 			for(int i = 0; i < draftSetDecks; i++){
-				deckFileNames[i] = "setAssets/"+draftSet+i+".jpg";
+				deckFileNames[i] = "setAssets/"+draftSetName+i+".jpg";
 				images[i] = new BufferedImage(cardWidth * 10, cardHeight * 7, BufferedImage.TYPE_3BYTE_BGR);
 				Graphics g = images[i].getGraphics();
 				g.setColor(Color.BLACK);
@@ -352,7 +366,7 @@ public class MakeDeck{
 					int deck = (card.ID / 100)-1;
 					int deckID = card.ID % 100;
 					
-					System.out.println("Stitching " +card);
+					//System.out.println("Stitching " +card);
 					
 					int gridX = deckID%10;
 					int gridY = deckID/10;
@@ -363,8 +377,14 @@ public class MakeDeck{
 						BufferedImage cardImage = ImageIO.read(new File(card.imageFileName));
 						images[deck].getGraphics().drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 					}catch(Exception e){
-						System.out.println("Couldn't add " + card.imageFileName + " to deck");
-						e.printStackTrace();
+						try{
+							System.out.println("Couldn't read " + card.imageFileName);
+							BufferedImage cardImage = ImageIO.read(new File(card.imageFileName.replaceAll("\\*", "_")));
+							images[deck].getGraphics().drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
+						}catch(Exception E){
+							System.out.println("Couldn't add " + card.imageFileName.replaceAll("\\*", "_") + " to deck");
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -372,7 +392,7 @@ public class MakeDeck{
 				int deck = (card.ID / 100)-1;
 				int deckID = card.ID % 100;
 				
-				System.out.println("Stitching " +card);
+				//System.out.println("Stitching " +card);
 				
 				int gridX = deckID%10;
 				int gridY = deckID/10;
@@ -383,8 +403,13 @@ public class MakeDeck{
 					BufferedImage cardImage = ImageIO.read(new File(card.imageFileName));
 					images[deck].getGraphics().drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 				}catch(Exception e){
-					System.out.println("Couldn't add " + card.imageFileName + " to deck");
-					e.printStackTrace();
+					try{
+						BufferedImage cardImage = ImageIO.read(new File(card.imageFileName.replaceAll("\\*", "_")));
+						images[deck].getGraphics().drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
+					}catch(Exception E){
+						System.out.println("Couldn't add " + card.imageFileName.replaceAll("\\*", "_") + " to decasdk");
+						e.printStackTrace();
+					}
 				}
 			}
 			
@@ -404,39 +429,103 @@ public class MakeDeck{
 	public static void downloadDraftImages(){
 		for(int i = 0; i < RARITIES.length; i++){
 			for(Card card : draftSetCards[i]){
+				
+				String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".")+".jpg";
+				card.imageFileName = imageFileName;
 				URI uri = null;
 				String qstr = null;
+				String processedName = card.name.trim().toLowerCase();
+				boolean found = false;
+				String[][] hardURLs = {{"Ach! Hans, Run!","http://magiccards.info/scans/en/uh/116.jpg"}};
+				for(String[] hardPair : hardURLs){
+					if(hardPair[0].equalsIgnoreCase(card.name)){
+						try {
+							saveImage(hardPair[1], card.imageFileName);
+							System.out.println("Downloaded: "+card.imageFileName);
+							found = true;
+						} catch (IOException e) {
+							System.out.println("Couldnt download hard card");
+							e.printStackTrace();
+						}
+					}
+				}
+				if(found)continue;
+				String[][] badNames = {
+						//input name             query name               returned name  
+						{"Question Elemental", "Question Elemental?"}
+				};
+				for(int j = 0; j < badNames.length; j++){
+					if(processedName.equals(badNames[j][0].toLowerCase())){
+						processedName = badNames[j][1];
+					}
+				}
 				try{
-					String processedName = card.name.trim().toLowerCase();
-					
+
+					processedName = "\""+processedName+"\"";
 					if(card.set != null && card.set.length() > 0) processedName +=" e:"+card.set;
 					if(card.lang != null && card.lang.length() > 0)	processedName +=" l:"+card.lang;
 					
-					uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName+"&v=card&s=cname", null);
-					qstr = uri.toURL().toString();
+					uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName, null);
+					qstr = uri.toURL().toString().replaceAll("&", "%26").replaceAll(" ", "%20")+"&v=card&s=cname";
 				}catch(Exception e){e.printStackTrace();}
-				
-				String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".")+".jpg";
-
-				card.imageFileName = imageFileName;
 				File f = new File(card.imageFileName);
 				if(!f.exists()){
 					String result = getHTML(qstr);
-					String regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\""+(card.name.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"))+"\"";
+					processedName = card.name.trim().toLowerCase();
+					for(int j = 0; j < badNames.length; j++){
+						if(card.name.toLowerCase().equals(badNames[j][0].toLowerCase())){
+							processedName = badNames[j][1];
+						}
+					}
+					String[] regexStrings = {"\\?","\\(","\\)"};
+					for(String regex : regexStrings){
+						processedName = processedName.replaceAll(regex, "\\" + regex);
+					}
+					String regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\"\\??"+processedName+"\\??\"";
+/*
+					if(card.name.equalsIgnoreCase("Kongming, sleeping Dragon")){
+						regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\"Kongming, \"Sleeping Dragon\"\"";
+						System.out.println(regexStr);
+						System.out.println(result);
+					}
+					if(card.name.equalsIgnoreCase("pang tong, young phoenix")){
+						regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\"Pang Tong,.+Young Phoenix";
+						System.out.println(regexStr);
+						System.out.println(result);
+					}*/
 					regexStr = regexStr.replaceAll("(?i)ae", "(((?i)ae)|(Æ))");
 					Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
-					Matcher matcher = regex.matcher(result);
-					matcher.find();
-					if(matcher.groupCount() > 0){
-						try {
-							saveImage(matcher.group(1), card.imageFileName);
-							System.out.println("Downloaded: "+card.imageFileName);
-						} catch (Exception e) {
+					try{
+						Matcher matcher = regex.matcher(result);
+						matcher.find();
+						if(matcher.groupCount() > 0){
+							try {
+								saveImage(matcher.group(1), card.imageFileName);
+								System.out.println("Downloaded: "+card.imageFileName);
+							} catch (Exception e) {
+								badCardList.add(card.getDisplay());
+								e.printStackTrace();
+								System.out.println("Couldn't download " + card.imageFileName);
+								System.out.println("From " + qstr);
+								System.out.println(regexStr);
+								System.out.println(result);
+							}
+						}else{
 							badCardList.add(card.getDisplay());
+							System.out.println("Couldn't download " + card.imageFileName);
+							System.out.println("From " + qstr);
+							System.out.println(regexStr);
+							System.out.println(result);
 						}
-					}else{
-						badCardList.add(card.getDisplay());
+					}catch(Exception e){
+						System.out.println("Couldn't download " + card.imageFileName);
+						System.out.println("From " + qstr);
+						System.out.println(regexStr);
+						System.out.println(result);
+						e.printStackTrace();
 					}
+				}else{
+					System.out.println("exists: "+card.imageFileName);
 				}
 			}
 		}
@@ -490,53 +579,74 @@ public class MakeDeck{
 	}
 	
 	public static void loadDraftSet(){
-		File f = new File("sets/"+draftSet+".txt");
+		File f = new File("sets/"+draftSetName);
+		System.out.println("Loading "+draftSetName);
 		try{
-			Scanner fscan = new Scanner(new FileInputStream(f));
+			Scanner fscan = new Scanner(new FileInputStream(f), "UTF8");
 			int rarity = 0;
 			int idcounter = 100;
+			int mode = 0;
+			final int CARD=1,NAME=2,CODE=3,BOOSTER=4;
 			while(fscan.hasNextLine()){
 				String line = fscan.nextLine();
-				boolean isCard = true;
+				boolean isControl = false;
 				for(int i = 0; i < RARITIES.length; i++){
-					if(line.equals(RARITIES[i])){
-						isCard = false;
+					if(line.toLowerCase().equals(RARITIES[i].toLowerCase())){
+						mode = CARD;
 						rarity = i;
+						isControl = true;
 					}
 				}
-				if(isCard){
-					Card card = new Card();
-					card.name = line;
-					card.ID = idcounter;
-					card.cardKey = card.name+"[]{}";
-					if(++idcounter % 100 == 69) idcounter = idcounter+31;
-					draftSetCards[rarity].add(card);
-					draftSetSize++;
-					int deckID = (int)Math.ceil(card.ID/100.0);
-					if(deckID-1 > draftSetDecks)draftSetDecks = deckID-1;
-					
-					if(transformMap.containsKey(card.name)){
-						Card transformCard = new Card();
-						transformCard.transform = true;
-						transformCard.name = transformMap.get(card.name);
-						transformCard.cardKey = transformCard.name;
-						card.ID = idcounter;
-						if(++idcounter % 100 == 69) idcounter = idcounter+31;
-						tokenSet.add(transformCard);
-						draftSetSize++;
-						deckID = (int)Math.ceil(card.ID/100.0);
-						if(deckID-1 > draftSetDecks)draftSetDecks = deckID-1;
-						System.out.println("added " + transformCard);
+				if(line.equalsIgnoreCase("Booster")){
+					mode = BOOSTER;
+					isControl = true;
+				}
+				if(!isControl){
+					if(mode == BOOSTER){
+						String[] rarities = line.substring(0,line.indexOf(":")).split(",");
+						int amt = Integer.parseInt(line.substring(line.indexOf(":")+1));
+						for(int j = 0; j < rarities.length; j++){
+							for(int i = 0; i < RARITIES.length; i++){
+								if(rarities[j].toLowerCase().startsWith(RARITIES[i].toLowerCase())){
+									draftBoosters[i] = amt;
+								}
+							}
+						}
 					}
-
-					for(Card token : tokenList){
-						if(token.cardlist.toLowerCase().contains("||"+card.name.replaceAll(",", ";").toLowerCase()+"||")){
-							if(!tokenSet.contains(token)){
-								token.ID = idcounter;
-								if(++idcounter % 100 == 69) idcounter = idcounter+31;
-								deckID = (int)Math.ceil(token.ID/100.0);
-								if(deckID-1 > draftSetDecks)draftSetDecks = deckID-1;
-								tokenSet.add(token);
+					if(mode == CARD && !RARITIES[rarity].equals("Basic Land")){
+						Card card = new Card();
+						card.name = cleanCardName(line);
+						card.ID = idcounter;
+						card.cardKey = card.name+"[]{}";
+						if(++idcounter % 100 == 69) idcounter = idcounter+31;
+						draftSetCards[rarity].add(card);
+						draftSetSize++;
+						int deckID = (int)Math.ceil(card.ID/100.0);
+						if(deckID-1 > draftSetDecks)draftSetDecks = deckID-1;
+						
+						if(transformMap.containsKey(card.name)){
+							Card transformCard = new Card();
+							transformCard.transform = true;
+							transformCard.name = transformMap.get(card.name);
+							transformCard.cardKey = transformCard.name;
+							card.ID = idcounter;
+							if(++idcounter % 100 == 69) idcounter = idcounter+31;
+							tokenSet.add(transformCard);
+							draftSetSize++;
+							deckID = (int)Math.ceil(card.ID/100.0);
+							if(deckID-1 > draftSetDecks)draftSetDecks = deckID-1;
+							//System.out.println("added " + transformCard);
+						}
+	
+						for(Card token : tokenList){
+							if(token.cardlist.toLowerCase().contains("||"+card.name.replaceAll(",", ";").toLowerCase()+"||")){
+								if(!tokenSet.contains(token)){
+									token.ID = idcounter;
+									if(++idcounter % 100 == 69) idcounter = idcounter+31;
+									deckID = (int)Math.ceil(token.ID/100.0);
+									if(deckID-1 > draftSetDecks)draftSetDecks = deckID-1;
+									tokenSet.add(token);
+								}
 							}
 						}
 					}
@@ -556,9 +666,14 @@ public class MakeDeck{
 				if(deckID-1 > draftSetDecks)draftSetDecks = deckID-1;
 			}
 		}catch(Exception e){
+			e.printStackTrace();
 			//set doesn't exist
 			System.exit(1);
 		}
+	}
+	
+	public static String cleanCardName(String name){
+		return name.replaceAll("�", "ae").replaceAll("\"", "");
 	}
 	
 	public static void postToImgur(){
@@ -602,7 +717,7 @@ public class MakeDeck{
 				lscan.useDelimiter(",");
 				String a=lscan.next().replaceAll(";", ","),b=lscan.next().replaceAll(";", ",");
 				transformMap.put(a, b);
-				System.out.println("added {" + a+","+b+"}");
+				//System.out.println("added {" + a+","+b+"}");
 			}
 		}catch(Exception e){
 			System.out.println("Unable to find transform file!");
@@ -655,10 +770,6 @@ public class MakeDeck{
 			}
 		}catch(Exception e){
 			e.printStackTrace();
-		}
-		
-		for(Card s : tokenList){
-			System.out.println(s.getDisplay());
 		}
 	}
 	
@@ -796,7 +907,7 @@ public class MakeDeck{
 					tokenStateDeckIDs.add(deckID);
 				}
 				tokenStateIDs.add(new JsonPrimitive(card.ID));
-				System.out.println("Added token " + card.ID);
+				//System.out.println("Added token " + card.ID);
 			}
 			if(tokenStateIDs.size() == 1){
 				tokenState.add("CardID", tokenStateIDs.get(0));
@@ -816,9 +927,6 @@ public class MakeDeck{
 			
 			if(tokenStateDeckIDs.size()>0){
 				objectStates.add(tokenState);
-				System.out.println("Added token state?");
-			}else{
-				System.out.println("didnt added token state?");
 			}
 		}
 		//main deck object state---------------------------------------------
@@ -916,7 +1024,7 @@ public class MakeDeck{
 			JsonObject deckObj = new JsonObject();
 			deckObj.add("FaceURL", new JsonPrimitive(deckLinks[deckID-1]));
 			deckObj.add("BackURL", new JsonPrimitive(backLink));
-			System.out.println("back: " + backLink);
+			//System.out.println("back: " + backLink);
 			sideStateDecks.add(""+deckID, deckObj);
 		}
 		sideState.add("CustomDeck", sideStateDecks);
@@ -970,7 +1078,7 @@ public class MakeDeck{
 			int deck = cardCount / cardsPerDeck;
 			int deckID = cardCount % cardsPerDeck;
 			card.ID = 100*(1+deck) + deckID;
-			System.out.println("Stitching " +card.ID+ card.getDisplay());
+			//System.out.println("Stitching " +card.ID+ card.getDisplay());
 			
 			int gridX = deckID%10;
 			int gridY = deckID/10;
@@ -991,7 +1099,7 @@ public class MakeDeck{
 			int deckID = cardCount % cardsPerDeck;
 			token.ID = 100*(1+deck) + deckID;
 			
-			System.out.println("Stitching " +token.ID+ token.getDisplay());
+			//System.out.println("Stitching " +token.ID+ token.getDisplay());
 			
 			int gridX = deckID%10;
 			int gridY = deckID/10;
@@ -1030,7 +1138,7 @@ public class MakeDeck{
 	         url = new URL(urlToRead);
 	         conn = (HttpURLConnection) url.openConnection();
 	         conn.setRequestMethod("GET");
-	         rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+	         rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF8"));
 	         while ((line = rd.readLine()) != null) {
 	            result += line;
 	         }
@@ -1066,6 +1174,12 @@ public class MakeDeck{
 			if(!f.exists()){
 				String result = getHTML(qstr);
 				String regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\""+(card.name.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"))+"\"";
+
+				System.out.println(card.name);
+				if(card.name.equalsIgnoreCase("Kongming, sleeping Dragon")){
+					regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\"Kongming, \\\" sleeping=\\\"\\\" dragon\\\"\\\"=\\\"";
+					System.out.println(regexStr);
+				}
 				regexStr = regexStr.replaceAll("(?i)ae", "(((?i)ae)|(Æ))");
 				Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
 				Matcher matcher = regex.matcher(result);
@@ -1223,9 +1337,9 @@ public class MakeDeck{
 							transformCard.name = transformMap.get(card.name);
 							transformCard.cardKey = transformCard.name;
 							tokenSet.add(transformCard);
-							System.out.println("added " + transformCard);
+							//System.out.println("added " + transformCard);
 						}
-						System.out.println("added " + card);
+						//System.out.println("added " + card);
 					}
 				}
 			}
@@ -1239,7 +1353,7 @@ public class MakeDeck{
 			for(String basic : basics){
 				if(cardMap.containsKey(basic+"[]{}")){
 					Card card = cardMap.remove(basic+"[]{}");
-					System.out.println(card);
+					//System.out.println(card);
 					String[] coolSets = {"uh","guru","al","zen"};
 					int[] setCounts = new int[coolSets.length];
 					int[] setSideCounts = new int[coolSets.length];
@@ -1278,7 +1392,7 @@ public class MakeDeck{
 							newCard.commanderAmt = setCommandCounts[i];
 							if(newCard.mainAmt > 0 || newCard.sideAmt > 0 || newCard.commanderAmt > 0){
 								cardMap.put(cardKey, newCard);
-								System.out.println("added " + newCard);
+								//System.out.println("added " + newCard);
 							}
 						}
 					}
