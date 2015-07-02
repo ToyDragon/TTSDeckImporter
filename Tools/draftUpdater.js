@@ -54,8 +54,8 @@ var load_sets = function(file_name){
 			for(var x in e){
 				console.log(x +' : '+ e[x]);
 			}
-			//console.log(name + JSON.stringify(e.stdout));
-			console.log(decoder.write(e.stderr));
+			console.log(name + JSON.stringify(e.stdout));
+			//console.log(decoder.write(e.stderr));
 		}
 	}
 }
