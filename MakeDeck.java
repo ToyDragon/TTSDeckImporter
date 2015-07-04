@@ -81,7 +81,9 @@ public class MakeDeck{
 		
 		for(int i = 0; i < args.length; i++){
 			useImgur |= args[i].equalsIgnoreCase("imgur")||args[i].equalsIgnoreCase("-imgur");
-			
+
+			System.out.println(args[i]);		
+	
 			if(args[i].equalsIgnoreCase("-backURL") && i < args.length-1){
 				backLink = args[i+1];
 			}
@@ -118,6 +120,9 @@ public class MakeDeck{
 		loadTokens();
 		loadTransforms();
 		
+		System.out.println(draftSetName);
+		System.out.println(draftSetName != null?"Drafting!":"Not drafting!");
+	
 		if(draftSetName != null){
 			
 			loadDraftSet();
@@ -436,7 +441,12 @@ public class MakeDeck{
 				String qstr = null;
 				String processedName = card.name.trim().toLowerCase();
 				boolean found = false;
-				String[][] hardURLs = {{"Ach! Hans, Run!","http://magiccards.info/scans/en/uh/116.jpg"}};
+				String[][] hardURLs = {
+					{"Ach! Hans, Run!","http://magiccards.info/scans/en/uh/116.jpg"},
+					{"Kongming, Sleeping Dragon","http://magiccards.info/scans/en/vma/33.jpg"},
+					{"Ow","http://magiccards.info/scans/en/ug/36.jpg"},
+					{"Pang Tong, Young Phoenix","http://magiccards.info/scans/en/p3k/14.jpg"}
+				};
 				for(String[] hardPair : hardURLs){
 					if(hardPair[0].equalsIgnoreCase(card.name)){
 						try {
@@ -673,7 +683,7 @@ public class MakeDeck{
 	}
 	
 	public static String cleanCardName(String name){
-		return name.replaceAll("Æ", "ae").replaceAll("\"", "");
+		return name.replaceAll("\u00E6", "ae").replaceAll("\u00C6","ae").replaceAll("\"", "");
 	}
 	
 	public static void postToImgur(){
@@ -1266,6 +1276,9 @@ public class MakeDeck{
 	
 	public static void loadCards(String fileName){
 		try{
+			if(fileName.contains(" ")){
+				fileName = fileName.substring(0, fileName.indexOf(" "));
+			}
 			File f = new File("lists/"+fileName);
 			Scanner fscan = new Scanner(new FileInputStream(f));
 			Pattern cardNameRegex = Pattern.compile("([0-9]*)x?\\s*(.*)");

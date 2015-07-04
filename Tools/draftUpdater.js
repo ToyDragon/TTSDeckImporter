@@ -41,9 +41,9 @@ var load_sets = function(file_name){
 		var decoder = new StringDecoder('utf8');
 		var set = setList[i];
 		var name = set.name.replace(/ /g,'_');
-		var cmdStr = 'java -cp ./gson-2.3.1.jar:. MakeDeck ' + name + '.json';
+		var cmdStr = 'java -cp ./gson-2.3.1.jar:. MakeDeck ' + name.replace(/'/g,"\\'") + '.json';
 		if(os.platform().indexOf('win')!=-1)cmdStr = 'java -cp ./gson-2.3.1.jar;. MakeDeck ' + name + '.json';
-		cmdStr += ' -draft ' + name;
+		cmdStr += ' -draft ' + name.replace(/'/g,"\\'");
 		cmdStr += ' -n 18';
 		cmdStr += ' -compression .7';
 		console.log("cmd: "+cmdStr);
@@ -51,11 +51,12 @@ var load_sets = function(file_name){
 			var resp = child_process.execSync(cmdStr,{cwd:'..'});
 			console.log(name + ' ended with code ' + resp.code);
 		}catch(e){
+			//console.log('test ' + e);
 			for(var x in e){
 				console.log(x +' : '+ e[x]);
 			}
-			console.log(name + JSON.stringify(e.stdout));
-			//console.log(decoder.write(e.stderr));
+			//console.log(name + JSON.stringify(e.stdout));
+			console.log(decoder.write(e.stderr));
 		}
 	}
 }
