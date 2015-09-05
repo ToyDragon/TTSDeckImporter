@@ -10,5 +10,5 @@ lists/
 decks/
 sets/
 node_modules/
-MakeDeck/
+DeckMaker/
 /bin/
