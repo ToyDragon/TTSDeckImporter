@@ -450,7 +450,7 @@ public class MakeDeck{
 		for(int i = 0; i < cards.length; i++){
 			for(Card card : cards[i]){
 				
-				String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".")+".jpg";
+				String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".").replaceAll("[<>]", "_")+".jpg";
 				card.imageFileName = imageFileName;
 				URI uri = null;
 				String qstr = null;
@@ -506,41 +506,91 @@ public class MakeDeck{
 					for(String regex : regexStrings){
 						processedName = processedName.replaceAll(regex, "\\" + regex);
 					}
-					String regexStr = "(?i)(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\"\\??"+processedName+"\\??\"";
-					regexStr = regexStr.replaceAll("[^\\x00-\\x7F]", "..?.?");
-					regexStr = regexStr.replaceAll("(?i)ae", "..?");
-					Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
-					try{
-						Matcher matcher = regex.matcher(result);
-						matcher.find();
-						if(matcher.groupCount() > 0){
-							try {
-								saveImage(matcher.group(1), card.imageFileName);
-								System.out.println("Downloaded: "+card.imageFileName);
-							} catch (Exception e) {
+					String regexStr;
+					boolean setnumfail = true;
+					if(card.setnum != null && !card.setnum.trim().equals("")){
+						regexStr = "(?i)/(..?.?.?.?)/(..?.?.?.?)/"+card.setnum+".html";//find set and lang
+						Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
+						
+						try{
+							Matcher matcher = regex.matcher(result);
+							matcher.find();
+							if(matcher.groupCount() > 0){
+								try {
+									String set = matcher.group(1);
+									String lang = matcher.group(2);
+									System.out.println("Set: " + set);
+									System.out.println("Lang: " + lang);
+									String url = "http://magiccards.info/scans/"+lang+"/"+set+"/"+card.setnum+".jpg";
+									System.out.println("Downloading " + url);
+									saveImage(url, card.imageFileName);
+									System.out.println("Downloaded: "+card.imageFileName);
+									setnumfail = false;
+								} catch (Exception e) {
+									badCardList.add(card.getDisplay());
+									e.printStackTrace();
+									System.out.println("Couldn't download1 " + card.imageFileName + " because " + e.getMessage());
+									System.out.println("From " + qstr);
+									System.out.println(regexStr);
+									System.out.println("Contains: " + regexStr.contains("æ"));
+									System.out.println(result);
+								}
+							}else{
 								badCardList.add(card.getDisplay());
-								e.printStackTrace();
+								System.out.println("Couldn't download2 " + card.imageFileName);
+								System.out.println("From " + qstr);
+								System.out.println(regexStr);
+								System.out.println("Contains: " + regexStr.contains("æ"));
+								System.out.println(result);
+							}
+						}catch(Exception e){
+							System.out.println("Couldn't download3 " + card.imageFileName);
+							System.out.println("From " + qstr);
+							System.out.println(regexStr);
+							System.out.println("Contains: " + regexStr.contains("æ"));
+							System.out.println(result);
+							e.printStackTrace();
+						}
+					}
+					
+					if(setnumfail){
+						regexStr = "(?i)(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\"\\??"+processedName+"\\??\"";
+						regexStr = regexStr.replaceAll("[^\\x00-\\x7F]", "..?.?");
+						regexStr = regexStr.replaceAll("(?i)ae", "..?");
+						Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
+						
+						try{
+							Matcher matcher = regex.matcher(result);
+							matcher.find();
+							if(matcher.groupCount() > 0){
+								try {
+									saveImage(matcher.group(1), card.imageFileName);
+									System.out.println("Downloaded: "+card.imageFileName);
+								} catch (Exception e) {
+									badCardList.add(card.getDisplay());
+									e.printStackTrace();
+									System.out.println("Couldn't download " + card.imageFileName);
+									System.out.println("From " + qstr);
+									System.out.println(regexStr);
+									System.out.println("Contains: " + regexStr.contains("æ"));
+									System.out.println(result);
+								}
+							}else{
+								badCardList.add(card.getDisplay());
 								System.out.println("Couldn't download " + card.imageFileName);
 								System.out.println("From " + qstr);
 								System.out.println(regexStr);
 								System.out.println("Contains: " + regexStr.contains("æ"));
 								System.out.println(result);
 							}
-						}else{
-							badCardList.add(card.getDisplay());
+						}catch(Exception e){
 							System.out.println("Couldn't download " + card.imageFileName);
 							System.out.println("From " + qstr);
 							System.out.println(regexStr);
 							System.out.println("Contains: " + regexStr.contains("æ"));
 							System.out.println(result);
+							e.printStackTrace();
 						}
-					}catch(Exception e){
-						System.out.println("Couldn't download " + card.imageFileName);
-						System.out.println("From " + qstr);
-						System.out.println(regexStr);
-						System.out.println("Contains: " + regexStr.contains("æ"));
-						System.out.println(result);
-						e.printStackTrace();
 					}
 				}else{
 					System.out.println("exists: "+card.imageFileName);
@@ -1169,6 +1219,16 @@ public class MakeDeck{
 	      return result;
 	   }
 	
+	public static String parseSetNum(String line){
+		String setnum = "";
+		
+		if(line.indexOf("<") > 0 && line.indexOf(">") > 0 && line.indexOf("<") < line.indexOf(">")){
+			setnum = line.substring(line.indexOf("<")+1, line.indexOf(">"));
+		}
+		
+		return setnum;
+	}
+	
 	public static String parseSet(String line){
 		String set = "";
 		
@@ -1233,11 +1293,18 @@ public class MakeDeck{
 					if(name.indexOf("{")>0){
 						name = name.substring(0, name.indexOf("{")).trim();
 					}
+					if(name.indexOf("<")>0){
+						name = name.substring(0, name.indexOf("<")).trim();
+					}
 					
 					String set = parseSet(line);
 					String lang = parseLang(line);
+					String setnum = parseSetNum(line);
 					
 					String cardKey = name+"["+set+"]{"+lang+"}";
+					if(!setnum.trim().equals("")){
+						cardKey+="<"+setnum+">";
+					}
 					if(name.contains("/")){
 						//Wear // Tear
 						String leftHalf = name.substring(0, name.indexOf("/")).trim();
@@ -1254,6 +1321,7 @@ public class MakeDeck{
 						card.name = name;
 						card.cardKey = cardKey;
 						card.set = set;
+						card.setnum = setnum;
 						card.lang = lang;
 						if(parseType == CARD_MAINBOARD) card.mainAmt = amt;
 						if(parseType == CARD_SIDEBOARD) card.sideAmt = amt;
@@ -1375,6 +1443,7 @@ public class MakeDeck{
 		String imageFileName;
 		String cardKey;
 		String set;
+		String setnum;
 		String lang;
 		String color;
 		String pt;
@@ -1394,6 +1463,8 @@ public class MakeDeck{
 					s+="["+set+"]";
 				if(lang != null && lang.length() > 0)
 					s+="{"+lang+"}";
+				if(setnum != null && setnum.length() > 0)
+					s+="<"+setnum+">";
 			}
 			return s;
 		}
