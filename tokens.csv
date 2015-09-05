@@ -4,7 +4,7 @@ Ape,Green,Creature - Ape,2;2,Monkey Cage
 ,Green,Creature - Ape,3;3,Pongify
 Assassin,Black,Creature - Assassin,1;1,Vraska the Unseen
 Assembly-Worker,Colorless,Artifact Creature - Assembly-Worker,2;2,Urza's Factory
-Avatar,White,Creature - Avatar,*;*,Ajani Goldmane
+Avatar,White,Creature - Avatar,_;_,Ajani Goldmane
 Bat,Black,Creature - Bat,1;2,Sengir Nosferatu
 ,Black,Creature - Bat,1;1,Belfry Spirit||Skeletal Vampire
 Bear,Green,Creature - Bear,2;2,Bearscape||Caller of the Claw||Grizzly Fate||Kamahl's Summons||Words of Wilding
@@ -42,7 +42,7 @@ Cleric,White,Enchantment Creature - Cleric,2;1,Heliod; God of the Sun
 Construct,Colorless,Artifact Creature - Construct,1;1,Flamewright||Sentinel Dispatch
 ,Colorless,Artifact Creature - Construct,6;12,Stone Idol Trap
 Demon,Black,Creature - Demon,5;5,Demonic Rising||Ob Nixilis of the Black Oath||Skirsdag High Priest
-,Black,Creature - Demon,*;*,Promise of Power||Reign of the Pit
+,Black,Creature - Demon,_;_,Promise of Power||Reign of the Pit
 Djinn,Colorless,Artifact Creature - Djinn,5;5,Bottle of Suleiman
 Djinn Monk,Blue,Creature - Djinn Monk,2;2,Ojutai's Summons||Skywise Teachings
 Deserter,White,Creature - Deserter,0;1,Kjeldoran Home Guard
@@ -64,7 +64,7 @@ Elemental,Black/Red,Creature - Elemental,5;5,Din of the Fireherd
 ,Green,Creature - Elemental,7;7,Voice of the Woods
 ,Green,Creature - Elemental,X;X,Dokai; Weaver of Life||Marath; Will of the Wild
 ,Green/White,Creature - Elemental,8;8,Grove of the Guardian
-,Green/White,Creature - Elemental,*;*,Voice of Resurgence
+,Green/White,Creature - Elemental,_;_,Voice of Resurgence
 ,Red,Creature - Elemental,1;1,Elemental Mastery||Tempt with Vengeance
 ,Red,Creature - Elemental,1;1,Molten Birth||Young Pyromancer
 ,Red,Creature - Elemental,3;1,Research // Development
@@ -77,7 +77,7 @@ Elemental,Black/Red,Creature - Elemental,5;5,Din of the Fireherd
 Elemental Cat,Red,Creature - Elemental Cat,1;1,Firecat Blitz
 ElementalShaman,Red,Creature - Elemental Shaman,3;1,Hearthcage Giant||Rebellion of the Flamekin
 Elephant,Green,Creature - Elephant,3;3,Assault // Battery||Bestial Menace||Call of the Herd||Elephant Ambush||Elephant Guide||Kazandu Tuskcaller||Selvala's Charge||Terastodon
-,Green,Creature - Elephant,*;*,Elephant Resurgence
+,Green,Creature - Elephant,_;_,Elephant Resurgence
 Elf Druid,Green,Creature - Elf Druid,1;1,Freyalise; Llanowar's Fury
 Elf Warrior,Green,Creature - Elf Warrior,1;1,Ambassador Oak||Elvish Promenade||Flourishing Defenses||Gilt-Leaf Ambush||Hunting Triad||Imperious Perfect||Lys Alana Huntmaster||Nath of the Gilt-Leaf||Presence of Gond||Prowess of the Fair||Sylvan Offering
 ,Green/White,Creature - Elf Warrior,1;1,Mercy Killing||Rhys the Redeemed
@@ -152,9 +152,9 @@ Ogre,Red,Creature - Ogre,3;3,Kazuul; Tyrant of the Cliffs
 ,Red,Creature - Ogre,4;4,Grenzo's Rebuttal
 Ooze,Green,Creature - Ooze,1;1,Mitotic Slime
 ,Green,Creature - Ooze,2;2,Mitotic Slime
-,Green,Creature - Ooze,*;*,Gutter Grime
+,Green,Creature - Ooze,_;_,Gutter Grime
 ,Green,Creature - Ooze,X;X,Gelatinous Genesis||Miming Slime||Mystic Genesis||Ooze Flux||Ooze Garden||Slime Molding
-Orb,Blue,Creature - Orb,*;*,Phantasmal Sphere
+Orb,Blue,Creature - Orb,_;_,Phantasmal Sphere
 Pegasus,White,Creature - Pegasus,1;1,Pegasus Refuge||Pegasus Stampede||Sacred Mesa||Storm Herd
 Pentavite,Colorless,Artifact Creature - Pentavite,1;1,Pentavus
 Pest,Colorless,Artifact Creature - Pest,0;1,Nuisance Engine
@@ -167,7 +167,7 @@ Rhino,Green,Creature - Rhino,4;4,Horncaller's Chant||Trostani's Summoner
 Sand,Colorless,Creature - Sand,1;1,Dune-Brood Nephilim
 Sand Warrior,Red/Green/White,Creature - Sand Warrior,1;1,Hazezon Tamar
 Saproling,Green,Creature - Saproling,1;1,Aether Mutation||Artifact Mutation||Aura Mutation||Bramble Elemental||Death Mutation||Deathspore Thallid||Supply // Demand||Dreampod Druid||Druidic Satchel||Elvish Farmer||Fertile Imagination||Fists of Ironwood||Flash Foliage||Fungal Sprouting||Ghave; Guru of Spores||Golgari Germination||Greener Pastures||Jade Mage||Jund Battlemage||Korozda Guildmage||Last Stand||Morbid Bloom||Mycologist||Mycoloth||Necrogenesis||Nemata; Grove Guardian||Night Soil||Pallid Mycoderm||Pollenbright Wings||Psychotrope Thallid||Rith; the Awakener||Rith's Charm||Saproling Cluster||Saproling Infestation||Saproling Symbiosis||Sarpadian Empires; Vol. VIISavage Thallid||Scatter the Seeds||Seed Spark||Selesnya Evangel||Selesnya Guildmage||Spontaneous Generation||Spore Burst||Sporemound||Sporesower Thallid||Sporogenesis||Sporoloth Ancient||Sprout||Sprout Swarm||Sprouting Thrinax||Thallid||Thallid Devourer||Thallid Germinator||Thallid Shell-Dweller||Thelonite Hermit||Tukatongue Thallid||Ulasht; the Hate Seed||Utopia Mycon||Verdant Embrace||Verdant Force||Verdeloth the Ancient||Vitaspore Thallid||Vitu-Ghazi; the City-Tree
-,Green,Creature - Saproling,*;*,Saproling Burst
+,Green,Creature - Saproling,_;_,Saproling Burst
 Satyr,Red/Green,Creature - Satyr,2;2,Revel of the Fallen God||Xenagos; the Reveler
 Serf,Black,Creature - Serf,0;1,Sengir Autocrat
 Shapeshifter,Colorless,Creature - Shapeshifter,1;1,Crib Swap
@@ -206,14 +206,14 @@ Thopter,Blue,Artifact Creature - Thopter,1;1,Sharding Sphinx||Thopter Foundry
 Thrull,Black,Creature - Thrull,0;1,Breeding Pit
 Treefolk,Green,Creature - Treefolk,X;X,Sylvan Offering
 Treefolk Shaman,Green,Creature - Treefolk Shaman,2;5,Reach of Branches
-Treefolk Warrior,Green,Creature - Treefolk Warrior,*;*,Kalonian Twingrove
+Treefolk Warrior,Green,Creature - Treefolk Warrior,_;_,Kalonian Twingrove
 Triskelavite,Colorless,Artifact Creature - Triskelavite,1;1,Triskelavus
 Tombspawn,Black,Creature - Zombie,2;2,Tombstone Stairwell
 Tuktuk the Returned,Colorless,Legendary Artifact Creature - Goblin Golem,5;5,Tuktuk the Explorer
 Urami,Black,Legendary Creature - Demon Spirit,5;5,Tomb of Urami
 Vampire,Black,Creature - Vampire,1;1,Sorin; Lord of Innistrad
 ,Black,Creature - Vampire,2;2,Bloodline Keeper||Lord of Lineage||Sorin; Solemn Visitor
-,Black,Creature - Vampire,*;*,Kalitas; Bloodchief of Ghet
+,Black,Creature - Vampire,_;_,Kalitas; Bloodchief of Ghet
 Voja,Green/White,Legendary Creature - Wolf,2;2,Tolsimir Wolfblood
 Warrior,White,Creature - Warrior,1;1,Herald of Anafenza||Mardu Charm||Mardu Hordechief||Secure the Wastes||Take Up Arms
 ,Black,Creature - Warrior,2;1,Mardu Strike Leader
@@ -232,7 +232,7 @@ Wurm,Black,Creature - Wurm,6;6,Penumbra Wurm
 ,Colorless,Artifact Creature - Wurm,3;3b,Wurmcoil Engine
 Zombie,Black,Creature - Zombie,2;2,Archdemon of Unx||Army of the Damned||Bridge from Below||Cellar Door||Cemetery Reaper||Curse of Shallow Graves||Empty the Pits||Endless Ranks of the Dead||Feast or Famine||Grave Titan||Ghoulcaller Gisa||Grixis Slavedriver||Havengul Runebinder||Liliana's Reaver||Maalfeld Twins||Midnight Ritual||Moan of the Unhallowed||Necromancer's Covenant||Necromancer's Stockpile||Necromaster Dragon||Nested Ghoul||Overseer of the Damned||Rakshasa Gravecaller||Reap the Seagraf||Rotlung Reanimator||Sarcomancy||Sidisi; Brood Tyrant||Syphon Flesh||Undead Alchemist||Unscythe; Killer of Kings||Vile Rebirth||Wakedancer||Waste Not||Xathrid Necromancer||Zombie Infestation
 ,Black,Enchantment Creature - Zombie,2;2,Forlorn Pseudamma
-,Black,Creature - Zombie,*;*,Ritual of the Returned
+,Black,Creature - Zombie,_;_,Ritual of the Returned
 ,Blue,Creature - Zombie,X;X,Stitcher Geralf
 Zombie Horror,Black,Creature - Zombie Horror,X;X,Corpseweft
 Zombie Giant,Black,Creature - Zombie Giant,5;5,Quest for the Gravelord
