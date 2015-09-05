@@ -506,50 +506,44 @@ public class MakeDeck{
 					for(String regex : regexStrings){
 						processedName = processedName.replaceAll(regex, "\\" + regex);
 					}
-					String regexStr;
+					String regexStr = "";
 					boolean setnumfail = true;
 					if(card.setnum != null && !card.setnum.trim().equals("")){
-						regexStr = "(?i)/(..?.?.?.?)/(..?.?.?.?)/"+card.setnum+".html";//find set and lang
-						Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
-						
-						try{
-							Matcher matcher = regex.matcher(result);
-							matcher.find();
-							if(matcher.groupCount() > 0){
-								try {
-									String set = matcher.group(1);
-									String lang = matcher.group(2);
-									System.out.println("Set: " + set);
-									System.out.println("Lang: " + lang);
-									String url = "http://magiccards.info/scans/"+lang+"/"+set+"/"+card.setnum+".jpg";
-									System.out.println("Downloading " + url);
-									saveImage(url, card.imageFileName);
-									System.out.println("Downloaded: "+card.imageFileName);
-									setnumfail = false;
-								} catch (Exception e) {
-									badCardList.add(card.getDisplay());
-									e.printStackTrace();
-									System.out.println("Couldn't download1 " + card.imageFileName + " because " + e.getMessage());
-									System.out.println("From " + qstr);
-									System.out.println(regexStr);
-									System.out.println("Contains: " + regexStr.contains("æ"));
-									System.out.println(result);
+						String lang = card.lang;
+						String set = card.set;
+						if(lang == null || lang.equals("")){
+							lang = "en";
+						}
+						if(set == null){
+							regexStr = "(?i)/(..?.?.?.?)/"+lang+"/"+card.setnum+".html";//find set and lang
+							Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
+
+							try{
+								Matcher matcher = regex.matcher(result);
+								matcher.find();
+								if(matcher.groupCount() > 0){
+									set = matcher.group(1);
 								}
-							}else{
-								badCardList.add(card.getDisplay());
-								System.out.println("Couldn't download2 " + card.imageFileName);
-								System.out.println("From " + qstr);
-								System.out.println(regexStr);
-								System.out.println("Contains: " + regexStr.contains("æ"));
-								System.out.println(result);
+							}catch(Exception e){
+								System.err.println("Error reading set");
 							}
-						}catch(Exception e){
-							System.out.println("Couldn't download3 " + card.imageFileName);
+						}
+						try {
+							System.out.println("Set: " + set);
+							System.out.println("Lang: " + lang);
+							String url = "http://magiccards.info/scans/"+lang+"/"+set+"/"+card.setnum+".jpg";
+							System.out.println("Downloading " + url);
+							saveImage(url, card.imageFileName);
+							System.out.println("Downloaded: "+card.imageFileName);
+							setnumfail = false;
+						} catch (Exception e) {
+							badCardList.add(card.getDisplay());
+							e.printStackTrace();
+							System.out.println("Couldn't download1 " + card.imageFileName + " because " + e.getMessage());
 							System.out.println("From " + qstr);
 							System.out.println(regexStr);
 							System.out.println("Contains: " + regexStr.contains("æ"));
 							System.out.println(result);
-							e.printStackTrace();
 						}
 					}
 					

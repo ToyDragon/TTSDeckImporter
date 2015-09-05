@@ -2,6 +2,10 @@ body{
 	margin-top:75px;
 }
 
+ul{
+	margin-bottom: 0;
+	margin-top: 8px;
+}
 
 .stage-top{
 	border: 2px solid black;
