@@ -8,6 +8,7 @@ if(!fs.existsSync(dir)){
 }
 
 if(fs.existsSync(dir)){
+	var total = 0;
 	var dates = {};
 	var files = fs.readdirSync(dir);
 	for(var filei in files){
@@ -28,6 +29,7 @@ if(fs.existsSync(dir)){
 		dates[year] = dates[year] || {};
 		dates[year][month] = dates[year][month] || {};
 		dates[year][month][day] = dates[year][month][day]+1 || 1;
+		total = total + 1;
 	}
 
 	for(var year in dates){
@@ -36,10 +38,11 @@ if(fs.existsSync(dir)){
 				var dispYear = parseInt(year)+1900;
 				var dispMonth = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month];
 				var dispDay = day < 10 ? '0'+day : day;
-				console.log(dispYear + ' : ' + dispMonth + ' : ' + dispDay + ' : ' + dates[year][month][day]);
+				console.log(dispYear + '\t' + dispMonth + '\t' + dispDay + '\t' + dates[year][month][day]);
 			}
 		}
 	}
+	console.log('Total: ' + total);
 
 }else{
 	console.log('Couldn\'t find ' + dir);
