@@ -469,8 +469,14 @@ public class MakeDeck{
 						processedName = badNames[j][1];
 					}
 				}
+				String[][] badSubs = {
+						{"Æ","ae"},
+						{"æ","ae"}
+				};
+				for(int j = 0; j < badSubs.length; j++){
+					processedName = processedName.replaceAll(badSubs[j][0], badSubs[j][1]);
+				}
 				try{
-
 					processedName = "\""+processedName+"\"";
 					if(card.set != null && card.set.length() > 0) processedName +=" e:"+card.set;
 					if(card.lang != null && card.lang.length() > 0)	processedName +=" l:"+card.lang;
