@@ -32,7 +32,11 @@ $(document).ready(function(){
 			var hiddenURL = 'default';
 			var deckName = $('#deckName').val().trim().length > 0?$('#deckName').val().trim():'default';
 			var coolify = $('#toggleBack').prop('checked');
-			var compression = $('#toggleComp').prop('checked')?0.2:0.5;
+			var compression;// = $('#toggleComp').prop('checked')?0.2:0.5;
+			var selected = $("input[type='radio'][name='quality']:checked");
+			if (selected.length > 0) {
+				compression = selected.val();
+			}
 			
 			if($('#toggleBack').prop('checked')){
 				backURL = $('#backURL').val().trim().length > 0?$('#backURL').val().trim():'default';

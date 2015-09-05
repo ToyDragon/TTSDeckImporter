@@ -96,6 +96,11 @@ input[type=checkbox]{
 	display: inline-block;
 }
 
+.checkcol-quality{
+	width: 250px;
+	display: inline-block;
+}
+
 body{
 	margin-top: 50px;
 	margin-bottom: 50px;
