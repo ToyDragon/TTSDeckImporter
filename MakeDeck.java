@@ -18,6 +18,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -126,7 +127,15 @@ public class MakeDeck{
 		if(draftSetName != null){
 			
 			loadDraftSet();
-			downloadDraftImages();
+			Card[][] cards = new Card[draftSetCards.length][];
+			for(int i = 0; i < cards.length; i++){
+				Card[] car = new Card[draftSetCards[i].size()];
+				for(int j = 0; j < car.length; j++){
+					car[j] = draftSetCards[i].get(j);
+				}
+				cards[i] = car;
+			}
+			downloadImages(cards);
 			stitchDraftDeck();
 			buildDraftJSON();
 			System.exit(0);
@@ -137,7 +146,13 @@ public class MakeDeck{
 			}
 			
 			loadCards(fileName);
-			downloadImages();
+			Card[][] cards = new Card[1][];
+			cards[0] = new Card[cardMap.keySet().size()];
+			int i = 0;
+			for(String key : cardMap.keySet()){
+				cards[0][i++] = cardMap.get(key);
+			}
+			downloadImages(cards);
 			if(badCardList.size()>0){
 				saveBadCards();
 				System.exit(1);
@@ -431,9 +446,9 @@ public class MakeDeck{
 		}
 	}
 	
-	public static void downloadDraftImages(){
-		for(int i = 0; i < RARITIES.length; i++){
-			for(Card card : draftSetCards[i]){
+	public static void downloadImages(Card[][] cards){
+		for(int i = 0; i < cards.length; i++){
+			for(Card card : cards[i]){
 				
 				String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".")+".jpg";
 				card.imageFileName = imageFileName;
@@ -469,13 +484,6 @@ public class MakeDeck{
 						processedName = badNames[j][1];
 					}
 				}
-				String[][] badSubs = {
-						{"Æ","ae"},
-						{"æ","ae"}
-				};
-				for(int j = 0; j < badSubs.length; j++){
-					processedName = processedName.replaceAll(badSubs[j][0], badSubs[j][1]);
-				}
 				try{
 					processedName = "\""+processedName+"\"";
 					if(card.set != null && card.set.length() > 0) processedName +=" e:"+card.set;
@@ -483,6 +491,7 @@ public class MakeDeck{
 					
 					uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName, null);
 					qstr = uri.toURL().toString().replaceAll("&", "%26").replaceAll(" ", "%20")+"&v=card&s=cname";
+					System.out.println(qstr);
 				}catch(Exception e){e.printStackTrace();}
 				File f = new File(card.imageFileName);
 				if(!f.exists()){
@@ -497,19 +506,9 @@ public class MakeDeck{
 					for(String regex : regexStrings){
 						processedName = processedName.replaceAll(regex, "\\" + regex);
 					}
-					String regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\"\\??"+processedName+"\\??\"";
-/*
-					if(card.name.equalsIgnoreCase("Kongming, sleeping Dragon")){
-						regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\"Kongming, \"Sleeping Dragon\"\"";
-						System.out.println(regexStr);
-						System.out.println(result);
-					}
-					if(card.name.equalsIgnoreCase("pang tong, young phoenix")){
-						regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\"Pang Tong,.+Young Phoenix";
-						System.out.println(regexStr);
-						System.out.println(result);
-					}*/
-					regexStr = regexStr.replaceAll("(?i)ae", "(((?i)ae)|(Æ))");
+					String regexStr = "(?i)(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\"\\??"+processedName+"\\??\"";
+					regexStr = regexStr.replaceAll("[^\\x00-\\x7F]", "..?.?");
+					regexStr = regexStr.replaceAll("(?i)ae", "..?");
 					Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
 					try{
 						Matcher matcher = regex.matcher(result);
@@ -524,6 +523,7 @@ public class MakeDeck{
 								System.out.println("Couldn't download " + card.imageFileName);
 								System.out.println("From " + qstr);
 								System.out.println(regexStr);
+								System.out.println("Contains: " + regexStr.contains("æ"));
 								System.out.println(result);
 							}
 						}else{
@@ -531,12 +531,14 @@ public class MakeDeck{
 							System.out.println("Couldn't download " + card.imageFileName);
 							System.out.println("From " + qstr);
 							System.out.println(regexStr);
+							System.out.println("Contains: " + regexStr.contains("æ"));
 							System.out.println(result);
 						}
 					}catch(Exception e){
 						System.out.println("Couldn't download " + card.imageFileName);
 						System.out.println("From " + qstr);
 						System.out.println(regexStr);
+						System.out.println("Contains: " + regexStr.contains("æ"));
 						System.out.println(result);
 						e.printStackTrace();
 					}
@@ -564,7 +566,7 @@ public class MakeDeck{
 			if(!f.exists()){
 				String result = getHTML(qstr);
 				String regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\""+(card.name.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"))+"\"";
-				regexStr = regexStr.replaceAll("(?i)ae", "(((?i)ae)|(Æ))");
+				regexStr = regexStr.replaceAll("(?i)ae", "(((?i)ae)|(Ã†))");
 				Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
 				Matcher matcher = regex.matcher(result);
 				matcher.find();
@@ -1154,7 +1156,7 @@ public class MakeDeck{
 	         url = new URL(urlToRead);
 	         conn = (HttpURLConnection) url.openConnection();
 	         conn.setRequestMethod("GET");
-	         rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF8"));
+	         rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
 	         while ((line = rd.readLine()) != null) {
 	            result += line;
 	         }
@@ -1166,99 +1168,6 @@ public class MakeDeck{
 	      }
 	      return result;
 	   }
-	
-	public static void downloadImages(){
-		for(String key : cardMap.keySet()){
-			Card card = cardMap.get(key);
-			
-			URI uri = null;
-			String qstr = null;
-			try{
-				String processedName = card.name.trim().toLowerCase();
-				
-				if(card.set != null && card.set.length() > 0) processedName +=" e:"+card.set;
-				if(card.lang != null && card.lang.length() > 0)	processedName +=" l:"+card.lang;
-				
-				uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName+"&v=card&s=cname", null);
-				qstr = uri.toURL().toString();
-			}catch(Exception e){e.printStackTrace();}
-			
-			String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".")+".jpg";
-			
-			card.imageFileName = imageFileName;
-			File f = new File(card.imageFileName);
-			if(!f.exists()){
-				String result = getHTML(qstr);
-				String regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\""+(card.name.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"))+"\"";
-
-				System.out.println(card.name);
-				if(card.name.equalsIgnoreCase("Kongming, sleeping Dragon")){
-					regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\"Kongming, \\\" sleeping=\\\"\\\" dragon\\\"\\\"=\\\"";
-					System.out.println(regexStr);
-				}
-				regexStr = regexStr.replaceAll("(?i)ae", "(((?i)ae)|(Æ))");
-				Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
-				Matcher matcher = regex.matcher(result);
-				matcher.find();
-				if(matcher.groupCount() > 0){
-					try {
-						saveImage(matcher.group(1), card.imageFileName);
-					} catch (Exception e) {
-						badCardList.add(card.getDisplay());
-					}
-				}else{
-					badCardList.add(card.getDisplay());
-				}
-			}
-		}
-		
-		for(Card card : tokenSet){
-			if(!card.transform)continue;
-			
-			URI uri = null;
-			String qstr = null;
-			try{
-				String processedName = card.name.trim().toLowerCase();
-				uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName+"&v=card&s=cname", null);
-				qstr = uri.toURL().toString();
-			}catch(Exception e){e.printStackTrace();}
-			
-			String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".")+".jpg";
-			
-			card.imageFileName = imageFileName;
-			File f = new File(card.imageFileName);
-			if(!f.exists()){
-				String result = getHTML(qstr);
-				String regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\""+(card.name.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"))+"\"";
-				regexStr = regexStr.replaceAll("(?i)ae", "(((?i)ae)|(Æ))");
-				Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
-				Matcher matcher = regex.matcher(result);
-				matcher.find();
-				if(matcher.groupCount() > 0){
-					try {
-						saveImage(matcher.group(1), card.imageFileName);
-					} catch (Exception e) {
-						badCardList.add(card.getDisplay());
-					}
-				}else{
-					badCardList.add(card.getDisplay());
-				}
-			}
-		}
-	
-		if(!hiddenLink.equals("default")){
-			try{
-				URL url = new URL(hiddenLink);
-				HttpURLConnection httpcon = (HttpURLConnection) url.openConnection(); 
-				httpcon.addRequestProperty("User-Agent", "Mozilla/4.76"); 
-				hiddenCard = ImageIO.read(httpcon.getInputStream());
-			}catch(Exception e){
-				e.printStackTrace();
-				hiddenLink = "default";
-				hiddenCard = null;
-			}
-		}
-	}
 	
 	public static String parseSet(String line){
 		String set = "";
@@ -1286,7 +1195,8 @@ public class MakeDeck{
 				fileName = fileName.substring(0, fileName.indexOf(" "));
 			}
 			File f = new File("lists/"+fileName);
-			Scanner fscan = new Scanner(new FileInputStream(f));
+			
+			Scanner fscan = new Scanner(new FileInputStream(f),"UTF-8");
 			Pattern cardNameRegex = Pattern.compile("([0-9]*)x?\\s*(.*)");
 			while(fscan.hasNextLine()){
 				String line = fscan.nextLine().trim();
