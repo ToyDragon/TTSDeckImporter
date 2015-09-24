@@ -70,6 +70,9 @@ $(document).ready(function(){
 				if(data.status == 0){
 					window.location = '/draftresults.html?deck='+deckName;
 				}
+				else{
+					alert("Oops! Error creating packs. BFZ should be online soon!");
+				}
 				$('body').removeClass('loading');
 			});
 		}

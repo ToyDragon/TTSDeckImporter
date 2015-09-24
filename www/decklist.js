@@ -4,7 +4,8 @@ $(document).ready(function(){
 		var data = JSON.parse(dataraw);
 		if(Array.isArray(data) && data.length > 0){
 			data.forEach(function(item){
-				$('#decks').append('<li><a href="/decks/'+item.uid+'.json" download="'+item.name+'.json">'+item.name+'</a></li>');
+				var scrub = item.name.replace(/</g,'&lt;');
+				$('#decks').append('<li><a href="/decks/'+item.uid+'.json" download="'+scrub+'.json">'+scrub+'</a></li>');
 			});
 		}else{
 			$('#decks').append('<li>Unable to load decks!</li>');
