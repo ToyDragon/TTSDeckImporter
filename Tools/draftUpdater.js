@@ -156,7 +156,7 @@ var save_set = function(set){
 		var rarities = {};
 		set.cards.forEach(function(card){
 			if(!rarities[card.rarity])rarities[card.rarity] = [];
-			var n = clean_card_name(card.name);
+			var n = card.multiverseid + ":" + clean_card_name(card.name);
 			if(n.length > 0  && !seen[n]){
 				seen[n] = true;
 				rarities[card.rarity].push(n);

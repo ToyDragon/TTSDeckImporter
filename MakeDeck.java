@@ -28,6 +28,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
+import javax.sound.midi.Patch;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -45,7 +46,7 @@ public class MakeDeck{
 	public static String draftSetName;
 	public static String draftSetCode;
 	public static int[] draftBoosters = new int[RARITIES.length];
-	public static float compressionLevel = 80f;
+	public static float compressionLevel = 0.80f;
 	public static HashMap<String, Card> cardMap = new HashMap<String, Card>();
 	public static ArrayList<Card> tokenList = new ArrayList<Card>();
 	public static HashMap<String, String> transformMap = new HashMap<String,String>();
@@ -58,6 +59,7 @@ public class MakeDeck{
 	public static String localHostName = "http://www.frogtown.me/";
 	public static String tokenFile = "tokens.csv";
 	public static String transformFile = "transforms.csv";
+	public static String mythicSpoilerPage = null;
 	public static int draftCount;
 	
 	public static boolean coolifyBasics;
@@ -125,7 +127,7 @@ public class MakeDeck{
 		System.out.println(draftSetName != null?"Drafting!":"Not drafting!");
 	
 		if(draftSetName != null){
-			
+			compressionLevel = 1f;
 			loadDraftSet();
 			Card[][] cards = new Card[draftSetCards.length][];
 			for(int i = 0; i < cards.length; i++){
@@ -446,184 +448,212 @@ public class MakeDeck{
 		}
 	}
 	
-	public static void downloadImages(Card[][] cards){
-		for(int i = 0; i < cards.length; i++){
-			for(Card card : cards[i]){
-				
-				String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".").replaceAll("[<>]", "_")+".jpg";
-				card.imageFileName = imageFileName;
-				URI uri = null;
-				String qstr = null;
-				String processedName = card.name.trim().toLowerCase();
-				boolean found = false;
-				String[][] hardURLs = {
-					{"Ach! Hans, Run!","http://magiccards.info/scans/en/uh/116.jpg"},
-					{"Kongming, Sleeping Dragon","http://magiccards.info/scans/en/vma/33.jpg"},
-					{"Ow","http://magiccards.info/scans/en/ug/36.jpg"},
-					{"Pang Tong, Young Phoenix","http://magiccards.info/scans/en/p3k/14.jpg"}
-				};
-				for(String[] hardPair : hardURLs){
-					if(hardPair[0].equalsIgnoreCase(card.name)){
-						try {
-							saveImage(hardPair[1], card.imageFileName);
-							System.out.println("Downloaded: "+card.imageFileName);
-							found = true;
-						} catch (IOException e) {
-							System.out.println("Couldnt download hard card");
-							e.printStackTrace();
-						}
-					}
-				}
-				if(found)continue;
-				String[][] badNames = {
-						//input name             query name               returned name  
-						{"Question Elemental", "Question Elemental?"}
-				};
-				for(int j = 0; j < badNames.length; j++){
-					if(processedName.equals(badNames[j][0].toLowerCase())){
-						processedName = badNames[j][1];
-					}
-				}
-				try{
-					processedName = "\""+processedName+"\"";
-					if(card.set != null && card.set.length() > 0) processedName +=" e:"+card.set;
-					if(card.lang != null && card.lang.length() > 0)	processedName +=" l:"+card.lang;
-					
-					uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName, null);
-					qstr = uri.toURL().toString().replaceAll("&", "%26").replaceAll(" ", "%20")+"&v=card&s=cname";
-					System.out.println(qstr);
-				}catch(Exception e){e.printStackTrace();}
-				File f = new File(card.imageFileName);
-				if(!f.exists()){
-					String result = getHTML(qstr);
-					processedName = card.name.trim().toLowerCase();
-					for(int j = 0; j < badNames.length; j++){
-						if(card.name.toLowerCase().equals(badNames[j][0].toLowerCase())){
-							processedName = badNames[j][1];
-						}
-					}
-					String[] regexStrings = {"\\?","\\(","\\)"};
-					for(String regex : regexStrings){
-						processedName = processedName.replaceAll(regex, "\\" + regex);
-					}
-					String regexStr = "";
-					boolean setnumfail = true;
-					if(card.setnum != null && !card.setnum.trim().equals("")){
-						String lang = card.lang;
-						String set = card.set;
-						if(lang == null || lang.equals("")){
-							lang = "en";
-						}
-						if(set == null){
-							regexStr = "(?i)/(..?.?.?.?)/"+lang+"/"+card.setnum+".html";//find set and lang
-							Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
-
-							try{
-								Matcher matcher = regex.matcher(result);
-								matcher.find();
-								if(matcher.groupCount() > 0){
-									set = matcher.group(1);
-								}
-							}catch(Exception e){
-								System.err.println("Error reading set");
-							}
-						}
-						try {
-							System.out.println("Set: " + set);
-							System.out.println("Lang: " + lang);
-							String url = "http://magiccards.info/scans/"+lang+"/"+set+"/"+card.setnum+".jpg";
-							System.out.println("Downloading " + url);
-							saveImage(url, card.imageFileName);
-							System.out.println("Downloaded: "+card.imageFileName);
-							setnumfail = false;
-						} catch (Exception e) {
-							badCardList.add(card.getDisplay());
-							e.printStackTrace();
-							System.out.println("Couldn't download1 " + card.imageFileName + " because " + e.getMessage());
-							System.out.println("From " + qstr);
-							System.out.println(regexStr);
-							System.out.println("Contains: " + regexStr.contains("æ"));
-							System.out.println(result);
-						}
-					}
-					
-					if(setnumfail){
-						regexStr = "(?i)(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\"\\??"+processedName+"\\??\"";
-						regexStr = regexStr.replaceAll("[^\\x00-\\x7F]", "..?.?");
-						regexStr = regexStr.replaceAll("(?i)ae", "..?");
-						Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
-						
-						try{
-							Matcher matcher = regex.matcher(result);
-							matcher.find();
-							if(matcher.groupCount() > 0){
-								try {
-									saveImage(matcher.group(1), card.imageFileName);
-									System.out.println("Downloaded: "+card.imageFileName);
-								} catch (Exception e) {
-									badCardList.add(card.getDisplay());
-									e.printStackTrace();
-									System.out.println("Couldn't download " + card.imageFileName);
-									System.out.println("From " + qstr);
-									System.out.println(regexStr);
-									System.out.println("Contains: " + regexStr.contains("æ"));
-									System.out.println(result);
-								}
-							}else{
-								badCardList.add(card.getDisplay());
-								System.out.println("Couldn't download " + card.imageFileName);
-								System.out.println("From " + qstr);
-								System.out.println(regexStr);
-								System.out.println("Contains: " + regexStr.contains("æ"));
-								System.out.println(result);
-							}
-						}catch(Exception e){
-							System.out.println("Couldn't download " + card.imageFileName);
-							System.out.println("From " + qstr);
-							System.out.println(regexStr);
-							System.out.println("Contains: " + regexStr.contains("æ"));
-							System.out.println(result);
-							e.printStackTrace();
-						}
-					}
-				}else{
-					System.out.println("exists: "+card.imageFileName);
+	public static boolean loadFromMagicCards(Card card){
+		String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".").replaceAll("[<>]", "_")+".jpg";
+		card.imageFileName = imageFileName;
+		URI uri = null;
+		String qstr = null;
+		String processedName = card.name.trim().toLowerCase();
+		String[][] hardURLs = {
+			{"Ach! Hans, Run!","http://magiccards.info/scans/en/uh/116.jpg"},
+			{"Kongming, Sleeping Dragon","http://magiccards.info/scans/en/vma/33.jpg"},
+			{"Ow","http://magiccards.info/scans/en/ug/36.jpg"},
+			{"Pang Tong, Young Phoenix","http://magiccards.info/scans/en/p3k/14.jpg"}
+		};
+		for(String[] hardPair : hardURLs){
+			if(hardPair[0].equalsIgnoreCase(card.name)){
+				try {
+					saveImage(hardPair[1], card.imageFileName);
+					System.out.println("Downloaded: "+card.imageFileName);
+					return true;
+				} catch (IOException e) {
+					System.out.println("Couldnt download hard card");
+					e.printStackTrace();
 				}
 			}
 		}
-		
-		for(Card card : tokenSet){
-			if(!card.transform)continue;
+		String[][] badNames = {
+				{"Question Elemental", "Question Elemental?"}
+		};
+		for(int j = 0; j < badNames.length; j++){
+			if(processedName.equals(badNames[j][0].toLowerCase())){
+				processedName = badNames[j][1];
+			}
+		}
+		try{
+			processedName = "\""+processedName+"\"";
+			if(card.set != null && card.set.length() > 0) processedName +=" e:"+card.set;
+			if(card.lang != null && card.lang.length() > 0)	processedName +=" l:"+card.lang;
 			
-			URI uri = null;
-			String qstr = null;
+			uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName, null);
+			qstr = uri.toURL().toString().replaceAll("&", "%26").replaceAll(" ", "%20")+"&v=card&s=cname";
+			System.out.println(qstr);
+		}catch(Exception e){e.printStackTrace();}
+		File f = new File(card.imageFileName);
+		if(!f.exists()){
+			String result = getHTML(qstr);
+			processedName = card.name.trim().toLowerCase();
+			for(int j = 0; j < badNames.length; j++){
+				if(card.name.toLowerCase().equals(badNames[j][0].toLowerCase())){
+					processedName = badNames[j][1];
+				}
+			}
+			String[] regexStrings = {"\\?","\\(","\\)"};
+			for(String regex : regexStrings){
+				processedName = processedName.replaceAll(regex, "\\" + regex);
+			}
+			String regexStr = "";
+			if(card.setnum != null && !card.setnum.trim().equals("")){
+				String lang = card.lang;
+				String set = card.set;
+				if(lang == null || lang.equals("")){
+					lang = "en";
+				}
+				if(set == null){
+					regexStr = "(?i)/(..?.?.?.?)/"+lang+"/"+card.setnum+".html";//find set and lang
+					Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
+
+					try{
+						Matcher matcher = regex.matcher(result);
+						matcher.find();
+						if(matcher.groupCount() > 0){
+							set = matcher.group(1);
+						}
+					}catch(Exception e){
+						System.err.println("Error reading set");
+					}
+				}
+				try {
+					System.out.println("Set: " + set);
+					System.out.println("Lang: " + lang);
+					String url = "http://magiccards.info/scans/"+lang+"/"+set+"/"+card.setnum+".jpg";
+					System.out.println("Downloading " + url);
+					saveImage(url, card.imageFileName);
+					System.out.println("Downloaded: "+card.imageFileName);
+					return true;
+				} catch (Exception e) {
+					badCardList.add(card.getDisplay());
+					e.printStackTrace();
+					System.out.println("Couldn't download0 " + card.imageFileName + " because " + e.getMessage());
+					System.out.println("From " + qstr);
+				}
+			}
+			
+			regexStr = "(?i)(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\"\\??"+processedName+"\\??\"";
+			regexStr = regexStr.replaceAll("[^\\x00-\\x7F]", "..?.?");
+			regexStr = regexStr.replaceAll("(?i)ae", "..?");
+			Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
+			
 			try{
-				String processedName = card.name.trim().toLowerCase();
-				uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName+"&v=card&s=cname", null);
-				qstr = uri.toURL().toString();
-			}catch(Exception e){e.printStackTrace();}
-			
-			String imageFileName = "images/"+card.cardKey.toLowerCase().replaceAll("/", ".")+".jpg";
-			
-			card.imageFileName = imageFileName;
-			File f = new File(card.imageFileName);
-			if(!f.exists()){
-				String result = getHTML(qstr);
-				String regexStr = "(http:\\/\\/magiccards.info\\/[a-z0-9/]+\\.jpg)\"\\s+alt=\\\""+(card.name.replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"))+"\"";
-				regexStr = regexStr.replaceAll("(?i)ae", "(((?i)ae)|(Ã†))");
-				Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
 				Matcher matcher = regex.matcher(result);
 				matcher.find();
 				if(matcher.groupCount() > 0){
 					try {
 						saveImage(matcher.group(1), card.imageFileName);
+						System.out.println("Downloaded: "+card.imageFileName);
+						return true;
 					} catch (Exception e) {
-						badCardList.add(card.getDisplay());
+						e.printStackTrace();
+						System.out.println("Couldn't download1 " + card.imageFileName);
+						System.out.println("From " + qstr);
 					}
 				}else{
-					badCardList.add(card.getDisplay());
+					System.out.println("Couldn't download2 " + card.imageFileName);
+					System.out.println("From " + qstr);
 				}
+			}catch(Exception e){
+				System.out.println("Couldn't download3 " + card.imageFileName);
+				System.out.println("From " + qstr);
 			}
+		}else{
+			System.out.println("exists: "+card.imageFileName);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static boolean loadFromGatherer(Card card){
+		System.out.println("Attempting gatherer");
+		if(card.multiverseId != null){
+			card.imageFileName="images/"+card.multiverseId+".jpg";
+			File f = new File(card.imageFileName);
+			if(!f.exists()){
+				String imageURL = "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid="+card.multiverseId+"&type=card";
+				try{
+					saveImage(imageURL, card.imageFileName);
+					System.out.println("LOADED CARD FROM GATHERER");
+					return true;
+				}catch(Exception e){}
+			}
+		}
+		return false;
+	}
+	
+	public static boolean loadFromMythicSpoiler(Card card){
+		System.out.println("Attempting spoiler");
+		card.imageFileName = "images/MYTHICSPOILER" + card.name+".jpg";
+		File f = new File(card.imageFileName);
+		if(f.exists()){return true;}
+		if(mythicSpoilerPage == null){
+			mythicSpoilerPage = getHTML("http://www.mythicspoiler.com/");
+		}
+		
+		String processedName = card.name.replaceAll("[^a-zA-Z]","").toLowerCase();
+		
+		String[][] nameErrors = {
+				{"kozilekschanneler","kozliekschanneler"},
+				{"tandemtactics","unisonstrike"}
+		};
+		
+		for(String[] pair : nameErrors){
+			if(processedName.equalsIgnoreCase(pair[0])){
+				processedName = pair[1];
+			}
+		}
+		
+		String patternString = "\"(..?.?.?/(?:cards/)?"+processedName+"[0-9]?.jpg)";
+		Pattern regex = Pattern.compile(patternString);
+		
+		Matcher matcher = regex.matcher(mythicSpoilerPage);
+		matcher.find();
+		if(matcher.groupCount() > 0){
+			try {
+				String url = "http://www.mythicspoiler.com/"+matcher.group(1);
+				System.out.println("Result: "+url);
+				saveImage(url, card.imageFileName);
+				System.out.println("SAVED FROM MYTHIC SPOILER to " + card.imageFileName);
+				return true;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return false;
+	}
+	
+	public static void downloadImages(Card[][] cards){
+		for(int i = 0; i < cards.length; i++){
+			for(Card card : cards[i]){
+				if(loadFromMagicCards(card))continue;
+				if(loadFromMythicSpoiler(card))continue;
+				if(loadFromGatherer(card))continue;
+				
+				System.out.println("Failed to load "+card);
+				badCardList.add(card.getDisplay());
+			}
+		}
+		
+		for(Card card : tokenSet){
+			//only attempt to DL transform card imgs, standard tokens are managed manually
+			if(!card.transform)continue;
+
+			if(loadFromMagicCards(card))continue;
+			if(loadFromMythicSpoiler(card))continue;
+			if(loadFromGatherer(card))continue;
+			
+			System.out.println("Failed to load "+card);
+			badCardList.add(card.getDisplay());
 		}
 	
 		if(!hiddenLink.equals("default")){
@@ -677,6 +707,7 @@ public class MakeDeck{
 					}
 					if(mode == CARD && !RARITIES[rarity].equals("Basic Land")){
 						Card card = new Card();
+						card.multiverseId = getMultiverseId(line);
 						card.name = cleanCardName(line);
 						card.ID = idcounter;
 						card.cardKey = card.name+"[]{}";
@@ -734,8 +765,12 @@ public class MakeDeck{
 		}
 	}
 	
+	public static String getMultiverseId(String raw){
+		return raw.substring(0, raw.indexOf(":"));
+	}
+	
 	public static String cleanCardName(String name){
-		return name.replaceAll("\u00E6", "ae").replaceAll("\u00C6","ae").replaceAll("\"", "");
+		return name.substring(name.indexOf(":")+1).replaceAll("\u00E6", "ae").replaceAll("\u00C6","ae").replaceAll("\"", "");
 	}
 	
 	public static void postToImgur(){
@@ -1442,6 +1477,7 @@ public class MakeDeck{
 		String color;
 		String pt;
 		String cardlist;
+		String multiverseId;
 		boolean token;
 		boolean transform;
 		int ID;
