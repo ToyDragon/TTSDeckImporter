@@ -2,6 +2,7 @@ Angel,Black,Creature - Angel,3;3,Haunted Angel
 ,White,Creature - Angel,4;4,Angelic Accord||Angelic Favor||Decree of Justice||Devout Invocation||Entreat the Angels||Geist of Saint Traft||Luminarch Ascension||Moonsilver Spear||Sigil of the Empty Throne||Urbis Protector
 Ape,Green,Creature - Ape,2;2,Monkey Cage
 ,Green,Creature - Ape,3;3,Pongify
+Ashaya The Awoken World,Green,Creature - Elemental,4;4,Nissa; Sage Animist||Nissa; Vastwood Seer
 Assassin,Black,Creature - Assassin,1;1,Vraska the Unseen
 Assembly-Worker,Colorless,Artifact Creature - Assembly-Worker,2;2,Urza's Factory
 Avatar,White,Creature - Avatar,_;_,Ajani Goldmane
@@ -41,7 +42,7 @@ Cleric,White,Enchantment Creature - Cleric,2;1,Heliod; God of the Sun
 ,White/Black,Creature - Cleric,1;1,Deathpact Angel
 Construct,Colorless,Artifact Creature - Construct,1;1,Flamewright||Sentinel Dispatch
 ,Colorless,Artifact Creature - Construct,6;12,Stone Idol Trap
-Demon,Black,Creature - Demon,5;5,Demonic Rising||Ob Nixilis of the Black Oath||Skirsdag High Priest
+Demon,Black,Creature - Demon,5;5,Demonic Rising||Ob Nixilis of the Black Oath||Skirsdag High Priest||Priest of the Blood Rite
 ,Black,Creature - Demon,_;_,Promise of Power||Reign of the Pit
 Djinn,Colorless,Artifact Creature - Djinn,5;5,Bottle of Suleiman
 Djinn Monk,Blue,Creature - Djinn Monk,2;2,Ojutai's Summons||Skywise Teachings
@@ -54,11 +55,14 @@ Dragon,Red,Creature - Dragon,2;2,Brood Keeper||Dragon Egg
 Dragon Spirit,Blue,Creature - Dragon Spirit,5;5,Tatsumasa; the Dragon's Fang
 Drake,Blue,Creature - Drake,2;2,Talrand; Sky Summoner||Talrand's Invocation
 ,Green/Blue,Creature - Drake,2;2,Leafdrake Roost
+Eldrazi,Colorless,Creature - Eldrazi,10;10,Desolation Twin
+Eldrazi Scion,Colorless,Creature - Eldrazi Scion,1;1,Adverse Conditions||Blight Herder||Blisterpod||Brood Butcher||Brood Monitor||Call the Scions||Carrier Thrall||Catacomb Sifter||Drowner of Hope||Eldrazi Skyspawner||Eyeless Watcher||From Beyond||Grave Birthing||Incubator Drone||Spawning Bed||Void Attendant
 Eldrazi Spawn,Colorless,Creature - Eldrazi Spawn,0;1,Awakening Zone||Brood Birthing||Corpsehatch||Dread Drone||Emrakul's Hatcher||Essence Feed||Growth Spasm||Kozilek's Predator||Nest Invader||Pawn of Ulamog||Rapacious One||Skittering Invasion||Spawning Breath||Spawnsire of Ulamog
 Elemental,Black/Red,Creature - Elemental,5;5,Din of the Fireherd
 ,Blue,Creature - Elemental,1;0,Master of Waves
 ,Blue,Creature - Elemental,2;2,Wand of the Elements
 ,Blue/Red,Creature - Elemental,5;5,Call the Skybreaker
+,Green,Creature - Elemental,2;2,Zendikar's Roil
 ,Green,Creature - Elemental,4;4,Eyes of the Wisent||Walker of the Grove
 ,Green,Creature - Elemental,5;3,Titania; Protector of Argoth
 ,Green,Creature - Elemental,7;7,Voice of the Woods
@@ -68,18 +72,19 @@ Elemental,Black/Red,Creature - Elemental,5;5,Din of the Fireherd
 ,Red,Creature - Elemental,1;1,Elemental Mastery||Tempt with Vengeance
 ,Red,Creature - Elemental,1;1,Molten Birth||Young Pyromancer
 ,Red,Creature - Elemental,3;1,Research // Development
-,Red,Creature - Elemental,3;1,Feral Lightning||Hostility||Lightning Coils||Rakka Mar
+,Red,Creature - Elemental,3;1,Feral Lightning||Hostility||Lightning Coils||Rakka Mar||Akoum Stonewaker
 ,Red,Enchantment Creature - Elemental,3;1,Satyr Nyx-Smith
 ,Red,Creature - Elemental,3;3,Wand of the Elements
 ,Red,Creature - Elemental,7;1,Elemental Appeal||Zektar Shrine Expedition
 ,Red,Creature - Elemental,X;X,Devastating Summons
+,Red/Green,Creature - Elemental,5;5,Omnath; Locus of Rage
 ,White,Creature - Elemental,4;4,Hoofprints of the Stag
 Elemental Cat,Red,Creature - Elemental Cat,1;1,Firecat Blitz
 ElementalShaman,Red,Creature - Elemental Shaman,3;1,Hearthcage Giant||Rebellion of the Flamekin
 Elephant,Green,Creature - Elephant,3;3,Assault // Battery||Bestial Menace||Call of the Herd||Elephant Ambush||Elephant Guide||Kazandu Tuskcaller||Selvala's Charge||Terastodon
 ,Green,Creature - Elephant,_;_,Elephant Resurgence
 Elf Druid,Green,Creature - Elf Druid,1;1,Freyalise; Llanowar's Fury
-Elf Warrior,Green,Creature - Elf Warrior,1;1,Ambassador Oak||Elvish Promenade||Flourishing Defenses||Gilt-Leaf Ambush||Hunting Triad||Imperious Perfect||Lys Alana Huntmaster||Nath of the Gilt-Leaf||Presence of Gond||Prowess of the Fair||Sylvan Offering
+Elf Warrior,Green,Creature - Elf Warrior,1;1,Ambassador Oak||Elvish Promenade||Flourishing Defenses||Gilt-Leaf Ambush||Hunting Triad||Imperious Perfect||Lys Alana Huntmaster||Nath of the Gilt-Leaf||Presence of Gond||Prowess of the Fair||Sylvan Offering||Dwynen's Elite
 ,Green/White,Creature - Elf Warrior,1;1,Mercy Killing||Rhys the Redeemed
 Faerie,Blue,Creature - Faerie,1;1,Hunted Troll
 Faerie Rogue,Blue/Black,Creature - Faerie,1;1,Oona; Queen of the Fae
@@ -132,9 +137,11 @@ Kelp,Blue,Creature - Wall,0;1,Wall of Kelp
 Kithkin Soldier,White,Creature - Kithkin Soldier,1;1,Cenn's Enlistment||Cloudgoat Ranger||Guardian of Cloverdell||Gwyllion Hedge-Mage||Kinsbaile Borderguard||Militia's Pride||Patrol Signaler||Repel Intruders
 Knight,Black,Creature - Knight,2;2,Riftmarked Knight
 ,White,Creature - Knight,1;1,Errand of Duty
-,White,Creature - Knight,2;2,Waylay
+,White,Creature - Knight,2;2,Waylay||Gideon's Phalanx
 ,White,Creature - Knight,2;2,Hunted Dragon
 ,White,Creature - Knight,2;2,Knight Watch||Knightly Valor||Security Blockade||Selesnya Charm||Sunspire Gatekeepers||Trostani's Summoner
+Knight Ally,White,Creature - Knight Ally,2;2,ideon; Ally of Zendikar
+Kor Ally,White,Creature - Kor Ally,1;1,Retreat to Emeria||Unified Front
 Kor Soldier,White,Creature - Kor Soldier,1;1,Conqueror's Pledge||Nahiri; the Lithomancer||Nomads' Assembly
 Kraken,Blue,Creature - Kraken,9;9,Kiora; the Crashing Wave||Reef Worm
 Land Mine,Colorless,Artifact,,Goblin Kaboomist
@@ -148,6 +155,7 @@ Minor Demon,Red/Black,Creature - Demon,1;1,Boris Devilboon
 Minotaur,Red,Creature - Minotaur,2;3,Flurry of Horns
 Monk,White,Creature - Monk,1;1,Monastery Mentor
 Myr,Colorless,Artifact Creature - Myr,1;1,Genesis Chamber||Master's Call||Myr Battlesphere||Myr Incubator||Myr Matrix||Myr Sire||Myr Turbine||Myrsmith||Origin Spellbomb||Parasitic Implant||Shrine of Loyal Legions
+Octopus,Blue,Creature - Octopus,8;8,Kiora; Master of the Depths
 Ogre,Red,Creature - Ogre,3;3,Kazuul; Tyrant of the Cliffs
 ,Red,Creature - Ogre,4;4,Grenzo's Rebuttal
 Ooze,Green,Creature - Ooze,1;1,Mitotic Slime
@@ -202,7 +210,7 @@ Stoneforged Blade,Colorless,Artifact - Equipment,,Nahiri; the Lithomancer
 Survivor,Red,Creature - Survivor,1;1,Varchild's War-Riders
 Tetravite,Colorless,Artifact Creature - Tetravite,1;1,Tetravus
 Thopter,Blue,Artifact Creature - Thopter,1;1,Sharding Sphinx||Thopter Foundry
-,Colorless,Artifact Creature - Thopter,1;1,Thopter Assembly||Thopter Squadron
+,Colorless,Artifact Creature - Thopter,1;1,Thopter Assembly||Thopter Squadron||Aspiring Aeronaut||Foundry of the Consuls||Ghirapur Gearcrafter||Hangarback Walker||Pia and Kiran Nalaar||Thopter Engineer||Thopter Spy Network||Whirler Rogue
 Thrull,Black,Creature - Thrull,0;1,Breeding Pit
 Treefolk,Green,Creature - Treefolk,X;X,Sylvan Offering
 Treefolk Shaman,Green,Creature - Treefolk Shaman,2;5,Reach of Branches
@@ -230,7 +238,7 @@ Wurm,Black,Creature - Wurm,6;6,Penumbra Wurm
 ,Green,Creature - Wurm,6;6,Crush of Wurms||Garruk; Primal Hunter||Roar of the Wurm||Wurmweaver Coil
 ,Colorless,Artifact Creature - Wurm,3;3a,Wurmcoil Engine
 ,Colorless,Artifact Creature - Wurm,3;3b,Wurmcoil Engine
-Zombie,Black,Creature - Zombie,2;2,Archdemon of Unx||Army of the Damned||Bridge from Below||Cellar Door||Cemetery Reaper||Curse of Shallow Graves||Empty the Pits||Endless Ranks of the Dead||Feast or Famine||Grave Titan||Ghoulcaller Gisa||Grixis Slavedriver||Havengul Runebinder||Liliana's Reaver||Maalfeld Twins||Midnight Ritual||Moan of the Unhallowed||Necromancer's Covenant||Necromancer's Stockpile||Necromaster Dragon||Nested Ghoul||Overseer of the Damned||Rakshasa Gravecaller||Reap the Seagraf||Rotlung Reanimator||Sarcomancy||Sidisi; Brood Tyrant||Syphon Flesh||Undead Alchemist||Unscythe; Killer of Kings||Vile Rebirth||Wakedancer||Waste Not||Xathrid Necromancer||Zombie Infestation
+Zombie,Black,Creature - Zombie,2;2,"Archdemon of Unx||Army of the Damned||Bridge from Below||Cellar Door||Cemetery Reaper||Curse of Shallow Graves||Empty the Pits||Endless Ranks of the Dead||Feast or Famine||Grave Titan||Ghoulcaller Gisa||Grixis Slavedriver||Havengul Runebinder||Liliana's Reaver||Maalfeld Twins||Midnight Ritual||Moan of the Unhallowed||Necromancer's Covenant||Necromancer's Stockpile||Necromaster Dragon||Nested Ghoul||Overseer of the Damned||Rakshasa Gravecaller||Reap the Seagraf||Rotlung Reanimator||Sarcomancy||Sidisi; Brood Tyrant||Syphon Flesh||Undead Alchemist||Unscythe; Killer of Kings||Vile Rebirth||Wakedancer||Waste Not||Xathrid Necromancer||Zombie Infestation||Liliana, Heretical Healer||Undead Servant"
 ,Black,Enchantment Creature - Zombie,2;2,Forlorn Pseudamma
 ,Black,Creature - Zombie,_;_,Ritual of the Returned
 ,Blue,Creature - Zombie,X;X,Stitcher Geralf
