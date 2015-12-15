@@ -18,18 +18,18 @@ $(document).ready(function(){
 					other[item.type].push(item);
 				}
 			});
-			$('select').append($('<optgroup>', {label: 'Expansions', id:'groupExpansions'}));
+			//$('select').append($('<optgroup>', {label: 'Expansions', id:'groupExpansions'}));
 			for(var expansion in expansions){
 				var block = expansions[expansion][0].block?expansions[expansion][0].block.replace(/[ ']/g,''):'other';
 				console.log('new block ' + block);
-				$('#groupExpansions').append($('<optgroup>', {label: expansion,style:'font-size:80%;',id:'groupBlock'+block}));
+				$('select').append($('<optgroup>', {label: expansion,style:'font-size:80%;',id:'groupBlock'+block}));
 				expansions[expansion].forEach(function(set){
 					$('#groupBlock'+block).append($('<option>', {value: set.name,style:'font-size:70%;'}).text(set.name));
 				});
 			}
-			$('select').append($('<optgroup>', {label: 'Others', id:'groupOthers'}));
+			//$('select').append($('<optgroup>', {label: 'Others', id:'groupOthers'}));
 			for(var type in other){
-				$('#groupOthers').append($('<optgroup>', {label: type,style:'font-size:80%;',id:'groupOthers'+type}));
+				$('select').append($('<optgroup>', {label: type,style:'font-size:80%;',id:'groupOthers'+type}));
 				other[type].forEach(function(set){
 					$('#groupOthers'+type).append($('<option>', {value: set.name,style:'font-size:70%;'}).text(set.name));
 				});

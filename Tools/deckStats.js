@@ -1,11 +1,18 @@
 var fs = require('fs');
 
 var dir = '../decks';
+var byMonth = false;
 var backupDir = 'decks';
 
 if(!fs.existsSync(dir)){
 	dir = backupDir;
 }
+
+process.argv.forEach(function (val, index, array) {
+	if(val === '-month' || val == '-m'){
+		byMonth = true;
+	}
+});
 
 if(fs.existsSync(dir)){
 	var total = 0;
@@ -34,12 +41,20 @@ if(fs.existsSync(dir)){
 
 	for(var year in dates){
 		for(var month in dates[year]){
+			var monthTotal = 0;
+			var dispMonth = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month];
+			var dispYear = parseInt(year)+1900;
 			for(var day in dates[year][month]){
-				var dispYear = parseInt(year)+1900;
-				var dispMonth = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month];
 				var dispDay = day < 10 ? '0'+day : day;
-				console.log(dispYear + '\t' + dispMonth + '\t' + dispDay + '\t' + dates[year][month][day]);
+				monthTotal += dates[year][month][day];
+				if(!byMonth){
+					console.log(dispYear + '\t' + dispMonth + '\t' + dispDay + '\t' + dates[year][month][day]);
+				}
 			}
+			if(byMonth){
+				console.log(dispYear + '\t' + dispMonth + '\t' + monthTotal);
+			}
+			
 		}
 	}
 	console.log('Total: ' + total);
