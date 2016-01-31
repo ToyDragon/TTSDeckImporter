@@ -70,6 +70,15 @@ public class MakeDeck{
 	public static boolean useImgur;
 	
 	public static void main(String[] args){
+		if(args.length == 0){
+			args =   ("gjdmfthybsxkjjrb"
+					+ " -name xcv"
+					+ " -backURL default"
+					+ " -hiddenURL http://images5.fanpop.com/image/polls/856000/856722_1318729024930_full.png"
+					+ " -compression .5"
+					+ " -coolifyBasics").split(" ");
+			System.out.println("DEBUGGING");
+		}
 		fileName = args[0];
 		
 		String hostname = "Unknown";
@@ -122,9 +131,7 @@ public class MakeDeck{
 
 		loadTokens();
 		loadTransforms();
-		
-		System.out.println(draftSetName);
-		System.out.println(draftSetName != null?"Drafting!":"Not drafting!");
+		System.out.println(draftSetName != null?("Drafting " +draftSetName + "!"):"Not drafting!");
 	
 		if(draftSetName != null){
 			compressionLevel = 1f;
@@ -142,7 +149,6 @@ public class MakeDeck{
 			buildDraftJSON();
 			System.exit(0);
 		}else{
-			
 			if(deckName.equals("default")){
 				deckName = fileName;
 			}
@@ -466,7 +472,7 @@ public class MakeDeck{
 					saveImage(hardPair[1], card.imageFileName);
 					System.out.println("Downloaded: "+card.imageFileName);
 					return true;
-				} catch (IOException e) {
+				} catch (Exception e) {
 					System.out.println("Couldnt download hard card");
 					e.printStackTrace();
 				}
@@ -1235,6 +1241,7 @@ public class MakeDeck{
 	         url = new URL(urlToRead);
 	         conn = (HttpURLConnection) url.openConnection();
 	         conn.setRequestMethod("GET");
+	         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36");
 	         rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
 	         while ((line = rd.readLine()) != null) {
 	            result += line;
@@ -1452,9 +1459,12 @@ public class MakeDeck{
 		jpgWriter.dispose();
 	}
 	
-	public static void saveImage(String imageUrl, String destinationFile) throws IOException {
+	public static void saveImage(String imageUrl, String destinationFile) throws Exception {
 		URL url = new URL(imageUrl);
-		InputStream is = url.openStream();
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36");
+		InputStream is = conn.getInputStream();
 		OutputStream os = new FileOutputStream(destinationFile);
 
 		byte[] b = new byte[2048];
