@@ -3,14 +3,18 @@ var fs = require('fs');
 var dir = '../decks';
 var byMonth = false;
 var backupDir = 'decks';
+var countAll = false;
 
 if(!fs.existsSync(dir)){
 	dir = backupDir;
 }
 
 process.argv.forEach(function (val, index, array) {
-	if(val === '-month' || val == '-m'){
+	if(val === '-month' || val === '-m'){
 		byMonth = true;
+	}
+	if(val === '-all' || val === '-a'){
+		countAll = true;
 	}
 });
 
@@ -21,7 +25,8 @@ if(fs.existsSync(dir)){
 	for(var filei in files){
 		var file = files[filei];
 		if(file == '.' || file == '..')continue;
-		if(!file.match(/[a-z]{16}\.json/)) continue;
+		if(!countAll && !file.match(/[a-z]{16}\.json/)) continue;
+		if(countAll && !file.match(/.json$/)) continue;
 		var stats = fs.statSync(dir + '/' + file);
 		var fileObj = {
 			date:stats.ctime,

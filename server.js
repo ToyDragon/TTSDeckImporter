@@ -70,6 +70,7 @@ app.post('/newdraft', function(req, res){
 	cmdStr += ' -draft ' + req.body.set;
 	cmdStr += ' -n ' + req.body.n;
 	cmdStr += ' -compression .7';
+	cmdStr = cmdStr.replace(/'/g,'');
 	if(debug){
 		console.log("cmd: "+cmdStr);
 	}

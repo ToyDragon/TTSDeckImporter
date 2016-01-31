@@ -49,7 +49,7 @@ $(document).ready(function(){
 	}
 
 	$('#generate').click(function(){
-		var set = $('select').val().replace(new RegExp(' ','g'), '_');
+		var set = $('select').val().replace(new RegExp(' ','g'), '_').replace(new RegExp('\'','g'),'');
 		var deckName = set+'_'+makeid();
 		var n = $('#packCount').val();
 		var error = false;
