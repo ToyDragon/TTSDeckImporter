@@ -117,8 +117,8 @@ app.post('/newdeck', function(req, res){
 		var hideClean = clean(hiddenURL);
 		var backClean = clean(backURL);
 		
-		var cmdStr = 'java -cp gson-2.3.1.jar:. MakeDeck ' + deckID;
-		if(os.platform().indexOf('win')!=-1)cmdStr = 'java -cp gson-2.3.1.jar;. MakeDeck ' + deckID;
+		var cmdStr = 'java -cp libs/gson-2.3.1.jar:. MakeDeck ' + deckID;
+		if(os.platform().indexOf('win')!=-1)cmdStr = 'java -cp libs/gson-2.3.1.jar;. MakeDeck ' + deckID;
 		cmdStr += ' -name ' + nameClean;
 		cmdStr += ' -backURL ' + backClean;
 		cmdStr += ' -hiddenURL ' + hideClean;
