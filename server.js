@@ -1,15 +1,8 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var fs = require('fs');
-var exec = require('child_process').exec;
-var os = require('os');
 var config = require('./settings.json');
 var net = require('net');
 var StringDecoder = require('string_decoder').StringDecoder;
-var Connection = require('tedious').Connection;
-var Request = require('tedious').Request
-var TYPES = require('tedious').TYPES;
-
 var sendgrid = require('sendgrid')(config.sendgrid.key);
 
 var lastErrorEmail = new Date();
