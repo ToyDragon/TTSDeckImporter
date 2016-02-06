@@ -12,3 +12,4 @@ sets/
 node_modules/
 /bin/
 Tools/files
+settings.json

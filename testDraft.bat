@@ -1,1 +1,0 @@
-java -cp gson-2.3.1.jar;. MakeDeck mm2test -draft mm2 -n 8

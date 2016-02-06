@@ -38,19 +38,8 @@ $(document).ready(function(){
 		}
 	});
 
-	function makeid(){
-		var text = "";
-		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-		for( var i=0; i < 6; i++ )
-			text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-		return text;
-	}
-
 	$('#generate').click(function(){
-		var set = $('select').val().replace(new RegExp(' ','g'), '_').replace(new RegExp('\'','g'),'');
-		var deckName = set+'_'+makeid();
+		var set = $('select').val().replace(new RegExp('\'','g'),'');
 		var n = $('#packCount').val();
 		var error = false;
 		if(n <= 0 || n > 24){
@@ -63,12 +52,11 @@ $(document).ready(function(){
 			var reqobj = {};
 			reqobj.set = set;
 			reqobj.n = n;
-			reqobj.deckName = deckName;
 			
 			$.post('/newdraft', reqobj, function(dataraw, status){
 				var data = JSON.parse(dataraw);
 				if(data.status == 0){
-					window.location = '/draftresults.html?deck='+deckName;
+					window.location = '/draftresults.html?deck='+data.name;
 				}
 				else{
 					alert("Oops! Error creating packs. BFZ should be online soon!");

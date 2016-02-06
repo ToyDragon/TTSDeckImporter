@@ -1,0 +1,1 @@
+java -cp libs/gson-2.3.1.jar;libs/bin DeckMaker

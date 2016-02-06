@@ -2,37 +2,19 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require('fs');
 var exec = require('child_process').exec;
-var MongoClient = require('mongodb').MongoClient;
 var os = require('os');
+var config = require('./settings.json');
+var net = require('net');
+var StringDecoder = require('string_decoder').StringDecoder;
+var Connection = require('tedious').Connection;
+var Request = require('tedious').Request
+var TYPES = require('tedious').TYPES;
 
-var app = express();
-var db;
-var collection;
+var sendgrid = require('sendgrid')(config.sendgrid.key);
 
-var debug = false;
-process.argv.forEach(function (val, index, array) {
-	if(val == 'debug'){
-		debug = true;
-		console.log("DEBUG MODE ENABLED");
-	}
-});
-
-MongoClient.connect('mongodb://localhost/mtg', function(err, dbt){
-	if(err){
-		console.log(err);
-	}else{
-		console.log('Connected!');
-		db = dbt;
-		
-		collection = db.collection('decks');
-	}
-});
-
-app.use(express.static('www'));
-app.use('/decks', express.static('decks'));
-app.use('/misc', express.static('misc'));
-app.use('/setAssets', express.static('setAssets'));
-app.use(bodyParser.urlencoded({ extended: false }));
+function clean(str){
+	return (str+'').replace(/[\r\n]/g,'').replace(/\s/g,'_');
+};
 
 function getDeckID(){
 	var chars = 'abcdefghijklmnopqrstuvwxyz';
@@ -43,136 +25,104 @@ function getDeckID(){
 	return name;
 }
 
+function majorError(details){
+	var payload = {
+		to      : config.sendgrid.alertEmail,
+		from    : config.sendgrid.sourceEmail,
+		subject : 'Frogtown Error',
+		text    : JSON.stringify(details)
+	};
+
+	sendgrid.send(payload, function(err, json) {
+		if (err) { console.error(err); }
+		console.log(json);
+	});
+}
+
+var app = express();
+
+app.use(express.static('www'));
+app.use('/decks', express.static(config.deckDir));
+app.use('/misc', express.static('misc'));
+app.use('/setAssets', express.static(config.setAssetDir));
+app.use(bodyParser.urlencoded({ extended: false }));
+
 app.get('/sets', function(req, res){
-	fs.readFile('sets/setlist',function(err, data){
+	fs.readFile(config.setAssetDir + 'setlist',function(err, data){
 		res.end(data);
 	});
 });
 
-app.get('/decks', function(req, res){
-	var decks = [];
-	if(collection){
-		collection.find().sort({_id:-1}).limit(20).toArray(function(err, arr){
-			console.log('err: ' + err);
-			arr.forEach(function(item){
-				decks.push(item);
-				console.log(JSON.stringify(item));
-			});
-			console.log('decks: ' + JSON.stringify(decks));
-			res.end(JSON.stringify(decks));
-		});
-	}
-});
-
 app.post('/newdraft', function(req, res){
-	var cmdStr = 'java -cp gson-2.3.1.jar:. MakeDeck ' + req.body.deckName;
-	if(os.platform().indexOf('win')!=-1)cmdStr = 'java -cp gson-2.3.1.jar;. MakeDeck ' + req.body.deckName;
-	cmdStr += ' -draft ' + req.body.set;
-	cmdStr += ' -n ' + req.body.n;
-	cmdStr += ' -compression .7';
-	cmdStr = cmdStr.replace(/'/g,'');
-	if(debug){
-		console.log("cmd: "+cmdStr);
-	}
-	var proc = exec(cmdStr, function(error, stdout, stderr){
-		if(debug){
-			console.log('err:'+error);
-			console.log('out:'+stdout);
-			console.log('ser:'+stderr);
-		}
+	var client = net.connect({port: config.port});
+	var deckId = getDeckID();
+	client.on('close', function(){
+		res.end(JSON.stringify({name:deckId,status:0}));//TODO add fail status
 	});
 
-	proc.on('exit', function(code){
-		if(debug){
-			console.log('ended with code ' + code);
-		}
-		res.end(JSON.stringify({status:code}));
-	});
+	client.write('draft\r\n');
+	client.write(deckId + '\r\n');
+	client.write(req.body.set.replace(/\r\n/g,'') + '\r\n');
+	client.write(clean(req.body.n) + '\r\n');
 });
 
 app.post('/newdeck', function(req, res){
-	var decklist = req.body.decklist+'\n';
+	var decklist = req.body.decklist;
 	var deckID = getDeckID();
 	
-	var deckName = req.body.deckName;
-	if(deckName == 'default')deckName = deckID;
-	
-	var backURL = req.body.backURL;
-	
-	var hiddenURL = req.body.hiddenURL;
-	
-	var compression = req.body.compression;
-	
-	//save decklist to file
-	fs.writeFile(__dirname+'/lists/'+deckID, decklist, function(err) {
-		if(err) {
-			return console.log(err);
-		}
-		//invoke the deck maker
-		var clean = function(str){
-			return str.replace(/([\(\)])/g,'\\$1').replace(/\s/g,'_');
-		};
-		
-		var nameClean = clean(deckName);
-		var hideClean = clean(hiddenURL);
-		var backClean = clean(backURL);
-		
-		var cmdStr = 'java -cp libs/gson-2.3.1.jar:. MakeDeck ' + deckID;
-		if(os.platform().indexOf('win')!=-1)cmdStr = 'java -cp libs/gson-2.3.1.jar;. MakeDeck ' + deckID;
-		cmdStr += ' -name ' + nameClean;
-		cmdStr += ' -backURL ' + backClean;
-		cmdStr += ' -hiddenURL ' + hideClean;
-		cmdStr += ' -compression ' + compression;
-		if(req.body.coolify){
-			cmdStr += ' -coolifyBasics';
-		}
-		if(debug){
-			console.log('running: ' + cmdStr);
-		}
-		var imgurI = '';
-		if(req.body.imgur && req.body.imgur == 'true'){
-			//console.log('Using imgur!');
-			cmdStr += ' imgur';
-			imgurI='[i]';
-		}
-		var dateString = new Date().toLocaleDateString();
-		
-		console.log('('+dateString+')Saved decklist'+imgurI+' ' + deckID+' '+deckName);
-		if(debug){
-			console.log("cmd: "+cmdStr);
-		}
-		var proc = exec(cmdStr, function(error, stdout, stderr){
-			if(debug){
-				console.log('err:'+error);
-				console.log('out:'+stdout);
-				console.log('ser:'+stderr);
-			}
-		});
+	var backURL = clean(req.body.backURL);
+	var hiddenURL = clean(req.body.hiddenURL);
+	var compression = clean(req.body.compression);
+	var useImgur = !!req.body.imgur;
+	var coolifyBasic = !!req.body.coolify;
 
-		proc.on('exit', function(code){
-			if(code == 0 && deckName != deckID){
-				//success!
-				if(collection)
-					collection.insert({name:deckName,uid:deckID});
+	var client = net.connect({port: config.port});
+	
+	client.on('error', function(){
+		console.log('Deck maker is down...');
+		majorError({'message': 'Unable to connect to deck maker'});
+		res.end(JSON.stringify({
+			status:1,
+			errObj: {
+				message: 'The server is experiencing technical issues, please check back soon for details.'
 			}
-			if(debug){
-				console.log('ended with code ' + code);
-			}
-			res.end(JSON.stringify({name:deckID,status:code}));
-		});
-		//respond with deck name
-	}); 
+		}));
+	})
+	client.on('close', function(){
+		var errObj = null;
+		try{
+			errObj = JSON.parse(data)
+		}catch(err){}
+		if(errObj){
+			console.log(errObj);
+			res.end(JSON.stringify({
+				status:1,
+				errObj: errObj
+			}));
+		}else{
+			res.end(JSON.stringify({
+				status: 0,
+				name: deckID
+			}));
+		}
+	});
+	var data = '';
+	var decoder = new StringDecoder('utf8');
+	client.on('data', function(buffer){
+		data += decoder.write(buffer);
+	});
+
+	client.write('deck\r\n');
+	client.write(deckID + '\r\n');
+	client.write(useImgur + '\r\n');
+	client.write(backURL + '\r\n');
+	client.write(hiddenURL + '\r\n');
+	client.write(coolifyBasic + '\r\n');
+	client.write(compression + '\r\n');
+	client.write(decklist + '\r\n');
+	client.write('ENDDECK\r\n');
 });
 
 app.listen(80, function(){
 	console.log('Listening on port 80!');
-});
-
-function cleanUp(){
-	console.log('Cleaning up...');
-	db.close();
-}
-
-process.on('exit', function () {
-	cleanUp();
 });

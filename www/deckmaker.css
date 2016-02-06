@@ -1,9 +1,9 @@
-#wrong{
-	color: red;
-}
-
 .error{
+	color: red;
+	background-color:#ffcccc;
 	border: 3px solid red !important;
+	border-radius: 3px;
+	padding: 3px;
 }
 
 .hider{
@@ -55,7 +55,7 @@ h3{
 }
 
 #options, #back, #hidden{
-	display: none;
+	max-width: 740px;
 }
 
 .spacer{
@@ -66,39 +66,16 @@ h3{
 	padding-right: 35px;
 }
 
-textarea{
-	width: 100%;
-}
-
-#decklist{
+.userlist.mainboard{
 	height: 450px;
 }
 
-#sidelist{
+.userlist.sideboard{
 	height:305px;
 }
 
-#commander{
+.userlist.commander{
 	height:26px;
-}
-
-input[type=checkbox]{
-	margin:8px;
-}
-
-.checkcol{
-	width: 175px;
-	display: inline-block;
-}
-
-.checkcol-thin{
-	width: 120px;
-	display: inline-block;
-}
-
-.checkcol-quality{
-	width: 250px;
-	display: inline-block;
 }
 
 body{
@@ -170,6 +147,68 @@ ul{
 	display: block;
 }
 
+.toggleButton.btn-default .glyphicon{
+	display:none;
+}
+
+.optionButtons{
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+.optionButtons button{
+	width: 140px;	
+}
+
+.optionsSection{
+	padding:20px;
+}
+
+.listsection{
+	position:relative;
+}
+
+.errorlist{
+	z-index: 2;
+	position:absolute;
+	background-color: transparent;
+	color:red;
+}
+
+.userlist{
+	position: relative;
+	z-index: 3;
+	width: 100%;
+	background-color: transparent;
+	-webkit-text-fill-color: transparent;
+}
+
+.errorlist.notchrome{
+	top: 6px;
+	left: -12px;
+
+    border: none;
+    overflow: hidden;
+    outline: none;
+    resize: none;
+
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+
+.displaylist{
+	z-index: 1;
+	position: absolute;
+	color: black;
+}
+
+/* This modal stuff is copy-pasted, woah!*/
 /* Start by setting display:none to make this hidden.
    Then we position it in relation to the viewport window
    with position:fixed. Width, height, top and left speak

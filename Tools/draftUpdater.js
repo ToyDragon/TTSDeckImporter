@@ -1,16 +1,18 @@
 // Dependencies
 var fs = require('fs');
 var os = require('os');
+var net = require('net');
 var url = require('url');
 var http = require('http');
 var child_process = require('child_process');
 var exec = require('child_process').exec;
 var spawn = require('child_process').spawn;
+var config = require('../settings.json');
 
 // App variables
 var file_url = 'http://mtgjson.com/json/AllSets.json';
 var DOWNLOAD_DIR = './files/';
-var SET_DIR = '../sets/';
+var SET_DIR = '../' + config.setAssetDir;
 
 // We will be downloading the files to a directory, so make sure it's there
 // This step is not required if you have manually created the directory
@@ -18,6 +20,15 @@ var mkdir = 'mkdir -p ' + DOWNLOAD_DIR;
 
 if(os.platform().indexOf('win')!=-1) {
 	mkdir = 'mkdir files';
+}
+
+function getDeckID(){
+	var chars = 'abcdefghijklmnopqrstuvwxyz';
+	var name = '';
+	for(var i = 0; i < 16; i++){
+		name += chars[Math.floor(Math.random()*chars.length)];
+	}
+	return name;
 }
 
 var setList = [];
@@ -36,29 +47,24 @@ var load_sets = function(file_name){
 	setList.sort(function(a,b){return a.date == b.date ? 0 : -(a.date > b.date) || 1;})
 	fs.writeFileSync(SET_DIR + 'setlist', JSON.stringify(setList));
 	var StringDecoder = require('string_decoder').StringDecoder;
+	BuildSet(0, setList);
+}
 
-	for(var i in setList){
-		var decoder = new StringDecoder('utf8');
-		var set = setList[i];
-		var name = set.name.replace(/ /g,'_');
-		var cmdStr = 'java -cp ./gson-2.3.1.jar:. MakeDeck ' + name.replace(/'/g,"\\'") + '.json';
-		if(os.platform().indexOf('win')!=-1)cmdStr = 'java -cp ./gson-2.3.1.jar;. MakeDeck ' + name + '.json';
-		cmdStr += ' -draft ' + name.replace(/'/g,"\\'");
-		cmdStr += ' -n 18';
-		cmdStr += ' -compression .7';
-		console.log("cmd: "+cmdStr);
-		try{
-			var resp = child_process.execSync(cmdStr,{cwd:'..'});
-			console.log(name + ' ended with code ' + resp.code);
-		}catch(e){
-			//console.log('test ' + e);
-			for(var x in e){
-				console.log(x +' : '+ e[x]);
-			}
-			//console.log(name + JSON.stringify(e.stdout));
-			console.log(decoder.write(e.stderr));
+function BuildSet(index, setList){
+	var client = net.connect({port: config.port});
+	var set = setList[index];
+	client.on('close', function(){
+		console.log('Done with ' + set.name);
+		if(index < setList.length - 1){
+			BuildSet(index+1, setList);
 		}
-	}
+	});
+
+	client.write('draft\r\n');
+	client.write(getDeckID() + '\r\n');
+	client.write(set.name + '\r\n');
+	client.write('1\r\n');
+	client.write('ENDDECK\r\n');
 }
 
 var clean_card_name = function(name){
@@ -179,7 +185,7 @@ var save_set = function(set){
 
 		setList.push({
 			name:set.name,
-			code:set.code,
+			code:set.magicCardsInfoCode,
 			date:set.releaseDate,
 			block:set.block,
 			type:set.type
