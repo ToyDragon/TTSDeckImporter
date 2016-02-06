@@ -1,6 +1,5 @@
 *.class
 *.tar
-*.jar
 .classpath
 .project
 setAssets/
