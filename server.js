@@ -12,6 +12,8 @@ var TYPES = require('tedious').TYPES;
 
 var sendgrid = require('sendgrid')(config.sendgrid.key);
 
+var lastErrorEmail = new Date();
+
 function clean(str){
 	return (str+'').replace(/[\r\n]/g,'').replace(/\s/g,'_');
 };
@@ -26,17 +28,21 @@ function getDeckID(){
 }
 
 function majorError(details){
-	var payload = {
-		to      : config.sendgrid.alertEmail,
-		from    : config.sendgrid.sourceEmail,
-		subject : 'Frogtown Error',
-		text    : JSON.stringify(details)
-	};
+	if(new Date() > lastErrorEmail){
+		var payload = {
+			to      : config.sendgrid.alertEmail,
+			from    : config.sendgrid.sourceEmail,
+			subject : 'Frogtown Error',
+			text    : JSON.stringify(details)
+		};
 
-	sendgrid.send(payload, function(err, json) {
-		if (err) { console.error(err); }
-		console.log(json);
-	});
+		sendgrid.send(payload, function(err, json) {
+			if (err) { console.error(err); }
+			console.log(json);
+		});
+		lastErrorEmail = new Date();
+		lastErrorEmail.setMinutes(lastErrorEmail.getMinutes() + 30);
+	}
 }
 
 var app = express();
@@ -47,80 +53,96 @@ app.use('/misc', express.static('misc'));
 app.use('/setAssets', express.static(config.setAssetDir));
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.get('/ping', function(req, res){
+	res.end('true\r\n');
+});
+
 app.get('/sets', function(req, res){
-	fs.readFile(config.setAssetDir + 'setlist',function(err, data){
-		res.end(data);
-	});
+	try{
+		fs.readFile(config.setAssetDir + 'setlist',function(err, data){
+			res.end(data);
+		});
+	}catch(err){
+		res.end(JSON.stringify({status:1,errObj:{message:'Unknown error occured'}}));
+	}
 });
 
 app.post('/newdraft', function(req, res){
-	var client = net.connect({port: config.port});
-	var deckId = getDeckID();
-	client.on('close', function(){
-		res.end(JSON.stringify({name:deckId,status:0}));//TODO add fail status
-	});
+	try{
+		var client = net.connect({port: config.port});
+		var deckId = req.body.set.replace(/[^a-zA-Z0-9]/g, '') + getDeckID();
+		client.on('close', function(){
+			res.end(JSON.stringify({name:deckId,status:0}));//TODO add fail status
+		});
 
-	client.write('draft\r\n');
-	client.write(deckId + '\r\n');
-	client.write(req.body.set.replace(/\r\n/g,'') + '\r\n');
-	client.write(clean(req.body.n) + '\r\n');
+		client.write('draft\r\n');
+		client.write(deckId + '\r\n');
+		client.write(req.body.set.replace(/\r\n/g,'') + '\r\n');
+		client.write(clean(req.body.n) + '\r\n');
+	}catch(err){
+		res.end(JSON.stringify({status:1,errObj:{message:'Unknown error occured'}}));
+	}
 });
 
 app.post('/newdeck', function(req, res){
-	var decklist = req.body.decklist;
-	var deckID = getDeckID();
-	
-	var backURL = clean(req.body.backURL);
-	var hiddenURL = clean(req.body.hiddenURL);
-	var compression = clean(req.body.compression);
-	var useImgur = !!req.body.imgur;
-	var coolifyBasic = !!req.body.coolify;
+	try{
+		var decklist = req.body.decklist;
+		var deckID = getDeckID();
+		
+		var backURL = clean(req.body.backURL);
+		var hiddenURL = clean(req.body.hiddenURL);
+		var compression = clean(req.body.compression);
+		var useImgur = !!req.body.imgur;
+		var coolifyBasic = !!req.body.coolify;
 
-	var client = net.connect({port: config.port});
-	
-	client.on('error', function(){
-		console.log('Deck maker is down...');
-		majorError({'message': 'Unable to connect to deck maker'});
-		res.end(JSON.stringify({
-			status:1,
-			errObj: {
-				message: 'The server is experiencing technical issues, please check back soon for details.'
-			}
-		}));
-	})
-	client.on('close', function(){
-		var errObj = null;
-		try{
-			errObj = JSON.parse(data)
-		}catch(err){}
-		if(errObj){
-			console.log(errObj);
+		var client = net.connect({port: config.port});
+		
+		client.on('error', function(){
+			console.log('Deck maker is down...');
+			majorError({'message': 'Unable to connect to deck maker'});
 			res.end(JSON.stringify({
 				status:1,
-				errObj: errObj
+				errObj: {
+					message: 'The server is experiencing technical issues, please check back soon for details.'
+				}
 			}));
-		}else{
-			res.end(JSON.stringify({
-				status: 0,
-				name: deckID
-			}));
-		}
-	});
-	var data = '';
-	var decoder = new StringDecoder('utf8');
-	client.on('data', function(buffer){
-		data += decoder.write(buffer);
-	});
+		})
+		client.on('close', function(){
+			var errObj = null;
+			try{
+				errObj = JSON.parse(data)
+			}catch(err){}
+			if(errObj){
+				console.log(errObj);
+				res.end(JSON.stringify({
+					status:1,
+					errObj: errObj
+				}));
+			}else{
+				res.end(JSON.stringify({
+					status: 0,
+					name: deckID
+				}));
+			}
+		});
+		var data = '';
+		var decoder = new StringDecoder('utf8');
+		client.on('data', function(buffer){
+			data += decoder.write(buffer);
+		});
 
-	client.write('deck\r\n');
-	client.write(deckID + '\r\n');
-	client.write(useImgur + '\r\n');
-	client.write(backURL + '\r\n');
-	client.write(hiddenURL + '\r\n');
-	client.write(coolifyBasic + '\r\n');
-	client.write(compression + '\r\n');
-	client.write(decklist + '\r\n');
-	client.write('ENDDECK\r\n');
+		client.write('deck\r\n');
+		client.write(deckID + '\r\n');
+		client.write(useImgur + '\r\n');
+		client.write(backURL + '\r\n');
+		client.write(hiddenURL + '\r\n');
+		client.write(coolifyBasic + '\r\n');
+		client.write(compression + '\r\n');
+		client.write(decklist + '\r\n');
+		client.write('ENDDECK\r\n');
+	}catch(err){
+		res.end(JSON.stringify({status:1,errObj:{message:'Unknown error occured'}}));
+	}
 });
 
 app.listen(80, function(){
