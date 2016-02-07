@@ -11,8 +11,8 @@ var config = require('../settings.json');
 
 // App variables
 var file_url = 'http://mtgjson.com/json/AllSets.json';
-var DOWNLOAD_DIR = './files/';
-var SET_DIR = '../' + config.setAssetDir;
+var DOWNLOAD_DIR = './Tools/files/';
+var SET_DIR = config.setAssetDir;
 
 // We will be downloading the files to a directory, so make sure it's there
 // This step is not required if you have manually created the directory
@@ -58,6 +58,11 @@ function BuildSet(index, setList){
 		if(index < setList.length - 1){
 			BuildSet(index+1, setList);
 		}
+	});
+
+	client.on('error', function(){
+		console.log('error :(');
+		console.log(arguments);
 	});
 
 	client.write('draft\r\n');
@@ -217,6 +222,8 @@ if(keep != '-n' && keep != '-nodownload'){
 				console.log(file_name + ' downloaded to ' + DOWNLOAD_DIR);
 				load_sets(file_name);
 			});
+		}).on('error', function(){
+			console.log('error :(');
 		});
 	});
 }else{
