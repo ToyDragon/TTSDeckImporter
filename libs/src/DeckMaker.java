@@ -1,3 +1,4 @@
+import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,8 +48,8 @@ public class DeckMaker {
 		System.out.println("Initialization successful, waiting for client on port " + Config.port);
 		
 		Socket clientSocket = null;
-		BufferedReader clientScanner;
-		BufferedWriter clientWriter;
+		BufferedReader clientScanner = null;
+		BufferedWriter clientWriter = null;
 		running = true;
 		while(running){
 			try {
@@ -62,11 +63,9 @@ public class DeckMaker {
 			} catch (IOException e) {
 				ExitFailure("Unable to listen on port " + Config.port);
 			} finally{
-				if(clientSocket != null){
-					try{
-						clientSocket.close();
-					}catch(Exception e) {}
-				}
+				if(clientScanner != null){try{clientScanner.close();}catch(Exception e) {}}
+				if(clientWriter != null){try{clientWriter.close();}catch(Exception e) {}}
+				if(clientSocket != null){try{clientSocket.close();}catch(Exception e) {}}
 			}
 		}
 	}
@@ -99,6 +98,11 @@ public class DeckMaker {
 			HandleDeck(clientScanner, clientWriter);
 		}else if(response.equals("draft")){
 			HandleDraft(clientScanner);
+		}else if(response.equals("ping")){
+			try{
+				clientWriter.write("true\r\n");
+				clientWriter.flush();
+			}catch(Exception e){}
 		}
 	}
 	
@@ -124,7 +128,7 @@ public class DeckMaker {
 				String badJson = new Gson().toJson(errorObj);
 				System.out.println("Bad: " + badJson);
 				clientWriter.write(badJson);
-				clientWriter.close();
+				clientWriter.flush();
 			} catch (Exception e) {e.printStackTrace();}
 		}
 		if(newDeck.cardList.size() + newDeck.transformList.size() >= 150){
@@ -135,7 +139,7 @@ public class DeckMaker {
 				String badJson = new Gson().toJson(errorObj);
 				System.out.println("Bad: " + badJson);
 				clientWriter.write(badJson);
-				clientWriter.close();
+				clientWriter.flush();
 			} catch (Exception e) {e.printStackTrace();}
 		}
 		
@@ -158,9 +162,10 @@ public class DeckMaker {
 				String badJson = new Gson().toJson(errorObj);
 				System.out.println("Bad: " + badJson);
 				clientWriter.write(badJson);
-				clientWriter.close();
+				clientWriter.flush();
 			} catch (Exception e) {e.printStackTrace();}
 		}
+		ImageUtils.FreeAllBuffers();
 		System.out.println("Done with deck :O");
 	}
 	
@@ -512,8 +517,7 @@ public class DeckMaker {
 		ImageUtils.StitchDeck(draft);
 		Debug("Building JSON...");
 		BuildDraftJSONFile(draft);
-		draft = null;
-		System.gc();
+		ImageUtils.FreeAllBuffers();
 		Debug("Done with draft :O");
 	}
 	

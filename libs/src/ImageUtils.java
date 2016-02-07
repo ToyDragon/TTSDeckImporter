@@ -5,6 +5,7 @@ import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,8 +16,30 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
 public class ImageUtils {
-	
+	public static ArrayList<BufferedImage> freeBuffers = new ArrayList<BufferedImage>();
+	public static ArrayList<BufferedImage> occupiedBuffers = new ArrayList<BufferedImage>();
 	public static String mythicSpoilerPage;
+	
+	public static BufferedImage GetBuffer(int width, int height){
+		for(int i = freeBuffers.size()-1; i >= 0; i--){
+			BufferedImage img = freeBuffers.get(i);
+			if(img.getWidth() == width && img.getHeight() == height){
+				freeBuffers.remove(i);
+				occupiedBuffers.add(img);
+				return img;
+			}
+		}
+		
+		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
+		occupiedBuffers.add(img);
+		return img;
+	}
+	
+	public static void FreeAllBuffers(){
+		for(int i = occupiedBuffers.size()-1; i >= 0; i--){
+			freeBuffers.add(occupiedBuffers.remove(i));
+		}
+	}
 	
 	public static void DownloadImages(Deck deck){
 		for(int i = deck.cardList.size()-1; i >= 0; i--){
@@ -96,7 +119,6 @@ public class ImageUtils {
 				return imageFileName;
 			}
 		}
-
 		String processedName = "\""+cardName.trim().toLowerCase()+"\"";
 		if(card.set != null && card.set.length() > 0) processedName +=" e:"+card.set;
 		if(card.language != null && card.language.length() > 0)	processedName +=" l:"+card.language;
@@ -212,6 +234,8 @@ public class ImageUtils {
 		deck.deckFileNames = new String[deckAmt];
 		deck.deckLinks = new String[deckAmt];
 		
+		Graphics[] gs = new Graphics[deckAmt];
+		
 		for(int i = 0; i < deckAmt; i++){
 			deck.deckFileNames[i] = Config.deckDir + deck.deckId + i + ".jpg";
 			
@@ -221,12 +245,12 @@ public class ImageUtils {
 				draftAssetsExist = draftAssetsExist && new File(deck.deckFileNames[i]).exists();
 			}
 			
-			deck.buffers[i] = new BufferedImage(cardWidth * 10, cardHeight * 7, BufferedImage.TYPE_3BYTE_BGR);
-			Graphics g = deck.buffers[i].getGraphics();
-			g.setColor(Color.BLACK);
-			g.fillRect(0, 0, cardWidth * 10, cardHeight * 7);
+			deck.buffers[i] = GetBuffer(cardWidth * 10, cardHeight * 7);
+			gs[i] = deck.buffers[i].getGraphics();
+			gs[i].setColor(Color.BLACK);
+			gs[i].fillRect(0, 0, cardWidth * 10, cardHeight * 7);
 			if(deck.hiddenImage != null){
-				g.drawImage(deck.hiddenImage, cardWidth * 9, cardHeight * 6, cardWidth, cardHeight, null);
+				gs[i].drawImage(deck.hiddenImage, cardWidth * 9, cardHeight * 6, cardWidth, cardHeight, null);
 			}
 		}
 		
@@ -243,7 +267,7 @@ public class ImageUtils {
 				int realY = gridY * cardHeight + cardOffsetY;
 				try{
 					BufferedImage cardImage = ImageIO.read(new File(card.imageFileName));
-					deck.buffers[deckNum].getGraphics().drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
+					gs[deckNum].drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 				}catch(Exception e){
 					e.printStackTrace();
 				}
@@ -262,7 +286,7 @@ public class ImageUtils {
 				int realX = gridX * cardWidth + cardOffsetX;
 				int realY = gridY * cardHeight + cardOffsetY;
 				try{
-					deck.buffers[deckNum].getGraphics().drawImage(token.image, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
+					gs[deckNum].drawImage(token.image, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 				}catch(Exception e){
 					e.printStackTrace();
 				}
@@ -286,9 +310,9 @@ public class ImageUtils {
 				int realY = gridY * cardHeight + cardOffsetY;
 				try{
 					BufferedImage cardImage = ImageIO.read(new File(card.imageFileName));
-					deck.buffers[deckNum].getGraphics().drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
+					gs[deckNum].drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 					cardImage = ImageIO.read(new File(card.transformImageFileName));
-					deck.buffers[deckNum+1].getGraphics().drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
+					gs[deckNum+1].drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 				}catch(Exception e){
 					e.printStackTrace();
 				}
@@ -298,6 +322,7 @@ public class ImageUtils {
 		}
 		
 		for(int i = 0; i < deckAmt; i++){
+			gs[i].dispose();
 			if(!draftAssetsExist){
 				SaveImage(deck.buffers[i], deck.deckFileNames[i], deck.compressionLevel);
 			}

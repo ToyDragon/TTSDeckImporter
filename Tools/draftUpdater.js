@@ -11,7 +11,7 @@ var config = require('../settings.json');
 
 // App variables
 var file_url = 'http://mtgjson.com/json/AllSets.json';
-var DOWNLOAD_DIR = './files/';
+var DOWNLOAD_DIR = './Tools/files/';
 var SET_DIR = config.setAssetDir;
 
 // We will be downloading the files to a directory, so make sure it's there
