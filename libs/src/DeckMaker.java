@@ -1,4 +1,3 @@
-import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -31,6 +30,8 @@ public class DeckMaker {
 	public static Pattern cardNameRegex = Pattern.compile("([0-9]*)x?\\s*([^<\\[{]*)");
 	
 	public static void main(String[] args){
+		FrogUtils.gson = new Gson();
+		
 		if(args.length > 0 && args[0].equals("debug")) DEBUG = true;
 		if(!Config.LoadConfig()){
 			ExitFailure("Error loading from config file");
@@ -125,7 +126,7 @@ public class DeckMaker {
 			errorObj.add("message", new JsonPrimitive("Too few cards!"));
 			
 			try {
-				String badJson = new Gson().toJson(errorObj);
+				String badJson = FrogUtils.gson.toJson(errorObj);
 				System.out.println("Bad: " + badJson);
 				clientWriter.write(badJson);
 				clientWriter.flush();
@@ -136,7 +137,7 @@ public class DeckMaker {
 			errorObj.add("message", new JsonPrimitive("Too many different cards!"));
 			
 			try {
-				String badJson = new Gson().toJson(errorObj);
+				String badJson = FrogUtils.gson.toJson(errorObj);
 				System.out.println("Bad: " + badJson);
 				clientWriter.write(badJson);
 				clientWriter.flush();
@@ -159,7 +160,7 @@ public class DeckMaker {
 			errorObj.add("message", new JsonPrimitive(badCardArray.size() + " unrecognized cards!"));
 			
 			try {
-				String badJson = new Gson().toJson(errorObj);
+				String badJson = FrogUtils.gson.toJson(errorObj);
 				System.out.println("Bad: " + badJson);
 				clientWriter.write(badJson);
 				clientWriter.flush();
@@ -485,7 +486,7 @@ public class DeckMaker {
 		//main obj ------------------------------------------------------------
 		deckJSON.add("ObjectStates", objectStates);
 		
-		String deckStr = new GsonBuilder().setPrettyPrinting().create().toJson(deckJSON);
+		String deckStr = FrogUtils.gson.toJson(deckJSON);
 		
 		try{
 			String deckName = Config.deckDir + deck.deckId + ".json";
@@ -500,25 +501,28 @@ public class DeckMaker {
 	}
 	
 	public static void HandleDraft(BufferedReader clientScanner){
-		Debug("Draft...");
-		Draft draft = new Draft();
-		
-		draft.deckId = ReadLine(clientScanner);
-		draft.setName = ReadLine(clientScanner);
 		try{
-			draft.amountPacks = Integer.parseInt(ReadLine(clientScanner));
-		}catch(Exception e){draft.amountPacks = 18;}
-		Debug("Reading list...");
-		ReadDraftList(clientScanner, draft);
-
-		Debug("Downloading images...");
-		ImageUtils.DownloadImages(draft);
-		Debug("Stitching deck...");
-		ImageUtils.StitchDeck(draft);
-		Debug("Building JSON...");
-		BuildDraftJSONFile(draft);
-		ImageUtils.FreeAllBuffers();
-		Debug("Done with draft :O");
+			Debug("Draft...");
+			Draft draft = new Draft();
+			
+			draft.deckId = ReadLine(clientScanner);
+			draft.setName = ReadLine(clientScanner);
+			try{
+				draft.amountPacks = Integer.parseInt(ReadLine(clientScanner));
+			}catch(Exception e){draft.amountPacks = 18;}
+			Debug("Reading list...");
+			ReadDraftList(clientScanner, draft);
+	
+			Debug("Downloading images...");
+			ImageUtils.DownloadImages(draft);
+			Debug("Stitching deck...");
+			ImageUtils.StitchDeck(draft);
+			Debug("Building JSON...");
+			BuildDraftJSONFile(draft);
+		}finally{
+			ImageUtils.FreeAllBuffers();
+			Debug("Done with draft :O");
+		}
 	}
 	
 
@@ -637,7 +641,7 @@ public class DeckMaker {
 		//main obj ------------------------------------------------------------
 		deckJSON.add("ObjectStates", objectStates);
 		
-		String deckStr = new GsonBuilder().setPrettyPrinting().create().toJson(deckJSON);
+		String deckStr = FrogUtils.gson.toJson(deckJSON);
 		
 		try{
 			String deckName = Config.deckDir + draft.deckId + ".json";

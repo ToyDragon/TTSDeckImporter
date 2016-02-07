@@ -15,10 +15,9 @@ public class FrogUtils {
 	public static Gson gson;
 	
 	public static JsonObject JsonObjectFromFile(String fileUrl){
-		if(gson == null) gson = new Gson();
 		try{
 			File jsonFile = new File(fileUrl);
-			JsonObject jsonObject = (new Gson()).fromJson(new InputStreamReader(new FileInputStream(jsonFile), StandardCharsets.UTF_8), JsonObject.class);
+			JsonObject jsonObject = FrogUtils.gson.fromJson(new InputStreamReader(new FileInputStream(jsonFile), StandardCharsets.UTF_8), JsonObject.class);
 			
 			return jsonObject;
 		}catch(Exception e){}

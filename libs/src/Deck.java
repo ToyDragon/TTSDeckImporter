@@ -37,6 +37,13 @@ public class Deck {
 		return null;
 	}
 	
+	public void CleanUp(){
+		hiddenImage = null;
+		for(int i = 0; i < buffers.length; i++){
+			buffers[i] = null;
+		}
+	}
+	
 	public void add(Card card){
 		card.transformName = Transform.nameToTransformMap.get(card.name);
 		if(card.transformName != null){

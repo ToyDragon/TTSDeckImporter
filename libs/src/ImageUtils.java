@@ -65,8 +65,6 @@ public class ImageUtils {
 			System.out.println("Failed to load " + card.imageFileName + " or " + card.transformImageFileName);
 			deck.cardList.remove(i);
 		}
-		
-		//TODO handle transforms and tokens
 	
 		if(deck.hiddenUrl != null && !deck.hiddenUrl.equals("default")){
 			deck.hiddenImage = ImageFromUrl(deck.hiddenUrl);

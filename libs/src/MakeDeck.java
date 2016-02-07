@@ -348,7 +348,7 @@ public class MakeDeck{
 		
 		deckJSON.add("ObjectStates", objectStates);
 		
-		String deckStr = new GsonBuilder().setPrettyPrinting().create().toJson(deckJSON);
+		String deckStr = FrogUtils.gson.toJson(deckJSON);
 		
 		try{
 			PrintWriter fileWriter = new PrintWriter(new File("decks/"+fileName+".json"));
@@ -1137,7 +1137,7 @@ public class MakeDeck{
 		
 		deckJSON.add("ObjectStates", objectStates);
 		
-		String deckStr = new GsonBuilder().setPrettyPrinting().create().toJson(deckJSON);
+		String deckStr = FrogUtils.gson.toJson(deckJSON);
 		
 		try{
 			PrintWriter fileWriter = new PrintWriter(new File("decks/"+fileName+".json"));
