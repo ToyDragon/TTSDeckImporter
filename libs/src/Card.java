@@ -34,6 +34,6 @@ public class Card {
 	}
 	
 	public String toString(){
-		return "{ name: " + name + ", amount: " + amounts[1] + ", jsonId: " + jsonId + "}";
+		return "{ name: " + name + ", amount: " + amounts[1] + ", multiverseId: " + multiverseId + "}";
 	}
 }
