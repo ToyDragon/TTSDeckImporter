@@ -174,7 +174,7 @@ public class ImageUtils {
 	
 	public static boolean LoadFromGatherer(Card card){
 		if(card.multiverseId != null){
-			card.imageFileName="images/"+card.multiverseId+".jpg";
+			card.imageFileName = Config.imageDir + card.multiverseId+".jpg";
 			File f = new File(card.imageFileName);
 			if(!f.exists()){
 				String imageURL = "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid="+card.multiverseId+"&type=card";
@@ -186,7 +186,7 @@ public class ImageUtils {
 	}
 	
 	public static boolean LoadFromMythicSpoiler(Card card){
-		card.imageFileName = Config.imageDir + "/MYTHICSPOILER" + card.name + ".jpg";
+		card.imageFileName = Config.imageDir + "MYTHICSPOILER" + card.name + ".jpg";
 		if(new File(card.imageFileName).exists()){return true;}
 		if(mythicSpoilerPage == null){
 			mythicSpoilerPage = FrogUtils.GetHTML("http://www.mythicspoiler.com/");
