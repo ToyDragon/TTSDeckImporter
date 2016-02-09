@@ -1,9 +1,5 @@
-import java.io.File;
-import java.io.FileReader;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -14,8 +10,8 @@ public class Config {
 	public static String imageDir;
 	public static String setAssetDir;
 
-	public static String publicDeckDir = "decks/";
-	public static String publicSetAssetDir = "setAssets/"; 
+	public static String publicDeckDir = "/decks/";
+	public static String publicSetAssetDir = "/setAssets/"; 
 	
 	public static String tokenAssetDir;
 	
