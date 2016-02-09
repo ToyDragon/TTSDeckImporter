@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var config = require('./settings.json');
 var net = require('net');
+var fs = require('fs');
 var StringDecoder = require('string_decoder').StringDecoder;
 var sendgrid = require('sendgrid')(config.sendgrid.key);
 
