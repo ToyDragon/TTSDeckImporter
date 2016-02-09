@@ -130,6 +130,7 @@ public class DeckMaker {
 				System.out.println("Bad: " + badJson);
 				clientWriter.write(badJson);
 				clientWriter.flush();
+				return;
 			} catch (Exception e) {e.printStackTrace();}
 		}
 		if(newDeck.cardList.size() + newDeck.transformList.size() >= 150){
@@ -141,6 +142,7 @@ public class DeckMaker {
 				System.out.println("Bad: " + badJson);
 				clientWriter.write(badJson);
 				clientWriter.flush();
+				return;
 			} catch (Exception e) {e.printStackTrace();}
 		}
 		
