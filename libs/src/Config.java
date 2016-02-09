@@ -9,10 +9,14 @@ import com.google.gson.JsonObject;
 
 public class Config {
 	public static String userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36";
-	
+
 	public static String deckDir;
 	public static String imageDir;
 	public static String setAssetDir;
+
+	public static String publicDeckDir = "decks/";
+	public static String publicSetAssetDir = "setAssets/"; 
+	
 	public static String tokenAssetDir;
 	
 	public static int port;
@@ -39,6 +43,7 @@ public class Config {
 			deckDir = configObject.getAsJsonPrimitive("deckDir").getAsString();
 			imageDir = configObject.getAsJsonPrimitive("imageDir").getAsString();
 			setAssetDir = configObject.getAsJsonPrimitive("setAssetDir").getAsString();
+			
 			tokenAssetDir = configObject.getAsJsonPrimitive("tokenImageDir").getAsString();
 
 			port = configObject.getAsJsonPrimitive("port").getAsInt();

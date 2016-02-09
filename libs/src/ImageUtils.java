@@ -236,10 +236,13 @@ public class ImageUtils {
 		
 		for(int i = 0; i < deckAmt; i++){
 			deck.deckFileNames[i] = Config.deckDir + deck.deckId + i + ".jpg";
+			deck.deckLinks[i] = Config.hostUrlPrefix + Config.publicDeckDir + deck.deckId + i + ".jpg";
 			
 			if(deck instanceof Draft){
 				Draft draft = (Draft)deck;
-				deck.deckFileNames[i] = Config.setAssetDir + draft.setName.replaceAll("\\s", "_") + i + ".jpg";
+				String cleanSetName = draft.setName.replaceAll("\\s", "_");
+				deck.deckFileNames[i] = Config.setAssetDir + cleanSetName + i + ".jpg";
+				deck.deckLinks[i] = Config.hostUrlPrefix + Config.publicSetAssetDir + cleanSetName + i + ".jpg";
 				draftAssetsExist = draftAssetsExist && new File(deck.deckFileNames[i]).exists();
 			}
 			
@@ -324,7 +327,6 @@ public class ImageUtils {
 			if(!draftAssetsExist){
 				SaveImage(deck.buffers[i], deck.deckFileNames[i], deck.compressionLevel);
 			}
-			deck.deckLinks[i] = Config.hostUrlPrefix + deck.deckFileNames[i];
 		}
 	}
 }
