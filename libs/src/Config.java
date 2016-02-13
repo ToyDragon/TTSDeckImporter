@@ -52,7 +52,7 @@ public class Config {
 			hostname = InetAddress.getLocalHost().getHostName();
 			
 			if(hostname.equalsIgnoreCase(expectedLocalHostName)){
-				hostUrlPrefix = "http://localhost/";
+				hostUrlPrefix = "http://localhost";
 			}else{
 				hostUrlPrefix = expectedHostName;
 			}

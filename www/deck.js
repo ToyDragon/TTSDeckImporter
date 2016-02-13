@@ -1,7 +1,7 @@
 $(document).ready(function(){
 	var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 	if(!isChrome){
-		$('#decka button').text('Click here');
+		$('.decka button').text('Click here');
 	}
 	function escapeHtml(str) {
 		var div = document.createElement('div');
@@ -21,7 +21,7 @@ $(document).ready(function(){
 		console.log(deck);
 		$('#deckjson').html(deck);
 
-		$('#decka').attr('href', escapeHtml('decks/'+getParameterByName('deck')));
-		$('#decka').attr('download', escapeHtml(getParameterByName('name')+'.json'));
+		$('.decka').attr('href', escapeHtml('decks/'+getParameterByName('deck')));
+		$('.decka').attr('download', escapeHtml(getParameterByName('name')+'.json'));
 	});
 });

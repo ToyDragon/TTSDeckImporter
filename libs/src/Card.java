@@ -24,6 +24,21 @@ public class Card {
 	public Card(){
 		amounts = new int[3];
 	}
+	
+	public String getDisplayName(){
+		try{
+			String displayName = "";
+			String[] words = (name + "").split(" ");
+			for(int i = 0; i < words.length; i++){
+				displayName += (words[i].charAt(0)+"").toUpperCase();
+				if(words[i].length() > 1){
+					displayName += words[i].substring(1);
+				}
+				if(i < words.length-1)displayName += " ";
+			}
+			return displayName;
+		}catch(Exception e){return name;}
+	}
 
 	public static String getCardKey(String cardName, String set, String printing, String language) {
 		String cardKey = cardName;

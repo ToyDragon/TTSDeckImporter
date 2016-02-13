@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -112,6 +111,7 @@ public class DeckMaker {
 		
 		//load params
 		newDeck.deckId = ReadLine(clientScanner);
+		newDeck.name = ReadLine(	clientScanner);
 		newDeck.useImgur = ReadLine(clientScanner).equals("true");
 		newDeck.backUrl = ReadLine(clientScanner);
 		newDeck.hiddenUrl = ReadLine(clientScanner);
@@ -147,7 +147,7 @@ public class DeckMaker {
 		}
 		
 		if(coolifyBasics)newDeck.Coolify();
-		
+
 		ImageUtils.DownloadImages(newDeck);
 		if(newDeck.unknownCards.size() == 0){
 			ImageUtils.StitchDeck(newDeck);
@@ -169,7 +169,7 @@ public class DeckMaker {
 			} catch (Exception e) {e.printStackTrace();}
 		}
 		ImageUtils.FreeAllBuffers();
-		System.out.println("Done with deck :O");
+		System.out.println("Done with deck :O " + newDeck.name);
 	}
 	
 	public static void ReadDeckList(Deck newDeck, BufferedReader clientScanner){
@@ -283,7 +283,7 @@ public class DeckMaker {
 		return uid;
 	}
 	
-	public static JsonObject NewDeckBaseObject(JsonArray stateIDs){
+	public static JsonObject NewDeckBaseObject(JsonArray stateIDs, String name){
 		JsonObject colorObj = new JsonObject();
 		colorObj.add("r", new JsonPrimitive(0.713235259));
 		colorObj.add("g", new JsonPrimitive(0.713235259));
@@ -291,7 +291,7 @@ public class DeckMaker {
 		
 		JsonObject baseState = new JsonObject();
 		baseState.add("Name", new JsonPrimitive(stateIDs.size() == 1 ? "Card" : "DeckCustom"));
-		baseState.add("Nickname", new JsonPrimitive(""));
+		baseState.add("Nickname", new JsonPrimitive(name));
 		baseState.add("Description", new JsonPrimitive(""));
 		baseState.add("Grid", new JsonPrimitive(true));
 		baseState.add("Locked", new JsonPrimitive(false));
@@ -309,9 +309,9 @@ public class DeckMaker {
 	
 	public static JsonObject NewDeckPosObject(int x, int y, int z, boolean faceup, double scale){
 		JsonObject statePos = new JsonObject();
-		statePos.add("posX", new JsonPrimitive(-7.5 + (2.5 * x)));
+		statePos.add("posX", new JsonPrimitive(2.5 * x));
 		statePos.add("posY", new JsonPrimitive(2.5 * y));
-		statePos.add("posZ", new JsonPrimitive(-10.5 + (3.5 * z)));
+		statePos.add("posZ", new JsonPrimitive(3.5 * z));
 		statePos.add("rotX", new JsonPrimitive(0));
 		statePos.add("rotY", new JsonPrimitive(180));
 		statePos.add("rotZ", new JsonPrimitive(faceup ? 0 : 180));
@@ -322,11 +322,42 @@ public class DeckMaker {
 		return statePos;
 	}
 	
-	public static void BuildJSONFile(Deck deck){
+	public static JsonObject NewDeckStateObject(ArrayList<Integer> deckIds, Deck deck, boolean isMainDeck){
 		int cardsPerDeck = 69;
 		int regularDecks = (int) Math.ceil((deck.cardList.size() + deck.tokens.size())/(double)cardsPerDeck);
-		int transformDecks = 2 * (int) Math.ceil(deck.transformList.size()/(double)cardsPerDeck);
-		int deckAmt = regularDecks + transformDecks;
+		JsonObject deckStateObject = new JsonObject();
+		for(int i = 0; i < deckIds.size(); i++){
+			int deckID = deckIds.get(i);
+			int transId = deckID - regularDecks - 1;
+			if(transId >= 0 && isMainDeck){
+				if(transId % 2 == 0){
+					JsonObject deckObj = new JsonObject();
+					deckObj.add("FaceURL", new JsonPrimitive(deck.deckLinks[deckID-1]));
+					deckObj.add("BackURL", new JsonPrimitive(deck.deckLinks[deckID] + "{Unique}"));
+					deckStateObject.add(""+(deckID), deckObj);
+				}
+			}else{
+				JsonObject deckObj = new JsonObject();
+				deckObj.add("FaceURL", new JsonPrimitive(deck.deckLinks[deckID-1]));
+				deckObj.add("BackURL", new JsonPrimitive(deck.backUrl));
+				deckStateObject.add(""+deckID, deckObj);
+			}
+		}
+
+		return deckStateObject;
+	}
+	
+	public static JsonObject NewCardObject(int id, String name){
+		JsonObject cardObject = new JsonObject();
+		cardObject.add("Name", new JsonPrimitive("Card"));
+		cardObject.add("Nickname", new JsonPrimitive(""+name));
+		cardObject.add("CardID", new JsonPrimitive(id));
+		cardObject.add("Transform", NewDeckPosObject(1, 1, 1, false, 1.0));
+		
+		return cardObject;
+	}
+	
+	public static void BuildJSONFile(Deck deck){
 			
 		JsonObject deckJSON = new JsonObject();
 		
@@ -340,28 +371,20 @@ public class DeckMaker {
 		//commander object state----------------------------------------
 		int curStateIndex = 0;
 		JsonArray commanderStateIDs = new JsonArray();
+		JsonArray commanderContents = new JsonArray();
 		ArrayList<Integer> commanderStateDeckIDs = new ArrayList<Integer>();
 		for(Card card : deck.cardList){
 			if(card.amounts[curStateIndex] == 0)continue;
 			int deckID = card.jsonId/100;
-			if(!commanderStateDeckIDs.contains(deckID)){
-				commanderStateDeckIDs.add(deckID);
-			}
+			if(!commanderStateDeckIDs.contains(deckID)) commanderStateDeckIDs.add(deckID);
 			commanderStateIDs.add(new JsonPrimitive(card.jsonId));
+			commanderContents.add(NewCardObject(card.jsonId, card.getDisplayName()));
 		}
 
-		JsonObject commanderState = NewDeckBaseObject(commanderStateIDs);
-		commanderState.add("Transform", NewDeckPosObject(-1, 0, 0, true, 1.25));
-		
-		JsonObject commanderStateDecks = new JsonObject();
-		for(int i = 0; i < commanderStateDeckIDs.size(); i++){
-			int deckID = commanderStateDeckIDs.get(i);
-			JsonObject deckObj = new JsonObject();
-			deckObj.add("FaceURL", new JsonPrimitive(deck.deckLinks[deckID-1]));
-			deckObj.add("BackURL", new JsonPrimitive(deck.backUrl));
-			commanderStateDecks.add(""+deckID, deckObj);
-		}
-		commanderState.add("CustomDeck", commanderStateDecks);
+		JsonObject commanderState = NewDeckBaseObject(commanderStateIDs, "Commander");
+		commanderState.add("ContainedObjects", commanderContents);
+		commanderState.add("Transform", NewDeckPosObject(2, 1, 2, true, 1.25));
+		commanderState.add("CustomDeck", NewDeckStateObject(commanderStateDeckIDs, deck, false));
 		if(commanderStateIDs.size()>0)objectStates.add(commanderState);
 		
 		//token object state----------------------------------------
@@ -375,71 +398,44 @@ public class DeckMaker {
 			tokenStateIds.add(new JsonPrimitive(token.jsonId));
 		}
 
-		JsonObject tokenState = NewDeckBaseObject(tokenStateIds);
-		tokenState.add("Transform", NewDeckPosObject(-2, 0, 0, true, 1.0));
-		
-		JsonObject tokenStateDecks = new JsonObject();
-		for(int i = 0; i < tokenStateDeckIDs.size(); i++){
-			int deckID = tokenStateDeckIDs.get(i);
-			JsonObject deckObj = new JsonObject();
-			deckObj.add("FaceURL", new JsonPrimitive(deck.deckLinks[deckID-1]));
-			deckObj.add("BackURL", new JsonPrimitive(deck.backUrl));
-			tokenStateDecks.add(""+deckID, deckObj);
-		}
-		tokenState.add("CustomDeck", tokenStateDecks);
+		JsonObject tokenState = NewDeckBaseObject(tokenStateIds, "Tokens");
+		tokenState.add("Transform", NewDeckPosObject(0, 1, 0, true, 1.0));
+		tokenState.add("CustomDeck", NewDeckStateObject(tokenStateDeckIDs, deck, false));
 		if(tokenStateIds.size()>0)objectStates.add(tokenState);
 		
 		//main deck object state---------------------------------------------
 		curStateIndex = 1;
 		JsonArray mainStateIDs = new JsonArray();
+		JsonArray mainContents = new JsonArray();
 		ArrayList<Integer> mainStateDeckIDs = new ArrayList<Integer>();
 		for(Card card : deck.cardList){
 			if(card.amounts[curStateIndex] == 0)continue;
 			int deckID = card.jsonId/100;
-			if(!mainStateDeckIDs.contains(deckID)){
-				mainStateDeckIDs.add(deckID);
-			}
+			if(!mainStateDeckIDs.contains(deckID)) mainStateDeckIDs.add(deckID);
 			for(int i = 0; i < card.amounts[1]; i++){
 				mainStateIDs.add(new JsonPrimitive(card.jsonId));
+				mainContents.add(NewCardObject(card.jsonId, card.getDisplayName()));
 			}
 		}
 		for(Card card : deck.transformList){
 			if(card.amounts[curStateIndex] == 0)continue;
 			int deckID = card.jsonId/100;
-			if(!mainStateDeckIDs.contains(deckID)){
-				mainStateDeckIDs.add(deckID);
-			}
+			if(!mainStateDeckIDs.contains(deckID)) mainStateDeckIDs.add(deckID);
 			for(int i = 0; i < card.amounts[1]; i++){
 				mainStateIDs.add(new JsonPrimitive(card.jsonId));
+				mainContents.add(NewCardObject(card.jsonId, card.getDisplayName()));
 			}
 		}
-		JsonObject mainState = NewDeckBaseObject(mainStateIDs);
-		mainState.add("Transform", NewDeckPosObject(0, 1, 0, false, 1.0));
-		
-		JsonObject mainStateDecks = new JsonObject();
-		for(int i = 0; i < mainStateDeckIDs.size(); i++){
-			int deckID = mainStateDeckIDs.get(i) - 1;
-			int transId = deckID - regularDecks;
-			if(transId >= 0){
-				if(transId % 2 == 0){
-					JsonObject deckObj = new JsonObject();
-					deckObj.add("FaceURL", new JsonPrimitive(deck.deckLinks[deckID]));
-					deckObj.add("BackURL", new JsonPrimitive(deck.deckLinks[deckID+1] + "{Unique}"));
-					mainStateDecks.add(""+(deckID+1), deckObj);
-				}
-			}else{
-				JsonObject deckObj = new JsonObject();
-				deckObj.add("FaceURL", new JsonPrimitive(deck.deckLinks[deckID]));
-				deckObj.add("BackURL", new JsonPrimitive(deck.backUrl));
-				mainStateDecks.add(""+(deckID+1), deckObj);
-			}
-		}
-		mainState.add("CustomDeck", mainStateDecks);
+		JsonObject mainState = NewDeckBaseObject(mainStateIDs, deck.name);
+		mainState.add("ContainedObjects", mainContents);
+		mainState.add("Transform", NewDeckPosObject(1, 1, 0, false, 1.0));
+		mainState.add("CustomDeck", NewDeckStateObject(mainStateDeckIDs, deck, true));
 		if(mainStateIDs.size()>0)objectStates.add(mainState);
 		
 		//side board state ---------------------------------------------------
 		curStateIndex = 2;
 		JsonArray sideStateIDs = new JsonArray();
+		JsonArray sideContents = new JsonArray();
 		ArrayList<Integer> sideStateDeckIDs = new ArrayList<Integer>();
 		for(Card card : deck.cardList){
 			if(card.amounts[curStateIndex] == 0)continue;
@@ -449,6 +445,7 @@ public class DeckMaker {
 			}
 			for(int i = 0; i < card.amounts[2]; i++){
 				sideStateIDs.add(new JsonPrimitive(card.jsonId));
+				sideContents.add(NewCardObject(card.jsonId, card.getDisplayName()));
 			}
 		}
 		for(Card card : deck.transformList){
@@ -459,30 +456,13 @@ public class DeckMaker {
 			}
 			for(int i = 0; i < card.amounts[1]; i++){
 				sideStateIDs.add(new JsonPrimitive(card.jsonId));
+				sideContents.add(NewCardObject(card.jsonId, card.getDisplayName()));
 			}
 		}
-		JsonObject sideState = NewDeckBaseObject(sideStateIDs);
-		sideState.add("Transform", NewDeckPosObject(1, 0, 0, false, 1.0));
-		
-		JsonObject sideStateDecks = new JsonObject();
-		for(int i = 0; i < sideStateDeckIDs.size(); i++){
-			int deckID = sideStateDeckIDs.get(i) - 1;
-			int transId = deckID - regularDecks;
-			if(transId >= 0){
-				if(transId % 2 == 0){
-					JsonObject deckObj = new JsonObject();
-					deckObj.add("FaceURL", new JsonPrimitive(deck.deckLinks[deckID]));
-					deckObj.add("BackURL", new JsonPrimitive(deck.deckLinks[deckID+1] + "{Unique}"));
-					sideStateDecks.add(""+(deckID+1), deckObj);
-				}
-			}else{
-				JsonObject deckObj = new JsonObject();
-				deckObj.add("FaceURL", new JsonPrimitive(deck.deckLinks[deckID]));
-				deckObj.add("BackURL", new JsonPrimitive(deck.backUrl));
-				sideStateDecks.add(""+(deckID+1), deckObj);
-			}
-		}
-		sideState.add("CustomDeck", sideStateDecks);
+		JsonObject sideState = NewDeckBaseObject(sideStateIDs, "Sideboard");
+		sideState.add("ContainedObjects", sideContents);
+		sideState.add("Transform", NewDeckPosObject(2, 1, 0, false, 1.0));
+		sideState.add("CustomDeck", NewDeckStateObject(sideStateDeckIDs, deck, true));
 		if(sideStateIDs.size()>0)objectStates.add(sideState);
 		
 		//main obj ------------------------------------------------------------
@@ -528,12 +508,7 @@ public class DeckMaker {
 	}
 	
 
-	public static void BuildDraftJSONFile(Draft draft){
-		int cardsPerDeck = 69;
-		int regularDecks = (int) Math.ceil((draft.cardList.size() + draft.tokens.size())/(double)cardsPerDeck);
-		int transformDecks = 2 * (int) Math.ceil(draft.transformList.size()/(double)cardsPerDeck);
-		int deckAmt = regularDecks + transformDecks;
-			
+	public static void BuildDraftJSONFile(Draft draft){			
 		JsonObject deckJSON = new JsonObject();
 		
 		String[] emptyProps = {"SaveName", "GameMode", "Date", "Table", "Sky", "Note", "Rules", "PlayerTurn"};
@@ -554,22 +529,14 @@ public class DeckMaker {
 			tokenStateIds.add(new JsonPrimitive(token.jsonId));
 		}
 
-		JsonObject tokenState = NewDeckBaseObject(tokenStateIds);
-		tokenState.add("Transform", NewDeckPosObject(-4, 1, 0, true, 1.0));
-		
-		JsonObject tokenStateDecks = new JsonObject();
-		for(int i = 0; i < tokenStateDeckIDs.size(); i++){
-			int deckID = tokenStateDeckIDs.get(i);
-			JsonObject deckObj = new JsonObject();
-			deckObj.add("FaceURL", new JsonPrimitive(draft.deckLinks[deckID-1]));
-			deckObj.add("BackURL", new JsonPrimitive(draft.backUrl));
-			tokenStateDecks.add(""+deckID, deckObj);
-		}
-		tokenState.add("CustomDeck", tokenStateDecks);
+		JsonObject tokenState = NewDeckBaseObject(tokenStateIds, "Tokens");
+		tokenState.add("Transform", NewDeckPosObject(0, 1, 1, true, 1.0));
+		tokenState.add("CustomDeck", NewDeckStateObject(tokenStateDeckIDs, draft, false));
 		if(tokenStateIds.size()>0)objectStates.add(tokenState);
 			
 		//basics object state----------------------------------------
 		JsonArray basicStateIds = new JsonArray();
+		JsonArray basicContents = new JsonArray();
 		ArrayList<Integer> basicStateDeckIDs = new ArrayList<Integer>();
 		for(Card card : draft.basics){
 			int deckID = card.jsonId/100;
@@ -577,20 +544,13 @@ public class DeckMaker {
 				basicStateDeckIDs.add(deckID);
 			}
 			basicStateIds.add(new JsonPrimitive(card.jsonId));
+			basicContents.add(NewCardObject(card.jsonId, card.getDisplayName()));
 		}
 
-		JsonObject basicState = NewDeckBaseObject(basicStateIds);
-		basicState.add("Transform", NewDeckPosObject(0, 1, 3, true, 1.0));
-		
-		JsonObject basicStateDecks = new JsonObject();
-		for(int i = 0; i < basicStateDeckIDs.size(); i++){
-			int deckID = basicStateDeckIDs.get(i);
-			JsonObject deckObj = new JsonObject();
-			deckObj.add("FaceURL", new JsonPrimitive(draft.deckLinks[deckID-1]));
-			deckObj.add("BackURL", new JsonPrimitive(draft.backUrl));
-			basicStateDecks.add(""+deckID, deckObj);
-		}
-		basicState.add("CustomDeck", basicStateDecks);
+		JsonObject basicState = NewDeckBaseObject(basicStateIds, "Basic Lands");
+		basicState.add("Transform", NewDeckPosObject(0, 1, 0, true, 1.0));
+		basicState.add("CustomDeck", NewDeckStateObject(basicStateDeckIDs, draft, false));
+		basicState.add("ContainedObjects", basicContents);
 		if(basicStateIds.size()>0)objectStates.add(basicState);
 		
 		//pack object states---------------------------------------------
@@ -603,6 +563,7 @@ public class DeckMaker {
 		}
 		for(int packi = 0; packi < draft.amountPacks; packi++){
 			JsonArray packStateIds = new JsonArray();
+			JsonArray packContents = new JsonArray();
 			ArrayList<Integer> packStateDeckIds = new ArrayList<Integer>();
 			for(int rarityi = 0; rarityi < Draft.RARITIES.length; rarityi++){
 				if(hasMythic && rarityi == 1) continue;
@@ -615,29 +576,13 @@ public class DeckMaker {
 						packStateDeckIds.add(deckID);
 					}
 					packStateIds.add(new JsonPrimitive(card.jsonId));
+					packContents.add(NewCardObject(card.jsonId, card.getDisplayName()));
 				}
 			}
-			JsonObject packState = NewDeckBaseObject(packStateIds);
-			packState.add("Transform", NewDeckPosObject(packi%6, 0, packi/6, false, 1.0));
-			JsonObject mainStateDecks = new JsonObject();
-			for(int i = 0; i < packStateDeckIds.size(); i++){
-				int deckID = packStateDeckIds.get(i) - 1;
-				int transId = deckID - regularDecks;
-				if(transId >= 0){
-					if(transId % 2 == 0){
-						JsonObject deckObj = new JsonObject();
-						deckObj.add("FaceURL", new JsonPrimitive(draft.deckLinks[deckID]));
-						deckObj.add("BackURL", new JsonPrimitive(draft.deckLinks[deckID+1] + "{Unique}"));
-						mainStateDecks.add(""+(deckID+1), deckObj);
-					}
-				}else{
-					JsonObject deckObj = new JsonObject();
-					deckObj.add("FaceURL", new JsonPrimitive(draft.deckLinks[deckID]));
-					if(draft.backUrl != null)deckObj.add("BackURL", new JsonPrimitive(draft.backUrl));
-					mainStateDecks.add(""+(deckID+1), deckObj);
-				}
-			}
-			packState.add("CustomDeck", mainStateDecks);
+			JsonObject packState = NewDeckBaseObject(packStateIds, "");
+			packState.add("Transform", NewDeckPosObject(1+ packi%6, 0, packi/6, false, 1.0));
+			packState.add("CustomDeck", NewDeckStateObject(packStateDeckIds, draft, true));
+			packState.add("ContainedObjects", packContents);
 			objectStates.add(packState);
 		}
 		//main obj ------------------------------------------------------------
@@ -663,7 +608,7 @@ public class DeckMaker {
 			fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Config.setAssetDir + draft.setName)), StandardCharsets.UTF_8));
 		}catch(Exception e){ e.printStackTrace();return; }
 
-		final int CARD=1,NAME=2,CODE=3,BOOSTER=4;
+		final int CARD=1,CODE=2,BOOSTER=3;
 
 		int mode = 0;
 		for(String line = ReadLine(fileReader); line != null; line = ReadLine(fileReader)){

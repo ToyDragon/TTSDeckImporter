@@ -18,7 +18,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,9 +27,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
-import javax.sound.midi.Patch;
 
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -40,6 +37,7 @@ public class MakeDeck{
 	public static final int CARD_MAINBOARD = 0, CARD_SIDEBOARD = 1, CARD_COMMANDER = 2;
 	public static int parseType = CARD_MAINBOARD;
 
+	@SuppressWarnings("unchecked")
 	public static ArrayList<Card>[] draftSetCards = new ArrayList[]{new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>(),new ArrayList<Card>()};
 	public static int draftSetSize = 5;
 	public static int draftSetDecks = 1;
@@ -361,8 +359,6 @@ public class MakeDeck{
 	}
 	
 	public static void stitchDraftDeck(){
-		int cardsPerDeck = 69;
-		
 		File[] assets = new File[draftSetDecks];
 		for(int i = 0; i < draftSetDecks; i++){
 			assets[i] = new File("setAssets/"+draftSetName+i+".jpg");
@@ -678,13 +674,14 @@ public class MakeDeck{
 	
 	public static void loadDraftSet(){
 		File f = new File("sets/"+draftSetName);
+		Scanner fscan = null;
 		System.out.println("Loading "+draftSetName);
 		try{
-			Scanner fscan = new Scanner(new FileInputStream(f), "UTF8");
+			fscan = new Scanner(new FileInputStream(f), "UTF8");
 			int rarity = 0;
 			int idcounter = 100;
 			int mode = 0;
-			final int CARD=1,NAME=2,CODE=3,BOOSTER=4;
+			final int CARD=1,BOOSTER=2;
 			while(fscan.hasNextLine()){
 				String line = fscan.nextLine();
 				boolean isControl = false;
@@ -768,6 +765,8 @@ public class MakeDeck{
 			e.printStackTrace();
 			//set doesn't exist
 			System.exit(1);
+		}finally{
+			if(fscan != null)try{fscan.close();}catch(Exception e){}
 		}
 	}
 	
@@ -786,6 +785,7 @@ public class MakeDeck{
 		}
 		
 		String cmdStr = "nodejs imguruploader.js "+namesStr;
+		Scanner pscan = null;
 		try{
 			Process p = Runtime.getRuntime().exec(cmdStr);
 			String[] links = new String[deckFileNames.length];
@@ -793,7 +793,7 @@ public class MakeDeck{
 			
 			if(p.exitValue()!=1)throw new Exception();
 			
-			Scanner pscan = new Scanner(p.getInputStream());
+			pscan = new Scanner(p.getInputStream());
 			int curDeck = 0;
 			while(pscan.hasNextLine()){
 				links[curDeck++] = pscan.nextLine();
@@ -807,16 +807,19 @@ public class MakeDeck{
 			//System.out.println("Uploaded to imgur");
 		}catch(Exception e){
 			System.out.println("Error getting imgur links");
+		}finally{
+			if(pscan != null)try{pscan.close();}catch(Exception e){}
 		}
 	}
 	
 	public static void loadTransforms(){
 		File tFile = new File(transformFile);
+		Scanner fscan = null, lscan = null;
 		try{
-			Scanner fscan = new Scanner(tFile);
+			fscan = new Scanner(tFile);
 			while(fscan.hasNextLine()){
 				String line = fscan.nextLine().toLowerCase();
-				Scanner lscan = new Scanner(line);
+				lscan = new Scanner(line);
 				lscan.useDelimiter(",");
 				String a=lscan.next().replaceAll(";", ","),b=lscan.next().replaceAll(";", ",");
 				transformMap.put(a, b);
@@ -824,20 +827,24 @@ public class MakeDeck{
 			}
 		}catch(Exception e){
 			System.out.println("Unable to find transform file!");
+		}finally{
+			if(fscan != null)try{fscan.close();}catch(Exception e){}
+			if(lscan != null)try{lscan.close();}catch(Exception e){}
 		}
 	}
 	
 	public static void loadTokens(){
 		//load tokens into
 		File tFile = new File(tokenFile);
+		Scanner fscan = null,lscan = null;
 		try{
-			Scanner fscan = new Scanner(tFile);
+			fscan = new Scanner(tFile);
 			String lastname = "";
 			String lastcolor = "";
 			String lasttype = "";
 			while(fscan.hasNextLine()){
 				String line = fscan.nextLine().replaceAll(",", " ,");
-				Scanner lscan = new Scanner(line);
+				lscan = new Scanner(line);
 				lscan.useDelimiter(",");
 				
 				String name = lscan.next().trim();
@@ -873,6 +880,9 @@ public class MakeDeck{
 			}
 		}catch(Exception e){
 			e.printStackTrace();
+		}finally{
+			if(fscan != null)try{fscan.close();}catch(Exception e){}
+			if(lscan != null)try{lscan.close();}catch(Exception e){}
 		}
 	}
 	
@@ -1286,13 +1296,14 @@ public class MakeDeck{
 	}
 	
 	public static void loadCards(String fileName){
+		Scanner fscan = null;
 		try{
 			if(fileName.contains(" ")){
 				fileName = fileName.substring(0, fileName.indexOf(" "));
 			}
 			File f = new File("lists/"+fileName);
 			
-			Scanner fscan = new Scanner(new FileInputStream(f),"UTF-8");
+			fscan = new Scanner(new FileInputStream(f),"UTF-8");
 			Pattern cardNameRegex = Pattern.compile("([0-9]*)x?\\s*(.*)");
 			while(fscan.hasNextLine()){
 				String line = fscan.nextLine().trim();
@@ -1379,6 +1390,8 @@ public class MakeDeck{
 		}catch(Exception e){
 			System.out.println("Error loading cards");
 			e.printStackTrace();
+		}finally{
+			if(fscan != null)try{fscan.close();}catch(Exception e){}
 		}
 		
 		if(coolifyBasics){

@@ -9,8 +9,12 @@ var sendgrid = require('sendgrid')(config.sendgrid.key);
 var lastErrorEmail = new Date();
 
 function clean(str){
-	return (str+'').replace(/[\r\n]/g,'').replace(/\s/g,'_');
+	return cleanNewLines(str).replace(/\s/g,'_');
 };
+
+function cleanNewLines(str){
+	return (str+'').replace(/[\r\n]/g,'');
+}
 
 function getDeckID(){
 	var chars = 'abcdefghijklmnopqrstuvwxyz';
@@ -64,14 +68,14 @@ app.get('/sets', function(req, res){
 app.post('/newdraft', function(req, res){
 	try{
 		var client = net.connect({port: config.port});
-		var deckId = req.body.set.replace(/[^a-zA-Z0-9]/g, '') + getDeckID();
+		var deckId = req.body.set.replace(/[^a-zA-Z0-9]/g, '') + '_' + getDeckID();
 		client.on('close', function(){
 			res.end(JSON.stringify({name:deckId,status:0}));//TODO add fail status
 		});
 
 		client.write('draft\r\n');
 		client.write(deckId + '\r\n');
-		client.write(req.body.set.replace(/\r\n/g,'') + '\r\n');
+		client.write(cleanNewLines(req.body.set) + '\r\n');
 		client.write(clean(req.body.n) + '\r\n');
 	}catch(err){
 		res.end(JSON.stringify({status:1,errObj:{message:'Unknown error occured'}}));
@@ -86,6 +90,7 @@ app.post('/newdeck', function(req, res){
 		var backURL = clean(req.body.backURL);
 		var hiddenURL = clean(req.body.hiddenURL);
 		var compression = clean(req.body.compression);
+		var deckName = cleanNewLines(req.body.name);
 		var useImgur = !!req.body.imgur;
 		var coolifyBasic = !!req.body.coolify;
 
@@ -127,6 +132,7 @@ app.post('/newdeck', function(req, res){
 
 		client.write('deck\r\n');
 		client.write(deckID + '\r\n');
+		client.write(deckName + '\r\n');
 		client.write(useImgur + '\r\n');
 		client.write(backURL + '\r\n');
 		client.write(hiddenURL + '\r\n');

@@ -5,8 +5,6 @@ $(document).ready(function(){
 
 	var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 
-	$('#deckName').val('');
-
 	$('.qualityButtons button').click(function(event){
 		$('.qualityButtons button').removeClass('btn-info').addClass('btn-default');
 		$(event.currentTarget).addClass('btn-info').removeClass('btn-default');
@@ -44,6 +42,7 @@ $(document).ready(function(){
 		var deckName = $('#deckName').val().trim().length > 0?$('#deckName').val().trim():'frogtown_deck';
 		var coolify = $('#coolify').hasClass('btn-success');
 		var compression = $(".qualityButtons .btn-info").attr("value");
+		var name = $('#deckName').val().trim();
 		
 		var reqobj = {};
 		reqobj.decklist = list;
@@ -52,6 +51,7 @@ $(document).ready(function(){
 		reqobj.deckName = deckName;
 		reqobj.coolify = coolify;
 		reqobj.compression = compression;
+		reqobj.name = name;
 
 		console.log(compression);
 		
@@ -158,4 +158,5 @@ $(document).ready(function(){
 	}
 
 	UpdateTextareas();
+	setTimeout(UpdateTextareas, 100);
 });

@@ -44,9 +44,9 @@ public class ImageUtils {
 	public static void DownloadImages(Deck deck){
 		for(int i = deck.cardList.size()-1; i >= 0; i--){
 			Card card = deck.cardList.get(i);
+			if(LoadFromGatherer(card))continue;
 			if(LoadFromMagicCards(card) != null)continue;
 			if(LoadFromMythicSpoiler(card))continue;
-			if(LoadFromGatherer(card))continue;
 			
 			System.out.println("Failed to load "+card);
 			deck.unknownCards.add(card);
@@ -179,8 +179,8 @@ public class ImageUtils {
 			if(!f.exists()){
 				String imageURL = "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid="+card.multiverseId+"&type=card";
 				SaveImage(imageURL, card.imageFileName, 1.0);
-				return true;
 			}
+			return true;
 		}
 		return false;
 	}

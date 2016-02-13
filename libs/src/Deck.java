@@ -10,6 +10,8 @@ public class Deck {
 	
 	public double compressionLevel;
 
+	public String name;
+	
 	public String backUrl;
 	public String hiddenUrl;
 	public BufferedImage hiddenImage;
