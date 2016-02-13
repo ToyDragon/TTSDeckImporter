@@ -530,7 +530,7 @@ public class DeckMaker {
 		}
 
 		JsonObject tokenState = NewDeckBaseObject(tokenStateIds, "Tokens");
-		tokenState.add("Transform", NewDeckPosObject(0, 1, 1, true, 1.0));
+		tokenState.add("Transform", NewDeckPosObject(-3, 1, -2, true, 1.0));
 		tokenState.add("CustomDeck", NewDeckStateObject(tokenStateDeckIDs, draft, false));
 		if(tokenStateIds.size()>0)objectStates.add(tokenState);
 			
@@ -548,7 +548,7 @@ public class DeckMaker {
 		}
 
 		JsonObject basicState = NewDeckBaseObject(basicStateIds, "Basic Lands");
-		basicState.add("Transform", NewDeckPosObject(0, 1, 0, true, 1.0));
+		basicState.add("Transform", NewDeckPosObject(-3, 1, -3, true, 1.0));
 		basicState.add("CustomDeck", NewDeckStateObject(basicStateDeckIDs, draft, false));
 		basicState.add("ContainedObjects", basicContents);
 		if(basicStateIds.size()>0)objectStates.add(basicState);
@@ -580,7 +580,7 @@ public class DeckMaker {
 				}
 			}
 			JsonObject packState = NewDeckBaseObject(packStateIds, "");
-			packState.add("Transform", NewDeckPosObject(1+ packi%6, 0, packi/6, false, 1.0));
+			packState.add("Transform", NewDeckPosObject(-2 + packi%6, 0, -3 + packi/6, false, 1.0));
 			packState.add("CustomDeck", NewDeckStateObject(packStateDeckIds, draft, true));
 			packState.add("ContainedObjects", packContents);
 			objectStates.add(packState);
