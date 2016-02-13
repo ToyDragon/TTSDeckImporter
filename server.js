@@ -48,7 +48,7 @@ var app = express();
 app.use(express.static('www'));
 app.use('/decks', express.static(config.deckDir));
 app.use('/misc', express.static('misc'));
-app.use('/setAssets', express.static(config.setAssetDir));
+app.use('/setAssets/v1', express.static(config.setAssetDir));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/ping', function(req, res){
