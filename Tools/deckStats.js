@@ -1,13 +1,8 @@
 var fs = require('fs');
+var config = require('../settings.json');
 
-var dir = '../decks';
 var byMonth = false;
-var backupDir = 'decks';
 var countAll = false;
-
-if(!fs.existsSync(dir)){
-	dir = backupDir;
-}
 
 process.argv.forEach(function (val, index, array) {
 	if(val === '-month' || val === '-m'){
@@ -18,19 +13,19 @@ process.argv.forEach(function (val, index, array) {
 	}
 });
 
-if(fs.existsSync(dir)){
+if(fs.existsSync(config.deckDir)){
 	var total = 0;
 	var dates = {};
-	var files = fs.readdirSync(dir);
+	var files = fs.readdirSync(config.deckDir);
 	for(var filei in files){
 		var file = files[filei];
 		if(file == '.' || file == '..')continue;
-		if(!countAll && !file.match(/[a-z]{16}\.json/)) continue;
-		if(countAll && !file.match(/.json$/)) continue;
-		var stats = fs.statSync(dir + '/' + file);
+		if(!file.match(/\.json$/)) continue;
+		if(!countAll && !file.match(/^[a-z]{16}\.json/)) continue;
+		var stats = fs.statSync(config.deckDir + '/' + file);
 		var fileObj = {
 			date:stats.ctime,
-			file:dir+'/'+file
+			file:config.deckDir+'/'+file
 		};
 		if(stats.ctime.getHours() <= 6){
 			stats.ctime.setDate(stats.ctime.getDate() - 1);
@@ -65,5 +60,5 @@ if(fs.existsSync(dir)){
 	console.log('Total: ' + total);
 
 }else{
-	console.log('Couldn\'t find ' + dir);
+	console.log('Couldn\'t find ' + config.deckDir);
 }
