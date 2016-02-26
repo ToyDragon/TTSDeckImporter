@@ -77,18 +77,13 @@ function notifyDeck(){
 						try{
 							var count = 1;
 							var result = cardRegex.exec(list[j]);
-							if(result){
-								console.log(JSON.stringify(result));
-								count = Number(result[1]);
-							}
+							if(result) count = Number(result[1]);
 							totalSize += count;
 						}catch(unused){console.log(unused);}
 					}
 				}
 				totalUnique++;
 			}
-
-			console.log('deck with ' + totalSize + ' and ' + totalUnique + 'uniques');
 		}
 
 		if(decksToday.length > 0){
