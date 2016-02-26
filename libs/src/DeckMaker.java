@@ -177,7 +177,7 @@ public class DeckMaker {
 		int cardSection = 1;
 		String[] sectionLabels = {"COMMANDER","MAINBOARD","SIDEBOARD"};
 		String[] prefixsToIgnore = {"CREATURE (", "INSTANT (", "LAND (", "PLANESWALKER (", "TCG $", "SIDEBOARD (", "ENCHANTMENT (", "SORCERY (", "MAYBEBOARD ("};
-		String[] suffixsToIgnore = {" CREATURES", " INSTANTS AND SORC.", " LANDS", " OTHER SPELLS"};
+		String[] suffixsToIgnore = {" CREATURES", " INSTANTS and SORC.", " LANDS", " OTHER SPELLS"};
 		
 		cardInputLoop:
 		while(true){
@@ -387,15 +387,18 @@ public class DeckMaker {
 		commanderState.add("CustomDeck", NewDeckStateObject(commanderStateDeckIDs, deck, false));
 		if(commanderStateIDs.size()>0)objectStates.add(commanderState);
 		
-		//token object state----------------------------------------
+		//token and transform object state----------------------------------------
 		JsonArray tokenStateIds = new JsonArray();
 		ArrayList<Integer> tokenStateDeckIDs = new ArrayList<Integer>();
 		for(Token token : deck.tokens){
 			int deckID = token.jsonId/100;
-			if(!tokenStateDeckIDs.contains(deckID)){
-				tokenStateDeckIDs.add(deckID);
-			}
+			if(!tokenStateDeckIDs.contains(deckID)) tokenStateDeckIDs.add(deckID);
 			tokenStateIds.add(new JsonPrimitive(token.jsonId));
+		}
+		for(Card card : deck.transformList){
+			int deckID = card.transformJsonId/100;
+			if(!tokenStateDeckIDs.contains(deckID)) tokenStateDeckIDs.add(deckID);
+			tokenStateIds.add(new JsonPrimitive(card.transformJsonId));
 		}
 
 		JsonObject tokenState = NewDeckBaseObject(tokenStateIds, "Tokens");
@@ -409,15 +412,6 @@ public class DeckMaker {
 		JsonArray mainContents = new JsonArray();
 		ArrayList<Integer> mainStateDeckIDs = new ArrayList<Integer>();
 		for(Card card : deck.cardList){
-			if(card.amounts[curStateIndex] == 0)continue;
-			int deckID = card.jsonId/100;
-			if(!mainStateDeckIDs.contains(deckID)) mainStateDeckIDs.add(deckID);
-			for(int i = 0; i < card.amounts[1]; i++){
-				mainStateIDs.add(new JsonPrimitive(card.jsonId));
-				mainContents.add(NewCardObject(card.jsonId, card.getDisplayName()));
-			}
-		}
-		for(Card card : deck.transformList){
 			if(card.amounts[curStateIndex] == 0)continue;
 			int deckID = card.jsonId/100;
 			if(!mainStateDeckIDs.contains(deckID)) mainStateDeckIDs.add(deckID);
@@ -518,15 +512,18 @@ public class DeckMaker {
 
 		JsonArray objectStates = new JsonArray();
 		
-		//token object state----------------------------------------
+		//token and transforms object state----------------------------------------
 		JsonArray tokenStateIds = new JsonArray();
 		ArrayList<Integer> tokenStateDeckIDs = new ArrayList<Integer>();
 		for(Token token : draft.tokens){
 			int deckID = token.jsonId/100;
-			if(!tokenStateDeckIDs.contains(deckID)){
-				tokenStateDeckIDs.add(deckID);
-			}
+			if(!tokenStateDeckIDs.contains(deckID)) tokenStateDeckIDs.add(deckID);
 			tokenStateIds.add(new JsonPrimitive(token.jsonId));
+		}
+		for(Card card : draft.transformList){
+			int deckID = card.transformJsonId/100;
+			if(!tokenStateDeckIDs.contains(deckID)) tokenStateDeckIDs.add(deckID);
+			tokenStateIds.add(new JsonPrimitive(card.transformJsonId));
 		}
 
 		JsonObject tokenState = NewDeckBaseObject(tokenStateIds, "Tokens");

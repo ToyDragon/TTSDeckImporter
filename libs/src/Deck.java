@@ -50,9 +50,8 @@ public class Deck {
 		card.transformName = Transform.nameToTransformMap.get(card.name);
 		if(card.transformName != null){
 			transformList.add(card);
-		}else{
-			cardList.add(card);
 		}
+		cardList.add(card);
 		
 		ArrayList<Token> cardTokens = Token.cardToTokenMap.get(card.name);
 		if(cardTokens != null){

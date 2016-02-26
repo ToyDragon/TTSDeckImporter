@@ -11,6 +11,7 @@ public class Card {
 	public String line;
 	
 	public String cardKey;
+	public String transformCardKey;
 	
 	public int[] amounts;
 	
@@ -20,6 +21,7 @@ public class Card {
 	public String transformImageFileName;
 	
 	public int jsonId;
+	public int transformJsonId;
 	
 	public Card(){
 		amounts = new int[3];

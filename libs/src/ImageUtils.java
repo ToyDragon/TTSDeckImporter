@@ -44,9 +44,10 @@ public class ImageUtils {
 	public static void DownloadImages(Deck deck){
 		for(int i = deck.cardList.size()-1; i >= 0; i--){
 			Card card = deck.cardList.get(i);
-			if(LoadFromMagicCards(card) != null)continue;
-			if(LoadFromMythicSpoiler(card))continue;
-			if(LoadFromGatherer(card))continue;
+			if(Transform.nameToTransformMap.containsKey(card.name)) continue;
+			if(LoadFromMagicCards(card) != null) continue;
+			if(LoadFromMythicSpoiler(card)) continue;
+			if(LoadFromGatherer(card)) continue;
 			
 			System.out.println("Failed to load "+card);
 			deck.unknownCards.add(card);
@@ -55,10 +56,9 @@ public class ImageUtils {
 
 		for(int i = deck.transformList.size()-1; i >= 0; i--){
 			Card card = deck.transformList.get(i);
-			String frontKey = card.cardKey;
-			String backKey = Card.getCardKey(card.transformName, card.set, card.printing, card.language);
-			card.imageFileName = LoadFromMagicCards(card.name, frontKey, card);
-			card.transformImageFileName = LoadFromMagicCards(card.transformName, backKey, card);
+			card.transformCardKey = Card.getCardKey(card.transformName, card.set, card.printing, card.language);
+			card.imageFileName = LoadFromMagicCards(card);
+			card.transformImageFileName = LoadFromMagicCards(card, true);
 			
 			if(card.imageFileName != null && card.transformImageFileName != null) continue;
 			
@@ -102,12 +102,14 @@ public class ImageUtils {
 	}
 	
 	public static String LoadFromMagicCards(Card card){
-		String imageFileName = LoadFromMagicCards(card.name, card.cardKey, card);
+		String imageFileName = LoadFromMagicCards(card, false);
 		card.imageFileName = imageFileName;
 		return imageFileName;
 	}
 	
-	public static String LoadFromMagicCards(String cardName, String cardKey, Card card){
+	public static String LoadFromMagicCards(Card card, boolean isBack){
+		String cardKey = isBack ? card.transformCardKey : card.cardKey;
+		String cardName = isBack ? card.transformName : card.name;
 		String imageFileName = Config.imageDir+cardKey.toLowerCase().replaceAll("[<>/\"]+", "_")+".jpg";
 		if(new File(imageFileName).exists()) return imageFileName;
 		
@@ -301,7 +303,7 @@ public class ImageUtils {
 		for(Card card : deck.transformList){			
 			int deckNum = cardCount / cardsPerDeck;
 			int deckID = cardCount % cardsPerDeck;
-			card.jsonId = 100*(1+deckNum) + deckID;
+			card.transformJsonId = 100*(1+deckNum) + deckID;
 			
 			if(!draftAssetsExist){
 				int gridX = deckID%10;
