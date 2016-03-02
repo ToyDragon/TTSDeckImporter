@@ -9,6 +9,8 @@ var sendgrid = require('sendgrid')(config.sendgrid.key);
 var lastErrorEmail = new Date();
 var lastDailySummaryEmail = new Date();
 
+var numAttempts = 3;
+
 var decksToday = [
 	//{
 	//	name: deckName,
@@ -235,25 +237,32 @@ function HandleRequest(){
 
 		var reqObj = requestQueue.shift();
 		if(reqObj && reqObj.req && reqObj.res){
-			if(reqObj.isDraft) HandleDraft(reqObj.req, reqObj.res);
-			else HandleDeck(reqObj.req, reqObj.res);
+			if(reqObj.isDraft) HandleDraft(reqObj);
+			else HandleDeck(reqObj);
 		}
 	}
 };
 
-function HandleDraft(req, res){
+function HandleDraft(reqObj){
+	var req = reqObj.req;
+	var res = reqObj.res;
 	var client = net.connect({port: config.port});
 	var deckId = req.body.set.replace(/[^a-zA-Z0-9]/g, '') + '_' + getDeckID();
 
 	client.on('error', function(){
-		console.log('Deck maker is down...');
-		majorError({'message': 'Unable to connect to deck maker'});
-		res.end(JSON.stringify({
-			status:1,
-			errObj: {
-				message: 'The server is experiencing technical issues, please check back soon for details.'
-			}
-		}));
+		if(reqObj.attempt >= numAttempts){
+			console.log('Deck maker is down...');
+			majorError({'message': 'Unable to connect to deck maker'});
+			res.end(JSON.stringify({
+				status:1,
+				errObj: {
+					message: 'The server is experiencing technical issues, please check back soon for details.'
+				}
+			}));
+		}else{
+			reqObj.attempt++;
+			requestQueue.push(reqObj);
+		}
 		handleingRequest = false;
 		HandleRequest();
 	});
@@ -272,7 +281,9 @@ function HandleDraft(req, res){
 	logDraft(req.body);
 };
 
-function HandleDeck(req, res){
+function HandleDeck(reqObj){
+	var req = reqObj.req;
+	var res = reqObj.res;
 	var decklist = req.body.decklist + '\r\nENDDECK';
 	var deckID = getDeckID();
 	
@@ -286,14 +297,19 @@ function HandleDeck(req, res){
 	var client = net.connect({port: config.port});
 	
 	client.on('error', function(){
-		console.log('Deck maker is down...');
-		majorError({'message': 'Unable to connect to deck maker'});
-		res.end(JSON.stringify({
-			status:1,
-			errObj: {
-				message: 'The server is experiencing technical issues, please check back soon for details.'
-			}
-		}));
+		if(reqObj.attempt >= numAttempts){
+			console.log('Deck maker is down...');
+			majorError({'message': 'Unable to connect to deck maker'});
+			res.end(JSON.stringify({
+				status:1,
+				errObj: {
+					message: 'The server is experiencing technical issues, please check back soon for details.'
+				}
+			}));
+		}else{
+			reqObj.attempt++;
+			requestQueue.push(reqObj);
+		}
 		handleingRequest = false;
 		HandleRequest();
 	});
@@ -363,6 +379,7 @@ app.post('/newdraft', function(req, res){
 		requestQueue.push({
 			req: req,
 			res: res,
+			attempt: 0,
 			isDraft: true
 		});
 		HandleRequest();
@@ -377,6 +394,7 @@ app.post('/newdeck', function(req, res){
 		requestQueue.push({
 			req: req,
 			res: res,
+			attempt: 0,
 			isDraft: false
 		});
 		HandleRequest();
