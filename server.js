@@ -269,6 +269,7 @@ function HandleDraft(reqObj){
 
 	client.on('close', function(){
 		res.end(JSON.stringify({name:deckId,status:0}));
+		logDraft(req.body);
 		handleingRequest = false;
 		HandleRequest();
 	});
@@ -277,8 +278,6 @@ function HandleDraft(reqObj){
 	client.write(deckId + '\r\n');
 	client.write(cleanNewLines(req.body.set) + '\r\n');
 	client.write(clean(req.body.n) + '\r\n');
-	
-	logDraft(req.body);
 };
 
 function HandleDeck(reqObj){
@@ -330,8 +329,8 @@ function HandleDeck(reqObj){
 				status: 0,
 				name: deckID
 			}));
+			logDeck(req.body, !!errObj);
 		}
-		logDeck(req.body, !!errObj);
 		handleingRequest = false;
 		HandleRequest();
 	});
