@@ -42,6 +42,7 @@ public class ImageUtils {
 	}
 	
 	public static void DownloadImages(Deck deck){
+		
 		for(int i = deck.cardList.size()-1; i >= 0; i--){
 			Card card = deck.cardList.get(i);
 			if(Transform.nameToTransformMap.containsKey(card.name)) continue;

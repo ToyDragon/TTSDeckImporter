@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +28,8 @@ public class DeckMaker {
 	public static boolean DEBUG = false;
 	
 	public static Pattern cardNameRegex = Pattern.compile("([0-9]*)x?\\s*([^<\\[{]*)");
+	
+	public static double DeckThread;
 	
 	public static void main(String[] args){
 		FrogUtils.gson = new Gson();
@@ -56,12 +59,12 @@ public class DeckMaker {
 				clientSocket = serverSocket.accept();
 				clientScanner = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
 				clientWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
-				
 				try{
 					HandleClient(clientScanner, clientWriter);
 				}catch(Exception e){}
-			} catch (IOException e) {
-				ExitFailure("Unable to listen on port " + Config.port);
+			} catch (Exception e) {
+				System.out.println("Error in main thread loop :(");
+				e.printStackTrace();
 			} finally{
 				if(clientScanner != null){try{clientScanner.close();}catch(Exception e) {}}
 				if(clientWriter != null){try{clientWriter.close();}catch(Exception e) {}}
@@ -111,7 +114,7 @@ public class DeckMaker {
 		
 		//load params
 		newDeck.deckId = ReadLine(clientScanner);
-		newDeck.name = ReadLine(	clientScanner);
+		newDeck.name = ReadLine(clientScanner);
 		newDeck.useImgur = ReadLine(clientScanner).equals("true");
 		newDeck.backUrl = ReadLine(clientScanner);
 		newDeck.hiddenUrl = ReadLine(clientScanner);

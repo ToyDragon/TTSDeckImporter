@@ -34,6 +34,7 @@ public class FrogUtils {
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("User-Agent", Config.userAgent);
+			conn.setConnectTimeout(1000);
 			rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
 			while ((line = rd.readLine()) != null) {
 				result += line;
