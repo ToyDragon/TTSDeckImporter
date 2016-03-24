@@ -28,6 +28,7 @@ public class FrogUtils {
 		BufferedReader rd;
 		String line;
 		String result = "";
+		long start = System.currentTimeMillis();
 		try {
 			url = new URL(urlToRead);
 			conn = (HttpURLConnection) url.openConnection();
@@ -39,7 +40,8 @@ public class FrogUtils {
 			}
 			rd.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			long time = (System.currentTimeMillis() - start)/1000;
+			System.out.println("Failed to download html in " + time + " seconds, from " + urlToRead);
 		}
 		return result;
 	}
