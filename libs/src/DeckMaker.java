@@ -25,7 +25,7 @@ public class DeckMaker {
 	public static boolean running;
 	public static ArrayList<Card> TokenList = new ArrayList<Card>();
 	public static ServerSocket serverSocket;
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	
 	public static Pattern cardNameRegex = Pattern.compile("([0-9]*)x?\\s*([^<\\[{]*)");
 	
