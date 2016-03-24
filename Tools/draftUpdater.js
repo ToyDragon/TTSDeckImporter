@@ -143,7 +143,7 @@ var save_set = function(set){
 	file += 'Name\n';
 	file += set.name+'\n';
 	file += 'Code\n';
-	file += set.code+'\n';
+	file += set.magicCardsInfoCode+'\n';
 	if(set.gathererCode){
 		file += 'Gatherer Code\n';
 		file += set.gathererCode+'\n';

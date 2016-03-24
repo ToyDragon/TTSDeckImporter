@@ -25,7 +25,7 @@ public class DeckMaker {
 	public static boolean running;
 	public static ArrayList<Card> TokenList = new ArrayList<Card>();
 	public static ServerSocket serverSocket;
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	
 	public static Pattern cardNameRegex = Pattern.compile("([0-9]*)x?\\s*([^<\\[{]*)");
 	
@@ -608,7 +608,7 @@ public class DeckMaker {
 			fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Config.setAssetDir + draft.setName)), StandardCharsets.UTF_8));
 		}catch(Exception e){ e.printStackTrace();return; }
 
-		final int CARD=1,CODE=2,BOOSTER=3;
+		final int CARD=1,CODE=2,BOOSTER=3,CRAP=4;
 
 		int mode = 0;
 		for(String line = ReadLine(fileReader); line != null; line = ReadLine(fileReader)){
@@ -628,10 +628,15 @@ public class DeckMaker {
 				mode = BOOSTER;
 				isControl = true;
 			}
+			if(line.equalsIgnoreCase("Gatherer Code")){
+				mode = CRAP;
+				isControl = true;
+			}
 			if(isControl) continue;
 			
 			if(mode == CODE){
 				draft.code = line;
+				System.out.println("Loaded code of " + draft.code);
 			}
 			if(mode == BOOSTER){
 				String[] rarities = line.split(":")[0].split(",");

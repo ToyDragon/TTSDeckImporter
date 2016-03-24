@@ -34,15 +34,17 @@ public class FrogUtils {
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("User-Agent", Config.userAgent);
-			conn.setConnectTimeout(1000);
+			conn.setConnectTimeout(1500);
 			rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
 			while ((line = rd.readLine()) != null) {
 				result += line;
 			}
 			rd.close();
+			System.out.println("Loaded from " + urlToRead);
 		} catch (Exception e) {
-			long time = (System.currentTimeMillis() - start)/1000;
-			System.out.println("Failed to download html in " + time + " seconds, from " + urlToRead);
+			long time = (System.currentTimeMillis() - start);
+			System.out.println("Failed to download html in " + time + " miliseconds, from " + urlToRead);
+			System.out.println(e);
 		}
 		return result;
 	}
