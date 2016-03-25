@@ -491,9 +491,10 @@ public class DeckMaker {
 			}catch(Exception e){draft.amountPacks = 18;}
 			Debug("Reading list...");
 			ReadDraftList(clientScanner, draft);
-	
-			Debug("Downloading images...");
-			ImageUtils.DownloadImages(draft);
+			if(!ImageUtils.CheckDraftAssets(draft)){
+				Debug("Downloading images...");
+				ImageUtils.DownloadImages(draft);
+			}
 			Debug("Stitching deck...");
 			ImageUtils.StitchDeck(draft);
 			Debug("Building JSON...");
