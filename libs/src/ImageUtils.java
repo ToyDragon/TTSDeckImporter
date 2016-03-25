@@ -225,19 +225,11 @@ public class ImageUtils {
 		int transformDecks = 2 * (int) Math.ceil(draft.transformList.size()/(double)cardsPerDeck);
 		int deckAmt = regularDecks + transformDecks;
 		
-		int cardOffsetX = 10;
-		int cardOffsetY = 10;
-		
-		int cardWidth = 312 + 2*cardOffsetX;
-		int cardHeight = 445 + 2*cardOffsetY;
+		draft.deckFileNames = new String[deckAmt];
 		
 		for(int i = 0; i < deckAmt; i++){
-			draft.deckFileNames[i] = Config.deckDir + draft.deckId + i + ".jpg";
-			draft.deckLinks[i] = Config.hostUrlPrefix + Config.publicDeckDir + draft.deckId + i + ".jpg";
-
 			String cleanSetName = draft.setName.replaceAll("\\s", "_");
 			draft.deckFileNames[i] = Config.setAssetDir + cleanSetName + i + ".jpg";
-			draft.deckLinks[i] = Config.hostUrlPrefix + Config.publicSetAssetDir + cleanSetName + i + ".jpg";
 			draftAssetsExist = draftAssetsExist && new File(draft.deckFileNames[i]).exists();
 		}
 		

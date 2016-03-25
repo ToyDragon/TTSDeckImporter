@@ -499,6 +499,8 @@ public class DeckMaker {
 			ImageUtils.StitchDeck(draft);
 			Debug("Building JSON...");
 			BuildDraftJSONFile(draft);
+		}catch(Exception e){
+			e.printStackTrace();
 		}finally{
 			ImageUtils.FreeAllBuffers();
 			Debug("Done with draft :O");
