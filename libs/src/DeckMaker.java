@@ -251,10 +251,11 @@ public class DeckMaker {
 		for(String[] hardPair : Config.hardNameCharacters){
 			cardName = cardName.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);
 		}
+		cardName = cardName.replaceAll("/+", "/");
 		if(cardName.contains("/")){//make double sided cards consistent with magiccards.info
 			//Wear // Tear
 			String leftHalf = cardName.substring(0, cardName.indexOf("/")).trim();
-			String rightHalf = cardName.substring(cardName.lastIndexOf("/")+1).trim();
+			String rightHalf = cardName.substring(cardName.indexOf("/")+1).trim();
 			
 			cardName = leftHalf+=" ("+leftHalf+"/"+rightHalf+")";
 		}
