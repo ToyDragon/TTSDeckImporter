@@ -61,6 +61,9 @@ public class ImageUtils {
 			card.imageFileName = LoadFromMagicCards(card);
 			card.transformImageFileName = LoadFromMagicCards(card, true);
 			
+			if(card.imageFileName == null) LoadFromMythicSpoiler(card);
+			if(card.transformImageFileName == null) LoadFromMythicSpoiler(card, true);
+			
 			if(card.imageFileName != null && card.transformImageFileName != null) continue;
 			
 			System.out.println("Failed to load " + card.imageFileName + " or " + card.transformImageFileName);
@@ -187,15 +190,23 @@ public class ImageUtils {
 		}
 		return false;
 	}
-	
+
 	public static boolean LoadFromMythicSpoiler(Card card){
-		card.imageFileName = Config.imageDir + "MYTHICSPOILER" + card.name + ".jpg";
-		if(new File(card.imageFileName).exists()){return true;}
+		return LoadFromMythicSpoiler(card, false);
+	}
+	
+	public static boolean LoadFromMythicSpoiler(Card card, boolean isBack){
+		String cname = isBack ? card.transformName : card.name;
+		String imgname = Config.imageDir + "MYTHICSPOILER" + cname + ".jpg";
+		if(isBack)card.transformImageFileName = imgname;
+		else card.imageFileName = imgname;
+		System.out.println("Checking for " + imgname);
+		if(new File(imgname).exists()){return true;}
 		if(mythicSpoilerPage == null){
 			mythicSpoilerPage = FrogUtils.GetHTML("http://www.mythicspoiler.com/");
 		}
 		
-		String processedName = card.name.replaceAll("[^a-zA-Z]","").toLowerCase();
+		String processedName = cname.replaceAll("[^a-zA-Z]","").toLowerCase();
 		
 		for(String[] pair : Config.mythicErrors){
 			if(processedName.equalsIgnoreCase(pair[0])){
@@ -209,7 +220,7 @@ public class ImageUtils {
 		Matcher matcher = regex.matcher(mythicSpoilerPage);
 		if(matcher.find()){			
 			String url = "http://www.mythicspoiler.com/"+matcher.group(1);
-			SaveImage(url, card.imageFileName, 1.0);
+			SaveImage(url, imgname, 1.0);
 			return true;
 		}
 		
@@ -231,6 +242,9 @@ public class ImageUtils {
 			String cleanSetName = draft.setName.replaceAll("\\s", "_");
 			draft.deckFileNames[i] = Config.setAssetDir + cleanSetName + i + ".jpg";
 			draftAssetsExist = draftAssetsExist && new File(draft.deckFileNames[i]).exists();
+			if(!draftAssetsExist){
+				System.out.println(draft.deckFileNames[i] + " does not exist");
+			}
 		}
 		
 		return draftAssetsExist;
@@ -339,6 +353,8 @@ public class ImageUtils {
 					cardImage = ImageIO.read(new File(card.transformImageFileName));
 					gs[deckNum+1].drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 				}catch(Exception e){
+					System.out.println("Err with " + card.imageFileName);
+					System.out.println("and also " + card.transformImageFileName);
 					e.printStackTrace();
 				}
 			}
