@@ -293,6 +293,7 @@ public class ImageUtils {
 					BufferedImage cardImage = ImageIO.read(new File(card.imageFileName));
 					gs[deckNum].drawImage(cardImage, realX, realY, cardWidth - cardOffsetX*2, cardHeight - cardOffsetY*2, null);
 				}catch(Exception e){
+					System.out.println("Error loading from file " + card.imageFileName);
 					e.printStackTrace();
 				}
 			}
