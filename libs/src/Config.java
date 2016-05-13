@@ -11,7 +11,7 @@ public class Config {
 	public static String setAssetDir;
 
 	public static String publicDeckDir = "/decks/";
-	public static String publicSetAssetDir = "/setAssets/v2/"; 
+	public static String publicSetAssetDir = "/setAssets/v3/"; 
 	
 	public static String tokenAssetDir;
 	
