@@ -356,6 +356,8 @@ function HandleDeck(reqObj){
 app.use(express.static('www'));
 app.use('/decks', express.static(config.deckDir));
 app.use('/misc', express.static('misc'));
+app.use('/setAssets/v1', express.static(config.setAssetDir));
+app.use('/setAssets/v2', express.static(config.setAssetDir));
 app.use('/setAssets/v3', express.static(config.setAssetDir));
 app.use(bodyParser.urlencoded({ extended: false }));
 
