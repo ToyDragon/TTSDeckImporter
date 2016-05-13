@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -569,12 +570,17 @@ public class DeckMaker {
 			JsonArray packStateIds = new JsonArray();
 			JsonArray packContents = new JsonArray();
 			ArrayList<Integer> packStateDeckIds = new ArrayList<Integer>();
+			HashSet<Integer> existingPackIds = new HashSet<Integer>();
 			for(int rarityi = 0; rarityi < Draft.RARITIES.length; rarityi++){
 				if(hasMythic && rarityi == 1) continue;
 				ArrayList<Card> byRarity = draft.cardsByRarity.get(rarityi);
 				if(byRarity.size() == 0)continue;
 				for(int cardi = 0; cardi < draft.boosterAmts[rarityi]; cardi++){
-					Card card = byRarity.get((int)(byRarity.size() * Math.random()));
+					Card card = null;
+					do{
+						card = byRarity.get((int)(byRarity.size() * Math.random()));
+					}while(existingPackIds.contains(card.jsonId) && Math.random() > 0.25);
+					existingPackIds.add(card.jsonId);
 					int deckID = card.jsonId/100;
 					if(!packStateDeckIds.contains(deckID)){
 						packStateDeckIds.add(deckID);
