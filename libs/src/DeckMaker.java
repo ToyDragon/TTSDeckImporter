@@ -279,7 +279,9 @@ public class DeckMaker {
 			}
 			
 			card.amounts[board] += amt;
-		}catch(Exception e){}
+		}catch(Exception e){
+			System.out.println("Unable to read line:" + line);
+		}
 	}
 	
 	public static String GetGUID(){
@@ -496,6 +498,12 @@ public class DeckMaker {
 			}catch(Exception e){draft.amountPacks = 18;}
 			Debug("Reading list...");
 			ReadDraftList(clientScanner, draft);
+
+			System.out.println("There are " + draft.cardsByRarity.get(0).size() + " mythics");
+			for(Card c : draft.cardsByRarity.get(0)){
+				System.out.println(c.getDisplayName());
+			}
+			
 			if(!ImageUtils.CheckDraftAssets(draft)){
 				Debug("Downloading images...");
 				ImageUtils.DownloadImages(draft);
@@ -666,6 +674,7 @@ public class DeckMaker {
 				ReadCard(draft, 1, line);
 			}
 		}
+		draft.curRarity = 4; //basic land
 		String[] basics = {"island","mountain","forest","plains","swamp"};
 		for(String name : basics){
 			Card card = new Card();
