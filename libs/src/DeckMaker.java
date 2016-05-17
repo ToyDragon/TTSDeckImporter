@@ -215,68 +215,71 @@ public class DeckMaker {
 	 * @param line
 	 */
 	public static void ReadCard(Deck newDeck, int board, String line){
-		String set = null, printing = null, language = null;
-		String cardName = null;
-		String multiverseId = null;
-		int amt = 1;
-		
-		if(newDeck instanceof Draft){
-			Draft draft = (Draft)newDeck;
-			set = draft.code;
-
-			multiverseId = line.split(":")[0];
-			cardName = line.split(":")[1].trim().toLowerCase();
-		}else{
-			Matcher cardNameMatcher = cardNameRegex.matcher(line);
-			cardNameMatcher.find();
+		try{
+			String set = null, printing = null, language = null;
+			String cardName = null;
+			String multiverseId = null;
+			int amt = 1;
 			
-			String rawAmt = cardNameMatcher.group(1);
-			try{
-				amt = Integer.parseInt(rawAmt);
-			}catch(Exception e){}
+			if(newDeck instanceof Draft){
+				Draft draft = (Draft)newDeck;
+				set = draft.code;
+	
+				multiverseId = line.split(":")[0];
+				cardName = line.split(":")[1].trim().toLowerCase();
+			}else{
+				Matcher cardNameMatcher = cardNameRegex.matcher(line);
+				cardNameMatcher.find();
+				
+				String rawAmt = cardNameMatcher.group(1);
+				try{
+					amt = Integer.parseInt(rawAmt);
+				}catch(Exception e){}
+				
+				cardName = cardNameMatcher.group(2).trim().toLowerCase();
+				
+				int leftIndex,rightIndex;
+				leftIndex = line.indexOf("<"); rightIndex = line.indexOf(">");
+				if(leftIndex > 0 && rightIndex > leftIndex + 1) printing = line.substring(leftIndex + 1,rightIndex);
+				
+				leftIndex = line.indexOf("["); rightIndex = line.indexOf("]");
+				if(leftIndex > 0 && rightIndex > leftIndex + 1) set = line.substring(leftIndex + 1,rightIndex);
+				
+				leftIndex = line.indexOf("{"); rightIndex = line.indexOf("}");
+				if(leftIndex > 0 && rightIndex > leftIndex + 1) language = line.substring(leftIndex + 1,rightIndex);
+			}
 			
-			cardName = cardNameMatcher.group(2).trim().toLowerCase();
+	
+			for(String[] hardPair : Config.hardNameCharacters){
+				cardName = cardName.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);
+			}
+			cardName = cardName.replaceAll("/+", "/");
+			if(!(newDeck instanceof Draft)&&cardName.contains("/")){
+				//make double sided cards consistent with magiccards.info
+				//Wear // Tear
+				String leftHalf = cardName.substring(0, cardName.indexOf("/")).trim();
+				String rightHalf = cardName.substring(cardName.indexOf("/")+1).trim();
+				
+				cardName = leftHalf+=" ("+leftHalf+"/"+rightHalf+")";
+			}
 			
-			int leftIndex,rightIndex;
-			leftIndex = line.indexOf("<"); rightIndex = line.indexOf(">");
-			if(leftIndex > 0 && rightIndex > leftIndex + 1) printing = line.substring(leftIndex + 1,rightIndex);
+			String cardKey = Card.getCardKey(cardName, set, printing, language);
+			Card card = newDeck.getCard(cardKey);
+			if(card == null){
+				card = new Card();
+				card.name = cardName;
+				card.cardKey = cardKey;
+				card.language = language;
+				card.printing = printing;
+				card.multiverseId = multiverseId;
+				card.set = set;
+				card.line = line;
+	
+				newDeck.add(card);
+			}
 			
-			leftIndex = line.indexOf("["); rightIndex = line.indexOf("]");
-			if(leftIndex > 0 && rightIndex > leftIndex + 1) set = line.substring(leftIndex + 1,rightIndex);
-			
-			leftIndex = line.indexOf("{"); rightIndex = line.indexOf("}");
-			if(leftIndex > 0 && rightIndex > leftIndex + 1) language = line.substring(leftIndex + 1,rightIndex);
-		}
-		
-
-		for(String[] hardPair : Config.hardNameCharacters){
-			cardName = cardName.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);
-		}
-		cardName = cardName.replaceAll("/+", "/");
-		if(cardName.contains("/")){//make double sided cards consistent with magiccards.info
-			//Wear // Tear
-			String leftHalf = cardName.substring(0, cardName.indexOf("/")).trim();
-			String rightHalf = cardName.substring(cardName.indexOf("/")+1).trim();
-			
-			cardName = leftHalf+=" ("+leftHalf+"/"+rightHalf+")";
-		}
-		
-		String cardKey = Card.getCardKey(cardName, set, printing, language);
-		Card card = newDeck.getCard(cardKey);
-		if(card == null){
-			card = new Card();
-			card.name = cardName;
-			card.cardKey = cardKey;
-			card.language = language;
-			card.printing = printing;
-			card.multiverseId = multiverseId;
-			card.set = set;
-			card.line = line;
-
-			newDeck.add(card);
-		}
-		
-		card.amounts[board] += amt;
+			card.amounts[board] += amt;
+		}catch(Exception e){}
 	}
 	
 	public static String GetGUID(){
