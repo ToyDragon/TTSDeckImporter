@@ -6,6 +6,7 @@ libs/src/core/Deck.java
 libs/src/core/DeckMaker.java
 libs/src/core/DraftDeck.java
 libs/src/utils/FrogUtils.java
+libs/src/utils/JsonUtils.java
 libs/src/utils/ImageUtils.java
 libs/src/utils/cardretrieval/CardRetriever.java
 libs/src/utils/cardretrieval/GathererRetriever.java
