@@ -12,3 +12,6 @@ The deck maker code is stored in libs/src, and the entry point is core.DeckMaker
 
 Run the deck maker with 
 >java -cp libs/gson-2.3.1.jar;libs/bin core.DeckMaker
+
+##settings.json
+This config file is used by both the web server and the deck maker, settingsExample.json should be copied and modified before running either.
