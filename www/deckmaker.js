@@ -5,6 +5,30 @@ $(document).ready(function(){
 
 	var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 
+	$('body').on('dragover', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var dataTransfer = e.dataTransfer || e.originalEvent.dataTransfer;
+        dataTransfer.dropEffect = 'copy';
+    });
+
+	$('body').on('drop', function(e){
+		e.preventDefault();
+        var dataTransfer = e.dataTransfer || e.originalEvent.dataTransfer;
+		console.log('Got a drop ' + JSON.stringify(dataTransfer));
+		var files = dataTransfer.files;
+		console.log('files: ' + JSON.stringify(files));
+		for(var i = 0; i < files.length; i++){
+			var file = files[i];
+			var reader = new FileReader();
+			reader.onload = function(e2) {
+				var deck = JSON.parse(e2.target.result);
+				LoadDeck(deck);
+			}
+			reader.readAsText(file);
+		}
+	});
+
 	$('.qualityButtons button').click(function(event){
 		$('.qualityButtons button').removeClass('btn-info').addClass('btn-default');
 		$(event.currentTarget).addClass('btn-info').removeClass('btn-default');
@@ -79,6 +103,54 @@ $(document).ready(function(){
 			}
 		});
 	});
+
+	function LoadDeck(deck){
+		$('.cmdbtn, .sidebtn').each(function(i,btn){
+			if($(btn).hasClass('btn-success'))$(btn).click();
+		});
+
+		for(var i = 0; i < deck.ObjectStates.length; i++){
+			var state = deck.ObjectStates[i];
+			if(state.Nickname == 'Tokens') {
+
+			} else if(state.Nickname == 'Commander'){
+				//gotem!
+				var commander = state.ContainedObjects[0].Nickname;
+				if(!$('.cmdbtn').hasClass('btn-success')) $('.cmdbtn').click();
+				$('.userlist.commander').text(commander);
+			} else  if(state.Nickname == 'Sideboard'){
+				if(!$('.sidebtn').hasClass('btn-success')) $('.sidebtn').click();
+
+				var cards = {};
+				for(var obji = 0; obji < state.ContainedObjects.length; obji++){
+					var obj = state.ContainedObjects[obji];
+					cards[obj.Nickname] = cards[obj.Nickname] || 0;
+					cards[obj.Nickname]++;
+				}
+				var cardText = '';
+				for(var cardName in cards){
+					cardText += cards[cardName] + ' ' + cardName + '\r\n';
+				}
+				$('.userlist.sideboard').text(cardText);
+			} else {
+				$('#deckName').val(state.Nickname);
+				console.log('Name: ' + state.Nickname);
+
+				var cards = {};
+				for(var obji = 0; obji < state.ContainedObjects.length; obji++){
+					var obj = state.ContainedObjects[obji];
+					cards[obj.Nickname] = cards[obj.Nickname] || 0;
+					cards[obj.Nickname]++;
+				}
+				var cardText = '';
+				for(var cardName in cards){
+					cardText += cards[cardName] + ' ' + cardName + '\r\n';
+				}
+				$('.userlist.mainboard').text(cardText);
+			}
+		}
+		$('.userlist').each(function(i, src){ UpdateErrors($(src)); });
+	}
 
 	function UpdateErrors(src){
 		src.siblings('.displaylist').val(src.val());
