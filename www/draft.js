@@ -50,15 +50,30 @@ $(document).ready(function(){
 			reqobj.set = set;
 			reqobj.n = n;
 			
-			console.log('request: ' + JSON.stringify(reqobj));
-			$.post('/newdraft', reqobj, function(dataraw, status){
-				$('body').removeClass('loading');
-				console.log('response: ' + JSON.stringify(dataraw));
+			$.ajax({
+				type: 'POST',
+				url: '/newdraft',
+				data: reqobj,
+				timeout: 10000,
+			}).done(function(dataraw){
 				var data = JSON.parse(dataraw);
-				window.location = '/draftresults.html?deck='+data.name;
-				setTimeout(function(){
-					$("#packErr").text("There was an error generating your packs. Email FrogTownMatt@Gmail.com if you continue to see this error.");
-				}, 1000);
+				if(data.status == 0){
+					window.location = '/draftresults.html?deck='+data.name;
+				}else{
+					console.log(data);
+					var errMsg = data.errObj.message;
+
+					console.log(data.errObj);
+					$('#packErr').text(errMsg);
+					
+					$('body').removeClass('loading');
+					$('#packErr').removeClass('hidden');
+				}
+			}).fail(function(){
+				$('body').removeClass('loading');
+				$('#packErr').removeClass('hidden');
+
+				$('#packErr').text('Server is down :(');
 			});
 		}
 	});

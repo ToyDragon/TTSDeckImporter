@@ -76,10 +76,13 @@ $(document).ready(function(){
 		reqobj.coolify = coolify;
 		reqobj.compression = compression;
 		reqobj.name = name;
-
-		console.log(compression);
 		
-		$.post('/newdeck', reqobj, function(dataraw){
+		$.ajax({
+			type: 'POST',
+			url: '/newdeck',
+			data: reqobj,
+			timeout: 10000,
+		}).done(function(dataraw){
 			var data = JSON.parse(dataraw);
 			if(data.status == 0){
 				window.location = '/deck.html?deck='+data.name+'.json&name='+deckName;
@@ -87,8 +90,6 @@ $(document).ready(function(){
 				console.log(data);
 				badLines = {};
 				var errMsg = data.errObj.message;
-				$('body').removeClass('loading');
-				$('.error').removeClass('hidden');
 				if(data.errObj && data.errObj.badCards){
 					for(var erri = 0; erri < data.errObj.badCards.length; erri++){
 						badLines[data.errObj.badCards[erri]]=true;
@@ -96,11 +97,17 @@ $(document).ready(function(){
 				}
 
 				console.log(data.errObj);
-
 				$('.error').text(errMsg);
 				
 				$('.userlist').each(function(i, src){ UpdateErrors($(src)); });
+				$('body').removeClass('loading');
+				$('.error').removeClass('hidden');
 			}
+		}).fail(function(){
+			$('body').removeClass('loading');
+			$('.error').removeClass('hidden');
+
+			$('.error').text('Server is down :(');
 		});
 	});
 

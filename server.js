@@ -52,7 +52,10 @@ function HandleDraft(reqObj){
 	var client = net.connect({port: config.port});
 	var deckId = req.body.set.replace(/[^a-zA-Z0-9]/g, '') + '_' + getDeckID();
 
+	var errorOccured = false;
+	
 	client.on('error', function(){
+		errorOccured = true;
 		if(reqObj.attempt >= numAttempts){
 			console.log('Deck maker is down...');
 			logger.majorError({'message': 'Unable to connect to deck maker'});
@@ -71,10 +74,13 @@ function HandleDraft(reqObj){
 	});
 
 	client.on('close', function(){
-		res.end(JSON.stringify({name:deckId,status:0}));
-		logger.logDraft(req.body);
-		handleingRequest = false;
-		HandleRequest();
+		if(!errorOccured){
+			res.end(JSON.stringify({name:deckId,status:0}));
+			logger.logDraft(req.body);
+			handleingRequest = false;
+			HandleRequest();
+		}
+		errorOccured = false;
 	});
 
 	client.write('draft\r\n');
@@ -96,8 +102,11 @@ function HandleDeck(reqObj){
 	var coolifyBasic = !!req.body.coolify;
 
 	var client = net.connect({port: config.port});
+
+	var errorOccured = false;
 	
 	client.on('error', function(){
+		errorOccured = true;
 		if(reqObj.attempt >= numAttempts){
 			console.log('Deck maker is down...');
 			logger.majorError({'message': 'Unable to connect to deck maker'});
@@ -116,25 +125,28 @@ function HandleDeck(reqObj){
 	});
 
 	client.on('close', function(){
-		var errObj = null;
-		try{
-			errObj = JSON.parse(data)
-		}catch(err){}
-		if(errObj){
-			console.log(errObj);
-			res.end(JSON.stringify({
-				status:1,
-				errObj: errObj
-			}));
-		}else{
-			res.end(JSON.stringify({
-				status: 0,
-				name: deckID
-			}));
-			logger.logDeck(req.body, !!errObj);
+		if(!errorOccured){
+			var errObj = null;
+			try{
+				errObj = JSON.parse(data)
+			}catch(err){}
+			if(errObj){
+				console.log(errObj);
+				res.end(JSON.stringify({
+					status:1,
+					errObj: errObj
+				}));
+			}else{
+				res.end(JSON.stringify({
+					status: 0,
+					name: deckID
+				}));
+				logger.logDeck(req.body, !!errObj);
+			}
+			handleingRequest = false;
+			HandleRequest();
 		}
-		handleingRequest = false;
-		HandleRequest();
+		errorOccured = false;
 	});
 
 	var data = '';
