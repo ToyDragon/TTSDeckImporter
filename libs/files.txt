@@ -1,0 +1,13 @@
+libs/src/cardbuddies/Token.java
+libs/src/cardbuddies/Transform.java
+libs/src/core/Card.java
+libs/src/core/Config.java
+libs/src/core/Deck.java
+libs/src/core/DeckMaker.java
+libs/src/core/DraftDeck.java
+libs/src/utils/FrogUtils.java
+libs/src/utils/ImageUtils.java
+libs/src/utils/cardretrieval/CardRetriever.java
+libs/src/utils/cardretrieval/GathererRetriever.java
+libs/src/utils/cardretrieval/MagicCardsInfoRetriever.java
+libs/src/utils/cardretrieval/MythicSpoilerRetriever.java

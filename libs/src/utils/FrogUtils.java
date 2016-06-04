@@ -1,3 +1,4 @@
+package utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+
+import core.Config;
 
 public class FrogUtils {
 	public static Gson gson;

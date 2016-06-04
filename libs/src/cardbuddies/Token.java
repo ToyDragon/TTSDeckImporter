@@ -1,3 +1,4 @@
+package cardbuddies;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -10,6 +11,9 @@ import javax.imageio.ImageIO;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import core.Config;
+import utils.FrogUtils;
 
 public class Token {
 	public static HashMap<String, Token> nameToTokenMap = new HashMap<String, Token>();

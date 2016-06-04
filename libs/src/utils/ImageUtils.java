@@ -1,3 +1,4 @@
+package utils;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -6,8 +7,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.spi.CalendarDataProvider;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -15,10 +18,29 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
+import cardbuddies.Token;
+import cardbuddies.Transform;
+import core.Card;
+import core.Config;
+import core.Deck;
+import core.DraftDeck;
+import utils.cardretrieval.CardRetriever;
+import utils.cardretrieval.GathererRetriever;
+import utils.cardretrieval.MagicCardsInfoRetriever;
+import utils.cardretrieval.MythicSpoilerRetriever;
+
 public class ImageUtils {
 	public static ArrayList<BufferedImage> freeBuffers = new ArrayList<BufferedImage>();
 	public static ArrayList<BufferedImage> occupiedBuffers = new ArrayList<BufferedImage>();
-	public static String mythicSpoilerPage;
+	public static ArrayList<CardRetriever> cardRetrievers = new ArrayList<CardRetriever>();
+	
+	public static long resetTime = 0;
+	
+	static{
+		cardRetrievers.add(new MagicCardsInfoRetriever());
+		cardRetrievers.add(new MythicSpoilerRetriever());
+		cardRetrievers.add(new GathererRetriever());
+	}
 	
 	public static BufferedImage GetBuffer(int width, int height){
 		for(int i = freeBuffers.size()-1; i >= 0; i--){
@@ -41,33 +63,55 @@ public class ImageUtils {
 		}
 	}
 	
+	public static void AttemptClearFailedCards(){
+		long curTime = System.currentTimeMillis();
+		if(curTime >= resetTime){
+			for(CardRetriever retriever : cardRetrievers){
+				retriever.ClearFailedCards();
+			}
+			
+			Calendar tomorrow = Calendar.getInstance();
+			tomorrow.set(Calendar.HOUR_OF_DAY, 0);
+			tomorrow.set(Calendar.MINUTE, 0);
+			tomorrow.set(Calendar.SECOND, 0);
+			tomorrow.add(Calendar.DAY_OF_MONTH, 1);
+			
+			resetTime = tomorrow.getTimeInMillis();
+		}
+	}
+	
 	public static void DownloadImages(Deck deck){
-		
+		AttemptClearFailedCards();
+
 		for(int i = deck.cardList.size()-1; i >= 0; i--){
 			Card card = deck.cardList.get(i);
-			if(Transform.nameToTransformMap.containsKey(card.name)) continue;
-			if(LoadFromMagicCards(card) != null) continue;
-			if(LoadFromMythicSpoiler(card)) continue;
-			if(LoadFromGatherer(card)) continue;
+			boolean success = false;
+			for(CardRetriever retriever : cardRetrievers){
+				if(!retriever.HasCardFailed(card)){
+					success = retriever.LoadCard(card);
+					if(success) break;
+				}
+			}
 			
-			System.out.println("Failed to load "+card);
-			deck.unknownCards.add(card);
-			deck.cardList.remove(i);
+			if(!success){
+				deck.unknownCards.add(card);
+				deck.cardList.remove(i);
+			}
 		}
 
 		for(int i = deck.transformList.size()-1; i >= 0; i--){
 			Card card = deck.transformList.get(i);
-			card.transformCardKey = Card.getCardKey(card.transformName, card.set, card.printing, card.language);
-			card.imageFileName = LoadFromMagicCards(card);
-			card.transformImageFileName = LoadFromMagicCards(card, true);
+			boolean success = false;
+			for(CardRetriever retriever : cardRetrievers){
+				if(!retriever.HasCardFailed(card)){
+					success = retriever.LoadCard(card);
+					if(success) break;
+				}
+			}
 			
-			if(card.imageFileName == null) LoadFromMythicSpoiler(card);
-			if(card.transformImageFileName == null) LoadFromMythicSpoiler(card, true);
-			
-			if(card.imageFileName != null && card.transformImageFileName != null) continue;
-			
-			System.out.println("Failed to load " + card.imageFileName + " or " + card.transformImageFileName);
-			deck.cardList.remove(i);
+			if(!success){
+				deck.cardList.remove(i);
+			}
 		}
 	
 		if(deck.hiddenUrl != null && !deck.hiddenUrl.equals("default")){
@@ -105,129 +149,7 @@ public class ImageUtils {
 		jpgWriter.dispose();
 	}
 	
-	public static String LoadFromMagicCards(Card card){
-		String imageFileName = LoadFromMagicCards(card, false);
-		card.imageFileName = imageFileName;
-		return imageFileName;
-	}
-	
-	public static String LoadFromMagicCards(Card card, boolean isBack){
-		String cardKey = isBack ? card.transformCardKey : card.cardKey;
-		String cardName = isBack ? card.transformName : card.name;
-		String imageFileName = Config.imageDir+cardKey.toLowerCase().replaceAll("[<>/\"]+", "_")+".jpg";
-		if(new File(imageFileName).exists()) return imageFileName;
-		
-		for(String[] hardPair : Config.hardUrls){
-			if(hardPair[0].equalsIgnoreCase(cardName)){
-				SaveImage(hardPair[1], imageFileName, 1.0);
-				return imageFileName;
-			}
-		}
-		String processedName = "\""+cardName.trim().toLowerCase()+"\"";
-		if(card.set != null && card.set.length() > 0) processedName +=" e:"+card.set;
-		if(card.language != null && card.language.length() > 0)	processedName +=" l:"+card.language;
-
-		URI uri = null;
-		String qstr = null;
-		try{
-			uri = new java.net.URI("http", "magiccards.info", "/query", "q="+processedName, null);
-			qstr = uri.toURL().toString().replaceAll("&", "%26").replaceAll(" ", "%20")+"&v=card&s=cname";
-		}catch(Exception e){}
-		
-		String result = FrogUtils.GetHTML(qstr).toLowerCase();
-
-		for(String[] hardPair : Config.hardNameCharacters){
-			result = result.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);
-		}
-		
-		String regexStr = "";
-		if(card.printing != null && !card.printing.trim().equals("")){
-			String lang = card.language;
-			String set = card.set;
-			if(lang == null || lang.equals("")){
-				lang = "en";
-			}
-			if(set == null){
-				regexStr = "(?i)/(..?.?.?.?)/"+lang+"/"+card.printing+".html";//find set and lang
-				Pattern regex = Pattern.compile(regexStr, Pattern.CASE_INSENSITIVE);
-
-				try{
-					Matcher matcher = regex.matcher(result);
-					matcher.find();
-					if(matcher.groupCount() > 0){
-						set = matcher.group(1);
-					}
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-			String url = "http://magiccards.info/scans/"+lang+"/"+set+"/"+card.printing+".jpg";
-			SaveImage(url, imageFileName, 1.0);
-			return imageFileName;
-		}else{
-			String cleanName = Pattern.quote(cardName);
-			regexStr = "<img src=\"(http://magiccards.info/[a-z0-9/]+\\.jpg)\"\\s+alt=\"" + cleanName +"\"";
-			Pattern regex = Pattern.compile(regexStr);
-			
-			Matcher matcher = regex.matcher(result);
-			if(matcher.find()){
-				SaveImage(matcher.group(1), imageFileName, 1.0);
-				return imageFileName;
-			}
-		}
-		return null;
-	}
-	
-	public static boolean LoadFromGatherer(Card card){
-		if(card.multiverseId != null){
-			card.imageFileName = Config.imageDir + card.multiverseId+".jpg";
-			File f = new File(card.imageFileName);
-			if(!f.exists()){
-				String imageURL = "http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid="+card.multiverseId+"&type=card";
-				SaveImage(imageURL, card.imageFileName, 1.0);
-			}
-			return true;
-		}
-		return false;
-	}
-
-	public static boolean LoadFromMythicSpoiler(Card card){
-		return LoadFromMythicSpoiler(card, false);
-	}
-	
-	public static boolean LoadFromMythicSpoiler(Card card, boolean isBack){
-		String cname = isBack ? card.transformName : card.name;
-		String imgname = Config.imageDir + "MYTHICSPOILER" + cname + ".jpg";
-		if(isBack)card.transformImageFileName = imgname;
-		else card.imageFileName = imgname;
-		System.out.println("Checking for " + imgname);
-		if(new File(imgname).exists()){return true;}
-		if(mythicSpoilerPage == null){
-			mythicSpoilerPage = FrogUtils.GetHTML("http://www.mythicspoiler.com/");
-		}
-		
-		String processedName = cname.replaceAll("[^a-zA-Z]","").toLowerCase();
-		
-		for(String[] pair : Config.mythicErrors){
-			if(processedName.equalsIgnoreCase(pair[0])){
-				processedName = pair[1];
-			}
-		}
-		
-		String patternString = "\"(..?.?.?/(?:cards/)?"+processedName+"[0-9]?.jpg)";
-		Pattern regex = Pattern.compile(patternString);
-		
-		Matcher matcher = regex.matcher(mythicSpoilerPage);
-		if(matcher.find()){			
-			String url = "http://www.mythicspoiler.com/"+matcher.group(1);
-			SaveImage(url, imgname, 1.0);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	public static boolean CheckDraftAssets(Draft draft){
+	public static boolean CheckDraftAssets(DraftDeck draft){
 		boolean draftAssetsExist = true;
 		
 		int cardsPerDeck = 69;
@@ -257,7 +179,7 @@ public class ImageUtils {
 		int transformDecks = 2 * (int) Math.ceil(deck.transformList.size()/(double)cardsPerDeck);
 		int deckAmt = regularDecks + transformDecks;
 		
-		boolean draftAssetsExist = deck instanceof Draft;
+		boolean draftAssetsExist = deck instanceof DraftDeck;
 		
 		int cardOffsetX = 10;
 		int cardOffsetY = 10;
@@ -275,8 +197,8 @@ public class ImageUtils {
 			deck.deckFileNames[i] = Config.deckDir + deck.deckId + i + ".jpg";
 			deck.deckLinks[i] = Config.hostUrlPrefix + Config.publicDeckDir + deck.deckId + i + ".jpg";
 			
-			if(deck instanceof Draft){
-				Draft draft = (Draft)deck;
+			if(deck instanceof DraftDeck){
+				DraftDeck draft = (DraftDeck)deck;
 				String cleanSetName = draft.setName.replaceAll("\\s", "_");
 				deck.deckFileNames[i] = Config.setAssetDir + cleanSetName + i + ".jpg";
 				deck.deckLinks[i] = Config.hostUrlPrefix + Config.publicSetAssetDir + cleanSetName + i + ".jpg";

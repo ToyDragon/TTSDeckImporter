@@ -1,7 +1,10 @@
+package core;
 import java.net.InetAddress;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import utils.FrogUtils;
 
 public class Config {
 	public static String userAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36";

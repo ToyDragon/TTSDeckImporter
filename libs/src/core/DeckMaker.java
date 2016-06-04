@@ -1,8 +1,8 @@
+package core;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -11,7 +11,6 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +18,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import cardbuddies.Token;
+import cardbuddies.Transform;
+import utils.FrogUtils;
+import utils.ImageUtils;
 
 public class DeckMaker {
 
@@ -62,7 +66,7 @@ public class DeckMaker {
 				clientWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
 				try{
 					HandleClient(clientScanner, clientWriter);
-				}catch(Exception e){}
+				}catch(Exception e){e.printStackTrace();}
 			} catch (Exception e) {
 				System.out.println("Error in main thread loop :(");
 				e.printStackTrace();
@@ -116,7 +120,6 @@ public class DeckMaker {
 		//load params
 		newDeck.deckId = ReadLine(clientScanner);
 		newDeck.name = ReadLine(clientScanner);
-		newDeck.useImgur = ReadLine(clientScanner).equals("true");
 		newDeck.backUrl = ReadLine(clientScanner);
 		newDeck.hiddenUrl = ReadLine(clientScanner);
 		boolean coolifyBasics = ReadLine(clientScanner).equals("true");
@@ -125,6 +128,7 @@ public class DeckMaker {
 		}catch(Exception e){}
 
 		ReadDeckList(newDeck, clientScanner);
+		System.out.println("Deck with " + newDeck.cardList.size() + " cards and " + newDeck.transformList.size() + " transforms");
 		if(newDeck.cardList.size() + newDeck.transformList.size() == 0){
 			JsonObject errorObj = new JsonObject();
 			errorObj.add("message", new JsonPrimitive("Too few cards!"));
@@ -152,7 +156,9 @@ public class DeckMaker {
 		
 		if(coolifyBasics)newDeck.Coolify();
 
+		System.out.println("Test 1");
 		ImageUtils.DownloadImages(newDeck);
+		System.out.println("Downloaded images, with " + newDeck.unknownCards.size() + " unknown");
 		if(newDeck.unknownCards.size() == 0){
 			ImageUtils.StitchDeck(newDeck);
 			BuildJSONFile(newDeck);
@@ -221,8 +227,8 @@ public class DeckMaker {
 			String multiverseId = null;
 			int amt = 1;
 			
-			if(newDeck instanceof Draft){
-				Draft draft = (Draft)newDeck;
+			if(newDeck instanceof DraftDeck){
+				DraftDeck draft = (DraftDeck)newDeck;
 				set = draft.code;
 	
 				multiverseId = line.split(":")[0];
@@ -254,7 +260,7 @@ public class DeckMaker {
 				cardName = cardName.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);
 			}
 			cardName = cardName.replaceAll("/+", "/");
-			if(!(newDeck instanceof Draft)&&cardName.contains("/")){
+			if(!(newDeck instanceof DraftDeck)&&cardName.contains("/")){
 				//make double sided cards consistent with magiccards.info
 				//Wear // Tear
 				String leftHalf = cardName.substring(0, cardName.indexOf("/")).trim();
@@ -489,7 +495,7 @@ public class DeckMaker {
 	public static void HandleDraft(BufferedReader clientScanner){
 		try{
 			Debug("Draft...");
-			Draft draft = new Draft();
+			DraftDeck draft = new DraftDeck();
 			
 			draft.deckId = ReadLine(clientScanner);
 			draft.setName = ReadLine(clientScanner);
@@ -521,7 +527,7 @@ public class DeckMaker {
 	}
 	
 
-	public static void BuildDraftJSONFile(Draft draft){			
+	public static void BuildDraftJSONFile(DraftDeck draft){			
 		JsonObject deckJSON = new JsonObject();
 		
 		String[] emptyProps = {"SaveName", "GameMode", "Date", "Table", "Sky", "Note", "Rules", "PlayerTurn"};
@@ -582,7 +588,7 @@ public class DeckMaker {
 			JsonArray packContents = new JsonArray();
 			ArrayList<Integer> packStateDeckIds = new ArrayList<Integer>();
 			HashSet<Integer> existingPackIds = new HashSet<Integer>();
-			for(int rarityi = 0; rarityi < Draft.RARITIES.length; rarityi++){
+			for(int rarityi = 0; rarityi < DraftDeck.RARITIES.length; rarityi++){
 				if(hasMythic && rarityi == 1) continue;
 				ArrayList<Card> byRarity = draft.cardsByRarity.get(rarityi);
 				if(byRarity.size() == 0)continue;
@@ -623,7 +629,7 @@ public class DeckMaker {
 		}
 	}
 	
-	public static void ReadDraftList(BufferedReader clientScanner, Draft draft){
+	public static void ReadDraftList(BufferedReader clientScanner, DraftDeck draft){
 		BufferedReader fileReader = null;
 		try{
 			fileReader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(Config.setAssetDir + draft.setName)), StandardCharsets.UTF_8));
@@ -634,8 +640,8 @@ public class DeckMaker {
 		int mode = 0;
 		for(String line = ReadLine(fileReader); line != null; line = ReadLine(fileReader)){
 			boolean isControl = false;
-			for(int i = 0; i < Draft.RARITIES.length; i++){
-				if(line.toLowerCase().equals(Draft.RARITIES[i].toLowerCase())){
+			for(int i = 0; i < DraftDeck.RARITIES.length; i++){
+				if(line.toLowerCase().equals(DraftDeck.RARITIES[i].toLowerCase())){
 					mode = CARD;
 					draft.curRarity = i;
 					isControl = true;
@@ -663,14 +669,14 @@ public class DeckMaker {
 				String[] rarities = line.split(":")[0].split(",");
 				int amt = Integer.parseInt(line.split(":")[1]);
 				for(int j = 0; j < rarities.length; j++){
-					for(int i = 0; i < Draft.RARITIES.length; i++){
-						if(rarities[j].toLowerCase().startsWith(Draft.RARITIES[i].toLowerCase())){
+					for(int i = 0; i < DraftDeck.RARITIES.length; i++){
+						if(rarities[j].toLowerCase().startsWith(DraftDeck.RARITIES[i].toLowerCase())){
 							draft.boosterAmts[i] = amt;
 						}
 					}
 				}
 			}
-			if(mode == CARD && !Draft.RARITIES[draft.curRarity].equals("Basic Land")){
+			if(mode == CARD && !DraftDeck.RARITIES[draft.curRarity].equals("Basic Land")){
 				ReadCard(draft, 1, line);
 			}
 		}

@@ -290,7 +290,7 @@ function HandleDeck(reqObj){
 	var hiddenURL = clean(req.body.hiddenURL);
 	var compression = clean(req.body.compression);
 	var deckName = cleanNewLines(req.body.name);
-	var useImgur = !!req.body.imgur;
+	//var useImgur = !!req.body.imgur;
 	var coolifyBasic = !!req.body.coolify;
 
 	var client = net.connect({port: config.port});
@@ -344,7 +344,7 @@ function HandleDeck(reqObj){
 	client.write('deck\r\n');
 	client.write(deckID + '\r\n');
 	client.write(deckName + '\r\n');
-	client.write(useImgur + '\r\n');
+	//client.write(useImgur + '\r\n');
 	client.write(backURL + '\r\n');
 	client.write(hiddenURL + '\r\n');
 	client.write(coolifyBasic + '\r\n');

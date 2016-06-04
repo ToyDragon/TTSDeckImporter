@@ -1,8 +1,12 @@
+package cardbuddies;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.Map.Entry;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import core.Config;
+import utils.FrogUtils;
 
 public class Transform{
 	public static HashMap<String, String> nameToTransformMap = new HashMap<String, String>();

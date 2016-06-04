@@ -1,6 +1,10 @@
+package core;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import cardbuddies.Token;
+import cardbuddies.Transform;
 
 public class Deck {
 	
@@ -49,6 +53,7 @@ public class Deck {
 	public void add(Card card){
 		card.transformName = Transform.nameToTransformMap.get(card.name);
 		if(card.transformName != null){
+			card.transformCardKey = Card.getCardKey(card.transformName, card.set, card.printing, card.language);
 			transformList.add(card);
 		}
 		cardList.add(card);
