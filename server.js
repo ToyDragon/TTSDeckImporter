@@ -19,6 +19,14 @@ var requestQueue = [
 
 var app = express();
 
+app.use(express.static('www'));
+app.use('/decks', express.static(config.deckDir));
+app.use('/misc', express.static('misc'));
+for(var i = 0; i < Number(config.setAssetVersion); i++){
+	app.use('/setAssets/v' + i, express.static(config.setAssetDir));
+}
+app.use(bodyParser.urlencoded({ extended: false }));
+
 function clean(str, onlyNewLines){
 	var clean = (str+'').replace(/[\r\n]/g,'');
 	if(!onlyNewLines) clean = clean.replace(/\s/g,'_');
@@ -53,7 +61,7 @@ function HandleDraft(reqObj){
 	var deckId = req.body.set.replace(/[^a-zA-Z0-9]/g, '') + '_' + getDeckID();
 
 	var errorOccured = false;
-	
+
 	client.on('error', function(){
 		errorOccured = true;
 		if(reqObj.attempt >= numAttempts){
@@ -165,14 +173,6 @@ function HandleDeck(reqObj){
 	client.write(decklist + '\r\n');
 	client.write('ENDDECK\r\n');
 }
-
-app.use(express.static('www'));
-app.use('/decks', express.static(config.deckDir));
-app.use('/misc', express.static('misc'));
-app.use('/setAssets/v1', express.static(config.setAssetDir));
-app.use('/setAssets/v2', express.static(config.setAssetDir));
-app.use('/setAssets/v3', express.static(config.setAssetDir));
-app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/sets', function(req, res){
 	try{
