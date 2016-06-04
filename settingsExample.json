@@ -1,0 +1,82 @@
+{
+	"deckDir": "/datadrive/decks/",
+	"imageDir": "/datadrive/images/",
+	"setAssetDir": "/datadrive/setAssets/",
+	"setAssetVersion": "3",
+	"sendgrid": {
+		"key" : "<SENDGRID API KEY>",
+		"alertEmail" : "<EMAIL THAT WILL RECEIVE EMAIL REPORTS>",
+		"sourceEmail" : "<ADDRESS THAT SENDS ERROR REPORTS>",
+		"summaryEmail" : "<ADDRESS THAT SENDS SUMMARIES>"
+	},
+	"port": "34251",
+	"defaultBackImage": "http://i.imgur.com/P7qYTcI.png",
+	"tokenListDir": "misc/tokens.json",
+	"tokenImageDir": "tokenAssets/",
+	"transformMapDir": "misc/transforms.json",
+	"hostUrlPrefix": "http://www.frogtown.me",
+	"cardNameReplacements":[
+		{
+			"hard":"æ",
+			"easy":"ae"
+		},{
+			"hard":"é",
+			"easy":"e"
+		},{
+			"hard":"à",
+			"easy":"a"
+		},{
+			"hard":"û",
+			"easy":"u"
+		}
+	],
+	"hardUrls": [
+		{
+			"name": "Ach! Hans, Run!",
+			"url": "http://magiccards.info/scans/en/uh/116.jpg"
+		},{
+			"name": "Kongming, \"Sleeping Dragon\"",
+			"url": "http://magiccards.info/scans/en/vma/33.jpg"
+		},{
+			"name": "Pang Tong, \"Young Phoenix\"",
+			"url": "http://magiccards.info/scans/en/p3k/14.jpg"
+		},{
+			"name": "Ow",
+			"url": "http://magiccards.info/scans/en/ug/36.jpg"
+		},{
+			"name": "Pang Tong, Young Phoenix",
+			"url": "http://magiccards.info/scans/en/p3k/14.jpg"
+		},{
+			"name": "Vizzerdrix",
+			"url": "http://magiccards.info/scans/en/9eb/7.jpg"
+		},{
+			"name": "Index",
+			"url": "http://magiccards.info/scans/en/m13/55.jpg"
+		},{
+			"name": "Who (Who/What/When/Where/Why)",
+			"url": "http://magiccards.info/scans/en/uh/120b.jpg"
+		},{
+			"name": "What (Who/What/When/Where/Why)",
+			"url": "http://magiccards.info/scans/en/uh/120b.jpg"
+		},{
+			"name": "When (Who/What/When/Where/Why)",
+			"url": "http://magiccards.info/scans/en/uh/120b.jpg"
+		},{
+			"name": "Where (Who/What/When/Where/Why)",
+			"url": "http://magiccards.info/scans/en/uh/120b.jpg"
+		},{
+			"name": "Why (Who/What/When/Where/Why)",
+			"url": "http://magiccards.info/scans/en/uh/120b.jpg"
+		}
+	],
+	"mythicErrors": [
+		{
+			"name": "kozilekschanneler",
+			"correction": "kozliekschanneler"
+		},
+		{
+			"name": "tandemtactics",
+			"correction": "unisonstrike"
+		}
+	]
+}
