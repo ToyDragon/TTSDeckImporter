@@ -22,7 +22,7 @@ var app = express();
 app.use(express.static('www'));
 app.use('/decks', express.static(config.deckDir));
 app.use('/misc', express.static('misc'));
-for(var i = 0; i < Number(config.setAssetVersion); i++){
+for(var i = 1; i <= Number(config.setAssetVersion); i++){
 	app.use('/setAssets/v' + i, express.static(config.setAssetDir));
 }
 app.use(bodyParser.urlencoded({ extended: false }));

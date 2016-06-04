@@ -4,13 +4,9 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.spi.CalendarDataProvider;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -19,7 +15,6 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
 import cardbuddies.Token;
-import cardbuddies.Transform;
 import core.Card;
 import core.Config;
 import core.Deck;

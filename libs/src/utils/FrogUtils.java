@@ -12,8 +12,13 @@ import com.google.gson.JsonObject;
 
 import core.Config;
 
+/**
+ * Miscellaneous helper methods
+ * @author Matt
+ */
 public class FrogUtils {
 	public static Gson gson;
+	public static boolean DEBUG = false;
 	
 	public static JsonObject JsonObjectFromFile(String fileUrl){
 		try{
@@ -23,6 +28,12 @@ public class FrogUtils {
 			return jsonObject;
 		}catch(Exception e){}
 		return null;
+	}
+	
+	public static void Debug(String msg){
+		if(DEBUG){
+			System.out.println(msg);
+		}
 	}
 	
 	public static String GetHTML(String urlToRead) {
@@ -50,5 +61,37 @@ public class FrogUtils {
 			System.out.println(e);
 		}
 		return result;
+	}
+	
+	public static String StringBetween(String line, String left, String right){
+		int leftIndex,rightIndex;
+		leftIndex = line.indexOf(left); rightIndex = line.indexOf(right);
+		if(leftIndex > 0 && rightIndex > leftIndex + 1) return line.substring(leftIndex + 1,rightIndex);
+		return "";
+	}
+	
+	/**
+	 * Replaces hard name characters, and formats multi-sided cards.
+	 * @param cardName
+	 * @return
+	 */
+	public static String CleanCardName(String cardName){
+		for(String[] hardPair : Config.hardNameCharacters){
+			cardName = cardName.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);
+		}
+		
+		cardName = cardName.replaceAll("/+", "/");
+		if(cardName.contains("/")){
+			//make double sided cards consistent with magiccards.info
+			//Wear // Tear
+			int start = cardName.lastIndexOf("(")+1;
+			int end = cardName.indexOf(")");
+			if(end <= 0) end = cardName.length();
+			String leftHalf = cardName.substring(start, cardName.indexOf("/")).trim();
+			String rightHalf = cardName.substring(cardName.indexOf("/")+1, end).trim();
+			
+			cardName = leftHalf+=" ("+leftHalf+"/"+rightHalf+")";
+		}
+		return cardName;
 	}
 }

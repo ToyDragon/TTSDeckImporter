@@ -1,5 +1,4 @@
 package core;
-import java.net.InetAddress;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -14,7 +13,7 @@ public class Config {
 	public static String setAssetDir;
 
 	public static String publicDeckDir = "/decks/";
-	public static String publicSetAssetDir = "/setAssets/v3/"; 
+	public static String publicSetAssetDir; 
 	
 	public static String tokenAssetDir;
 	
@@ -48,19 +47,15 @@ public class Config {
 			port = configObject.getAsJsonPrimitive("port").getAsInt();
 
 			tokenListDir = configObject.getAsJsonPrimitive("tokenListDir").getAsString();
+			//System.out.println("TEST: " + configObject.getAsJsonPrimitive("tokenListDir"));
+			String test = "1" + "2";
 			transformMapDir = configObject.getAsJsonPrimitive("transformMapDir").getAsString();
 
-			expectedLocalHostName = configObject.getAsJsonPrimitive("expectedLocalHostName").getAsString();
-			expectedHostName = configObject.getAsJsonPrimitive("expectedHostName").getAsString();
-			hostname = InetAddress.getLocalHost().getHostName();
-			
-			if(hostname.equalsIgnoreCase(expectedLocalHostName)){
-				hostUrlPrefix = "http://localhost";
-			}else{
-				hostUrlPrefix = expectedHostName;
-			}
+			hostUrlPrefix = configObject.getAsJsonPrimitive("hostUrlPrefix").getAsString();
 
 			defaultBackImage = configObject.getAsJsonPrimitive("defaultBackImage").getAsString();
+			
+			publicSetAssetDir = "/setAssets/v" + configObject.getAsJsonPrimitive("setAssetVersion").getAsString() + "/";
 		
 			JsonArray hardUrlArr = configObject.getAsJsonArray("hardUrls");
 			hardUrls = new String[hardUrlArr.size()][2];

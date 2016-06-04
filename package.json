@@ -1,4 +1,11 @@
 {
+	"name" : "tts_mtg_deck_maker",
+	"version" : "0.0.1",
+	"private" : true,
+	"repository" : {
+		"type" : "git",
+		"url" : "https://github.com/ToyDragon/TTSDeckImporter"
+	},
 	"dependencies" : {
 		"express" : "*",
 		"body-parser" : "*",
