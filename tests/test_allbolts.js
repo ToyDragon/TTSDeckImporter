@@ -20,7 +20,8 @@ exports.RunTest = function(cb){
 	var input = {
 		req: {
 			body: {
-				decklist: "lightning bolt\n"
+				decklist: "\n"
+				         +"lightning bolt\n"
 				         +"4 lightning bolt\n"
 				         +"12 Lightning bolt\n"
 				         +"3x lightning bolt\n"

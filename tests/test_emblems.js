@@ -23,7 +23,8 @@ exports.RunTest = function(cb){
 	var input = {
 		req: {
 			body: {
-				decklist: "Gideon, Ally of Zendikar\n"
+				decklist: "\n"
+				         +"Gideon, Ally of Zendikar\n"
 				         +"Ajani Steadfast\n"
 				         +"Chandra, Roaring Flame",
 				backURL: '',

@@ -24,7 +24,8 @@ exports.RunTest = function(cb){
 	var input = {
 		req: {
 			body: {
-				decklist: "Civilized Scholar\n"
+				decklist: "\n"
+				         +"Civilized Scholar\n"
 				         +"Chandra, Fire of Kaladesh\n"
 				         +"Chosen of Markov\n"
 				         +"Hanweir Militia Captain",

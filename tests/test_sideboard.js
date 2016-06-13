@@ -24,7 +24,8 @@ exports.RunTest = function(cb){
 	var input = {
 		req: {
 			body: {
-				decklist: "Mountain",
+				decklist: "\n"
+				         +"Mountain",
 				sidelist: "Forest",
 				backURL: '',
 				hiddenURL: '',

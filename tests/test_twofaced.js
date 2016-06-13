@@ -24,7 +24,8 @@ exports.RunTest = function(cb){
 	var input = {
 		req: {
 			body: {
-				decklist: "alive/well\n"
+				decklist: "\n"
+				         +"alive/well\n"
 				         +"alive//well\n"
 				         +"3x Armed // Dangerous\n"
 				         +"20 night/day\n"

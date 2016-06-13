@@ -27,7 +27,8 @@ exports.RunTest = function(cb){
 	var input = {
 		req: {
 			body: {
-				decklist: "Kongming, \"Sleeping Dragon\"\n"
+				decklist: "\n"
+				         +"Kongming, \"Sleeping Dragon\"\n"
 				         +"Kongming, Sleeping Dragon\n"
 				         +"Who/What/When/Where/Why\n"
 				         +"Index\n"

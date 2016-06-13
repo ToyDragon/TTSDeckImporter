@@ -22,7 +22,8 @@ exports.RunTest = function(cb){
 	var input = {
 		req: {
 			body: {
-				decklist: "Séance\n"
+				decklist: "\n"
+				         +"Séance\n"
 				         +"Seance\n"
 				         +"Aetherling\n"
 				         +"aEtherling\n"

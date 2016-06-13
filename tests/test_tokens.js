@@ -24,7 +24,8 @@ exports.RunTest = function(cb){
 	var input = {
 		req: {
 			body: {
-				decklist: "Hangarback Walker\n"
+				decklist: "\n"
+				         +"Hangarback Walker\n"
 				         +"Secure the Wastes\n"
 				         +"Nissa, Voice of Zendikar\n"
 				         +"Linvala, the Preserver",
