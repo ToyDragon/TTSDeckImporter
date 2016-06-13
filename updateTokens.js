@@ -6,7 +6,7 @@ var tokenRegex = /([0-9]+\/[0-9]+ )?((?:(?:colorless|black|red|green|white|blue)
 var illegalCharsRegex = /[^0-9a-z_]/g;
 
 function url(pagenum){
-	return 'http://gatherer.wizards.com/Pages/Search/Default.aspx?output=standard&page='+pagenum+'&action=advanced&text=+%5btoken%5d';
+	return 'http://gatherer.wizards.com/Pages/Search/Default.aspx?output=standard&page='+pagenum+'&action=advanced&text=|[emblem]|[token]';
 }
 
 function saveTokenMap(){
@@ -75,8 +75,18 @@ function ScrapePage(pageNum){
 				var cardTitle = window.$(card).find('.cardTitle').text().toLowerCase().trim();
 				if(!tokenMap[cardTitle]){
 					var cardText = window.$(card).find('.rulesText').text().trim();
+
+					if(cardText.indexOf('emblem') >= 0){
+						tokenMap[cardTitle] = tokenMap[cardTitle] || [];
+						tokenMap[cardTitle].push(cardTitle.replace(/[\s,'-]+/g,'_')+'_emblem');
+					}
+
 					while(true){
 						var results = tokenRegex.exec(cardText);
+						if(cardTitle.indexOf('linvala')>=0){
+							console.log(cardText);
+							console.log(JSON.stringify(results));
+						}
 						if(!results)break;
 
 						var tokenStr = results[1] ? results[1] : '';
@@ -91,7 +101,6 @@ function ScrapePage(pageNum){
 
 						tokenMap[cardTitle] = tokenMap[cardTitle] || [];
 						tokenMap[cardTitle].push(tokenStr);
-
 					}
 				}
 			});

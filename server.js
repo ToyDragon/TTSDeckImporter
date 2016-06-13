@@ -1,14 +1,10 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var fs = require('fs');
+var frogtown = require('./frogtown.js');
 var config = require('./settings.json');
 var logger = require('./logger.js');
-var net = require('net');
-var fs = require('fs');
-var StringDecoder = require('string_decoder').StringDecoder;
 
-var numAttempts = 3;
-
-var handleingRequest = false;
 var requestQueue = [
 	//{
 	//	req: request,
@@ -27,20 +23,8 @@ for(var i = 1; i <= Number(config.setAssetVersion); i++){
 }
 app.use(bodyParser.urlencoded({ extended: false }));
 
-function clean(str, onlyNewLines){
-	var clean = (str+'').replace(/[\r\n]/g,'');
-	if(!onlyNewLines) clean = clean.replace(/\s/g,'_');
-	return clean;
-};
-
-function getDeckID(){
-	var chars = 'abcdefghijklmnopqrstuvwxyz';
-	var name = '';
-	for(var i = 0; i < 16; i++){
-		name += chars[Math.floor(Math.random()*chars.length)];
-	}
-	return name;
-};
+var numAttempts = 3;
+var handleingRequest = false;
 
 function HandleRequest(){
 	if(!handleingRequest && requestQueue.length > 0){
@@ -48,130 +32,39 @@ function HandleRequest(){
 
 		var reqObj = requestQueue.shift();
 		if(reqObj && reqObj.req && reqObj.res){
-			if(reqObj.isDraft) HandleDraft(reqObj);
-			else HandleDeck(reqObj);
+			if(reqObj.isDraft) frogtown.HandleDraft(reqObj,HandleSuccess,HandleError);
+			else frogtown.HandleDeck(reqObj,HandleSuccess,HandleError);
 		}
 	}
 };
 
-function HandleDraft(reqObj){
-	var req = reqObj.req;
-	var res = reqObj.res;
-	var client = net.connect({port: config.port});
-	var deckId = req.body.set.replace(/[^a-zA-Z0-9]/g, '') + '_' + getDeckID();
+function HandleError(reqObj, message, object){
+	if(reqObj.attempt >= numAttempts){
+		object = object || {};
+		object.message = object.message || message || 'A server error occurred.';
+		logger.majorError({'message': message});
+		reqObj.res.end(JSON.stringify({
+			status:1,
+			errObj: {
+				message: message
+			}
+		}));
+	}else{
+		reqObj.attempt++;
+		requestQueue.push(reqObj);
+	}
 
-	var errorOccured = false;
-
-	client.on('error', function(){
-		errorOccured = true;
-		if(reqObj.attempt >= numAttempts){
-			console.log('Deck maker is down...');
-			logger.majorError({'message': 'Unable to connect to deck maker'});
-			res.end(JSON.stringify({
-				status:1,
-				errObj: {
-					message: 'The server is experiencing technical issues, please check back soon for details.'
-				}
-			}));
-		}else{
-			reqObj.attempt++;
-			requestQueue.push(reqObj);
-		}
-		handleingRequest = false;
-		HandleRequest();
-	});
-
-	client.on('close', function(){
-		if(!errorOccured){
-			res.end(JSON.stringify({name:deckId,status:0}));
-			logger.logDraft(req.body);
-			handleingRequest = false;
-			HandleRequest();
-		}
-		errorOccured = false;
-	});
-
-	client.write('draft\r\n');
-	client.write(deckId + '\r\n');
-	client.write(clean(req.body.set, true) + '\r\n');
-	client.write(clean(req.body.n) + '\r\n');
+	handleingRequest = false;
+	HandleRequest();
 };
 
-function HandleDeck(reqObj){
-	var req = reqObj.req;
-	var res = reqObj.res;
-	var decklist = req.body.decklist + '\r\nENDDECK';
-	var deckID = getDeckID();
-	
-	var backURL = clean(req.body.backURL);
-	var hiddenURL = clean(req.body.hiddenURL);
-	var compression = clean(req.body.compression);
-	var deckName = clean(req.body.name, true);
-	var coolifyBasic = !!req.body.coolify;
+function HandleSuccess(reqObj, deckId){
+	reqObj.res.end(JSON.stringify({name:deckId,status:0}));
+	if(reqObj.isDraft) logger.logDraft(reqObj.req.body);
+	else logger.logDeck(reqObj.req.body);
 
-	var client = net.connect({port: config.port});
-
-	var errorOccured = false;
-	
-	client.on('error', function(){
-		errorOccured = true;
-		if(reqObj.attempt >= numAttempts){
-			console.log('Deck maker is down...');
-			logger.majorError({'message': 'Unable to connect to deck maker'});
-			res.end(JSON.stringify({
-				status:1,
-				errObj: {
-					message: 'The server is experiencing technical issues, please check back soon for details.'
-				}
-			}));
-		}else{
-			reqObj.attempt++;
-			requestQueue.push(reqObj);
-		}
-		handleingRequest = false;
-		HandleRequest();
-	});
-
-	client.on('close', function(){
-		if(!errorOccured){
-			var errObj = null;
-			try{
-				errObj = JSON.parse(data)
-			}catch(err){}
-			if(errObj){
-				console.log(errObj);
-				res.end(JSON.stringify({
-					status:1,
-					errObj: errObj
-				}));
-			}else{
-				res.end(JSON.stringify({
-					status: 0,
-					name: deckID
-				}));
-				logger.logDeck(req.body, !!errObj);
-			}
-			handleingRequest = false;
-			HandleRequest();
-		}
-		errorOccured = false;
-	});
-
-	var data = '';
-	var decoder = new StringDecoder('utf8');
-	client.on('data', function(buffer){
-		data += decoder.write(buffer);
-	});
-
-	client.write('deck\r\n');
-	client.write(deckID + '\r\n');
-	client.write(deckName + '\r\n');
-	client.write(backURL + '\r\n');
-	client.write(hiddenURL + '\r\n');
-	client.write(coolifyBasic + '\r\n');
-	client.write(compression + '\r\n');
-	client.write(decklist + '\r\n');
-	client.write('ENDDECK\r\n');
+	handleingRequest = false;
+	HandleRequest();
 }
 
 app.get('/sets', function(req, res){
