@@ -31,7 +31,7 @@ exports.Test = function(input,expectedOutput,cb){
 		}else{
 			if(input.attempt < numAttempts){
 				input.attempt++;
-				Test(input,expectedOutput,cb);
+				exports.Test(input,expectedOutput,cb);
 			}else{
 				cb(result);
 			}
