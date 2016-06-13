@@ -34,7 +34,7 @@ exports.Test = function(input,expectedOutput,cb){
 		var result = expectedOutput.success;
 		if(!result)console.log('Succeed when expected to fail');
 		if(result){
-			var dataObj = JSON.parse(fs.readFileSync('../' + config.deckDir + deckId + '.json'));
+			var dataObj = JSON.parse(fs.readFileSync(config.deckDir + deckId + '.json'));
 			var amtDecks = dataObj.ObjectStates.length;
 			result = amtDecks == expectedOutput.successData.amtDecks; //Validate the correct number of decks
 			if(!result)console.log('Wrong amount of decks');
