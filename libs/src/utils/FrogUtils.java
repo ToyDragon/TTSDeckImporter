@@ -70,15 +70,20 @@ public class FrogUtils {
 		return "";
 	}
 	
+	public static String ReplaceHardChars(String source){
+		for(String[] hardPair : Config.hardNameCharacters){
+			source = source.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);
+		}
+		return source;
+	}
+	
 	/**
 	 * Replaces hard name characters, and formats multi-sided cards.
 	 * @param cardName
 	 * @return
 	 */
 	public static String CleanCardName(String cardName){
-		for(String[] hardPair : Config.hardNameCharacters){
-			cardName = cardName.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);
-		}
+		cardName = ReplaceHardChars(cardName);
 		
 		cardName = cardName.replaceAll("/+", "/");
 		if(cardName.contains("/")){

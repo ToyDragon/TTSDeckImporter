@@ -22,19 +22,45 @@ expectedOutput = {
 }
 */
 
+var numAttempts = 3;
+
 exports.Test = function(input,expectedOutput,cb){
+	var endTest = function(result){
+		if(result){
+			cb(result);
+		}else{
+			if(input.attempt < numAttempts){
+				input.attempt++;
+				Test(input,expectedOutput,cb);
+			}else{
+				cb(result);
+			}
+		}
+	}
 	var error = function(reqObj, message, errObj){
 		if(expectedOutput.success){
 			console.log('Error message: ' + message);
 			console.log('Error: ' + JSON.stringify(errObj || {}));
 		}
-		cb(!expectedOutput.success);
+		endTest(!expectedOutput.success);
 	};
 	var success = function(reqObj, deckId){
 		var result = expectedOutput.success;
 		if(!result)console.log('Succeed when expected to fail');
 		if(result){
-			var dataObj = JSON.parse(fs.readFileSync(config.deckDir + deckId + '.json'));
+			var dataObj = null;
+			try{
+				dataObj = JSON.parse(fs.readFileSync(config.deckDir + deckId + '.json'));
+			}catch(err){
+				try{
+					dataObj = JSON.parse(fs.readFileSync('../' + config.deckDir + deckId + '.json'));
+				}catch(err2){}
+			}
+			if(dataObj == null){
+				console.log('Unable to load deck json');
+				endTest(false);
+				return;
+			}
 			var amtDecks = dataObj.ObjectStates.length;
 			result = amtDecks == expectedOutput.successData.amtDecks; //Validate the correct number of decks
 			if(!result)console.log('Wrong amount of decks');
@@ -69,7 +95,7 @@ exports.Test = function(input,expectedOutput,cb){
 				}
 			}
 		}
-		cb(result);
+		endTest(result);
 	};
 	if(input.isDraft){
 		frogtown.HandleDraft(input,success,error);

@@ -54,6 +54,17 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 				ImageUtils.SaveImage(matcher.group(1), imageFileName, 1.0);
 				return true;
 			}
+			
+			regexStr = "<a href=\"/([a-z0-9]+)/([a-z0-9]+)/([a-z0-9]+)\\.html\">" + Pattern.quote(cardName);
+			regex = Pattern.compile(regexStr);
+			
+			matcher = regex.matcher(result);
+			if(matcher.find()){
+				ImageUtils.SaveImage("http://magiccards.info/scans/" + matcher.group(2) + "/" + matcher.group(1) + "/" + matcher.group(3) + ".jpg", imageFileName, 1.0);
+				return true;
+			}
+			
+			System.out.println(result);
 		}
 		return false;
 	}
@@ -89,11 +100,7 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 		
 		String result = FrogUtils.GetHTML(qstr).toLowerCase();
 		
-		for(String[] hardPair : Config.hardNameCharacters){
-			result = result.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);
-		}
-		
-		return result;
+		return FrogUtils.ReplaceHardChars(result);
 	}
 	
 	public static boolean HandleHardCard(String cardName, String imageFileName){

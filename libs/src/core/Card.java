@@ -31,7 +31,13 @@ public class Card {
 	public String getDisplayName(){
 		try{
 			String displayName = "";
-			String[] words = (name + "").split(" ");
+			String processedName = name;
+			int start = name.indexOf("(")+1;
+			int end = name.indexOf(")");
+			if(start >= 0 && end > start){
+				processedName = name.substring(start,end);
+			}
+			String[] words = (processedName + "").split(" ");
 			for(int i = 0; i < words.length; i++){
 				displayName += (words[i].charAt(0)+"").toUpperCase();
 				if(words[i].length() > 1){

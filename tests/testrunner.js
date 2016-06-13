@@ -9,6 +9,13 @@ var tests = [
 	'transforms'
 ];
 
+if(process.argv && process.argv.length > 2){
+	tests = new Array(process.argv.length-2);
+	for(var i = 0; i < tests.length; i++){
+		tests[i] = process.argv[i+2];
+	}
+}
+
 var testRoutines = new Array(tests.length);
 for(var i = 0; i < testRoutines.length; i++){
 	testRoutines[i] = require('./test_' + tests[i] + '.js');
