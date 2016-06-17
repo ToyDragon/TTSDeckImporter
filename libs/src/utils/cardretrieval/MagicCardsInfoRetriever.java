@@ -33,6 +33,10 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 		
 		String result = RequestCard(card, cardName);
 		
+		if(result == null || result.equals("")){
+			System.out.println("Failed to download \""+imageFileName+"\"");
+		}
+		
 		if(card.printing != null && !card.printing.trim().equals("")){
 			String lang = card.language;
 			String set = card.set;
