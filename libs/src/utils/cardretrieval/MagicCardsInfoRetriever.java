@@ -23,7 +23,7 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 	public boolean LoadCard(Card card, boolean isBack){
 		String cardKey = isBack ? card.transformCardKey : card.cardKey;
 		String cardName = isBack ? card.transformName : card.name;
-		String imageFileName = Config.imageDir+cardKey.toLowerCase().replaceAll("[<>/\"]+", "_")+".jpg";
+		String imageFileName = Config.imageDir+cardKey.toLowerCase().trim().replaceAll("[<>/\"]+", "_")+".jpg";
 		
 		if(isBack) card.transformImageFileName = imageFileName;
 		else card.imageFileName = imageFileName;
