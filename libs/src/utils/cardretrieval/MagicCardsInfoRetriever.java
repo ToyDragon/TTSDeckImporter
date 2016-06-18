@@ -11,6 +11,9 @@ import utils.FrogUtils;
 import utils.ImageUtils;
 
 public class MagicCardsInfoRetriever extends CardRetriever{
+	
+	public static final long CONNECTION_RETRY_DELAY = 30 * 60 * 1000;
+	public long lastConnectionFail = 0;
 
 	@Override
 	public boolean LoadCard(Card card) {
@@ -33,16 +36,17 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 		if(isBack) card.transformImageFileName = imageFileName;
 		else card.imageFileName = imageFileName;
 
-		if(new File(imageFileName).exists()){
-			System.out.println("Read from \""+imageFileName+"\"");
-			return true;
-		}
+		if(new File(imageFileName).exists()) return true;
 		if(HandleHardCard(cardName, imageFileName)) return true;
 		
-		String result = RequestCard(card, cardName);
+		if(lastConnectionFail > System.currentTimeMillis() - CONNECTION_RETRY_DELAY){
+			return false;
+		}
 		
+		String result = RequestCard(card, cardName);
 		if(result == null || result.equals("")){
-			System.out.println("Failed to download \""+imageFileName+"\"");
+			lastConnectionFail = System.currentTimeMillis();
+			return false;
 		}
 		
 		if(card.printing != null && !card.printing.trim().equals("")){
@@ -78,6 +82,9 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 			
 			System.out.println(result);
 		}
+
+		System.out.println("Failed to download \""+imageFileName+"\"");
+		LoadFailed(card);
 		return false;
 	}
 	

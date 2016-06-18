@@ -153,6 +153,9 @@ public class DeckMaker {
 				e.printStackTrace();
 			}
 		}
+		try{
+			clientWriter.close();
+		}catch(Exception e){e.printStackTrace();}
 		
 		ImageUtils.FreeAllBuffers();
 		System.out.println("Done with deck " + newDeck.name);
