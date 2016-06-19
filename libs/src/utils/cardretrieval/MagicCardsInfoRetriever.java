@@ -28,9 +28,9 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 		String cardName = isBack ? card.transformName : card.name;
 		String imageFileName = Config.imageDir+cardKey.toLowerCase()
 			.trim()
-			.replaceAll("<>", "")
-			.replaceAll("\\[\\]", "")
-			.replaceAll("\\{\\}", "")
+			.replaceAll("[<>]", "")
+			.replaceAll("[\\[\\]]", "")
+			.replaceAll("[\\{\\}]", "")
 			.replaceAll("[/\"]+", "_")+".jpg";
 		
 		if(isBack) card.transformImageFileName = imageFileName;

@@ -154,8 +154,9 @@ public class DeckMaker {
 			}
 		}
 		try{
-			System.out.println("Extra in: " + clientScanner.readLine());
+			clientScanner.readLine(); //DECKEND
 		}catch(Exception e){}
+		
 		ImageUtils.FreeAllBuffers();
 		System.out.println("Done with deck " + newDeck.name);
 	}
