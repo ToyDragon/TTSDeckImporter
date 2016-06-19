@@ -42,12 +42,10 @@ function HandleError(reqObj, message, object){
 	if(reqObj.attempt >= numAttempts){
 		object = object || {};
 		object.message = object.message || message || 'A server error occurred.';
-		logger.majorError({'message': message});
+		logger.majorError({'message': message,body:reqObj.req.body});
 		reqObj.res.end(JSON.stringify({
 			status:1,
-			errObj: {
-				message: message
-			}
+			errObj: object
 		}));
 	}else{
 		reqObj.attempt++;
@@ -63,6 +61,7 @@ function HandleSuccess(reqObj, deckId){
 	if(reqObj.isDraft) logger.logDraft(reqObj.req.body);
 	else logger.logDeck(reqObj.req.body);
 
+	console.log('Done with deck ' + deckId);
 	handleingRequest = false;
 	HandleRequest();
 }

@@ -1,4 +1,5 @@
 var config = require('./settings.json');
+var util = require('util');
 var sendgrid = require('sendgrid')(config.sendgrid.key);
 
 var nextErrorSummary = new Date();
@@ -182,7 +183,7 @@ exports.majorError = function(details){
 			to      : config.sendgrid.alertEmail,
 			from    : config.sendgrid.sourceEmail,
 			subject : 'Frogtown Error',
-			text    : JSON.stringify(details)
+			text    : util.inspect(details)
 		};
 
 		sendgrid.send(payload, function(err, json) {

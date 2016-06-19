@@ -55,12 +55,15 @@ exports.HandleDeck = function(reqObj, success, error){
 	var deckName = clean(req.body.name, true);
 	var coolifyBasic = !!req.body.coolify;
 
+	console.log('Hanlding deck...');
+	
 	var client = net.connect({port: config.port});
 
 	var errorOccured = false;
 	
-	client.on('error', function(){
+	client.on('error', function(e){
 		errorOccured = true;
+		console.log('Error code: ' + e);
 		if(error){
 			error(reqObj,'The server is experiencing technical issues, please check back soon for details.');
 		}
@@ -69,15 +72,13 @@ exports.HandleDeck = function(reqObj, success, error){
 	client.on('close', function(){
 		if(!errorOccured){
 			var errObj = null;
-			try{
-				errObj = JSON.parse(data)
-			}catch(err){}
+			try{errObj = JSON.parse(data);}catch(err){}
 			if(errObj){
-				if(error){
-					error(reqObj, null, errObj);
-				}
-			}else{
-				if(success)success(reqObj,deckId);
+				console.log('Error data: ' + JSON.stringify(data));
+				if(error)error(reqObj, null, errObj);
+			}else if(success){
+				console.log('Done with deck');
+				success(reqObj,deckId); 
 			}
 		}
 		errorOccured = false;
