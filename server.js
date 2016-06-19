@@ -42,7 +42,7 @@ function HandleError(reqObj, message, object){
 	if(reqObj.attempt >= numAttempts){
 		object = object || {};
 		object.message = object.message || message || 'A server error occurred.';
-		logger.majorError({'message': message});
+		logger.majorError({message: message, reqObj: reqObj});
 		reqObj.res.end(JSON.stringify({
 			status:1,
 			errObj: {

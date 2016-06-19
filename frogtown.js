@@ -25,8 +25,9 @@ exports.HandleDraft = function(reqObj, success, error){
 
 	var errorOccured = false;
 
-	client.on('error', function(){
+	client.on('error', function(e){
 		errorOccured = true;
+		console.log('Error: ' + e.code);
 		if(error){
 			error(reqObj,'The server is experiencing technical issues, please check back soon for details.');
 		}
@@ -59,8 +60,9 @@ exports.HandleDeck = function(reqObj, success, error){
 
 	var errorOccured = false;
 	
-	client.on('error', function(){
+	client.on('error', function(e){
 		errorOccured = true;
+		console.log('Error: ' + e.code);
 		if(error){
 			error(reqObj,'The server is experiencing technical issues, please check back soon for details.');
 		}
