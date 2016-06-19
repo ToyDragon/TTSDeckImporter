@@ -56,7 +56,7 @@ exports.HandleDeck = function(reqObj, success, error){
 	var deckName = clean(req.body.name, true);
 	var coolifyBasic = !!req.body.coolify;
 
-	console.log('Hanlding deck...');
+	console.log('Handling deck...');
 	
 	var client = net.connect({port: config.port});
 

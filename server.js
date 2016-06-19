@@ -39,7 +39,12 @@ function HandleRequest(){
 };
 
 function HandleError(reqObj, message, object){
-	if(reqObj.attempt >= numAttempts){
+	if(object && object.badCards){
+		reqObj.res.end(JSON.stringify({
+			status:1,
+			errObj: object
+		}));
+	}else if(reqObj.attempt >= numAttempts){
 		object = object || {};
 		object.message = object.message || message || 'A server error occurred.';
 		logger.majorError({'message': message,body:reqObj.req.body});
