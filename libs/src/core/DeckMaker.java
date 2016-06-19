@@ -69,9 +69,9 @@ public class DeckMaker {
 				System.out.println("Exception in main thread loop :(");
 				e.printStackTrace();
 			} finally{
-				if(clientScanner != null){try{clientScanner.close();}catch(Exception e) {}}
-				if(clientWriter != null){try{clientWriter.close();}catch(Exception e) {}}
-				if(clientSocket != null){try{clientSocket.close();}catch(Exception e) {}}
+				//if(clientScanner != null){try{clientScanner.close();}catch(Exception e) {e.printStackTrace();}}
+				//if(clientWriter != null){try{clientWriter.close();}catch(Exception e) {e.printStackTrace();}}
+				if(clientSocket != null){try{clientSocket.close();}catch(Exception e) {e.printStackTrace();}}
 			}
 		}
 	}
@@ -154,9 +154,8 @@ public class DeckMaker {
 			}
 		}
 		try{
-			clientWriter.close();
-		}catch(Exception e){e.printStackTrace();}
-		
+			System.out.println("Extra in: " + clientScanner.readLine());
+		}catch(Exception e){}
 		ImageUtils.FreeAllBuffers();
 		System.out.println("Done with deck " + newDeck.name);
 	}
