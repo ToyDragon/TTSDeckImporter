@@ -72,6 +72,10 @@ function BuildSet(index, setList){
 	client.write('ENDDECK\r\n');
 }
 
+function isNotFrontFace(card){
+	return !card.number.match(/[0-9]+a?$/)
+}
+
 var clean_card_name = function(name){
 	var doubles = [
 		['Alive','Well','Alive (Alive/Well)'],
@@ -137,6 +141,7 @@ var clean_card_name = function(name){
 
 var save_set = function(set){
 	set.name = set.name.replace(':','');
+	if(!set.magicCardsInfoCode)set.magicCardsInfoCode=set.code.toLowerCase();
 
 	console.log('Writing to ' + SET_DIR+set.name);
 	var file = ''
@@ -166,6 +171,7 @@ var save_set = function(set){
 		var seen = {};
 		var rarities = {};
 		set.cards.forEach(function(card){
+			if(isNotFrontFace(card)) return;
 			if(!rarities[card.rarity])rarities[card.rarity] = [];
 			var n = card.multiverseid + ":" + clean_card_name(card.name);
 			if(n.length > 0  && !seen[n]){
