@@ -25,11 +25,11 @@ expectedOutput = {
 var numAttempts = 3;
 
 exports.Test = function(input,expectedOutput,cb){
-	var endTest = function(result, output){
+	var endTest = function(result, output, errObj){
 		if(result){
 			cb(result);
 		}else{
-			if(input.attempt < numAttempts){
+			if((!errObj || !errObj.badCards) && input.attempt < numAttempts){
 				input.attempt++;
 				exports.Test(input,expectedOutput,cb);
 			}else{
@@ -44,7 +44,7 @@ exports.Test = function(input,expectedOutput,cb){
 			output += 'Error message: ' + message + '\n';
 			output += 'Error: ' + JSON.stringify(errObj || {}) + '\n';
 		}
-		endTest(!expectedOutput.success, output);
+		endTest(!expectedOutput.success, output, errObj);
 	};
 	var success = function(reqObj, deckId){
 		var output = '';
