@@ -9,10 +9,10 @@ exports.RunTest = function(cb){
 				{
 					amt: 9,
 					names: {
-						"Seance": 1,
+						"Séance": 1,
 						"Aetherling": 1,
-						"Deja Vu": 1,
-						"Lim-dul's Vault": 1
+						"Déjà Vu": 1,
+						"Lim-dûl's Vault": 1
 					}
 				}
 			]

@@ -1,5 +1,7 @@
 package core;
 
+import utils.FrogUtils;
+
 public class Card {
 	
 	public String name;
@@ -50,7 +52,7 @@ public class Card {
 	}
 
 	public static String getCardKey(String cardName, String set, String printing, String language) {
-		String cardKey = cardName;
+		String cardKey = FrogUtils.ReplaceHardChars(cardName);
 		if(language != null)cardKey+="{"+language+"}";
 		if(set != null)cardKey+="["+set+"]";
 		if(printing != null)cardKey+="<"+printing+">";

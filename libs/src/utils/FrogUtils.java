@@ -78,13 +78,11 @@ public class FrogUtils {
 	}
 	
 	/**
-	 * Replaces hard name characters, and formats multi-sided cards.
+	 * Formats multi-sided cards.
 	 * @param cardName
 	 * @return
 	 */
 	public static String CleanCardName(String cardName){
-		cardName = ReplaceHardChars(cardName);
-		
 		cardName = cardName.replaceAll("/+", "/");
 		if(cardName.contains("/")){
 			//make double sided cards consistent with magiccards.info

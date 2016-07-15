@@ -2,6 +2,7 @@ package utils;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -209,7 +210,7 @@ public class JsonUtils {
 		try{
 			String deckName = Config.deckDir + deck.deckId + ".json";
 			System.out.println("Saving deck to " + deckName);
-			PrintWriter fileWriter = new PrintWriter(new File(deckName));
+			PrintWriter fileWriter = new PrintWriter(new File(deckName),StandardCharsets.UTF_8.name());
 			fileWriter.write(deckStr);
 			fileWriter.close();
 		}catch(Exception e){

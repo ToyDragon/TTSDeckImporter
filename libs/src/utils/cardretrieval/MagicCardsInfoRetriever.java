@@ -26,18 +26,21 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 	public boolean LoadCard(Card card, boolean isBack){
 		String cardKey = isBack ? card.transformCardKey : card.cardKey;
 		String cardName = isBack ? card.transformName : card.name;
+		String cleanCardName = FrogUtils.ReplaceHardChars(cardName);
 		String imageFileName = Config.imageDir+cardKey.toLowerCase()
 			.trim()
-			.replaceAll("[<>]", "")
-			.replaceAll("[\\[\\]]", "")
-			.replaceAll("[\\{\\}]", "")
-			.replaceAll("[/\"]+", "_")+".jpg";
+			.replaceAll("<>", "")
+			.replaceAll("\\[\\]", "")
+			.replaceAll("\\{\\}", "")
+			.replaceAll("[/\"]+", "_")
+			+".jpg";
 		
 		if(isBack) card.transformImageFileName = imageFileName;
 		else card.imageFileName = imageFileName;
 
 		if(new File(imageFileName).exists()) return true;
 		if(HandleHardCard(cardName, imageFileName)) return true;
+		if(HandleHardCard(cleanCardName, imageFileName)) return true;
 		
 		if(lastConnectionFail > System.currentTimeMillis() - CONNECTION_RETRY_DELAY){
 			return false;
@@ -62,7 +65,7 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 			ImageUtils.SaveImage(url, imageFileName, 1.0);
 			return true;
 		}else{
-			String regexStr = "<img src=\"(http://magiccards.info/[a-z0-9/]+\\.jpg)\"\\s+alt=\"" + Pattern.quote(cardName) +"\"";
+			String regexStr = "<img src=\"(http://magiccards.info/[a-z0-9/]+\\.jpg)\"\\s+alt=\"" + Pattern.quote(cleanCardName) +"\"";
 			Pattern regex = Pattern.compile(regexStr);
 			
 			Matcher matcher = regex.matcher(result);
@@ -71,7 +74,7 @@ public class MagicCardsInfoRetriever extends CardRetriever{
 				return true;
 			}
 			
-			regexStr = "<a href=\"/([a-z0-9]+)/([a-z0-9]+)/([a-z0-9]+)\\.html\">" + Pattern.quote(cardName);
+			regexStr = "<a href=\"/([a-z0-9]+)/([a-z0-9]+)/([a-z0-9]+)\\.html\">" + Pattern.quote(cleanCardName);
 			regex = Pattern.compile(regexStr);
 			
 			matcher = regex.matcher(result);
