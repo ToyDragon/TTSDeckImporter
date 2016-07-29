@@ -30,14 +30,15 @@ public class MythicSpoilerRetriever extends CardRetriever{
 		
 		if(new File(imgname).exists()){return true;}
 		
-		if(card.set != null){			
-			String urlname = cname.toLowerCase().replaceAll("[^a-z]", "");
-			String url = "http://www.mythicspoiler.com/"+card.set+"/cards/"+urlname+".jpg";
-			if(ImageUtils.SaveImage(url, imgname, 1.0)){
-				return true;
-			}else{
-				System.out.println("Couldn't load from " + url);
-			}
+		String mythicSet = card.set;
+		if(mythicSet == null || mythicSet.length() == 0) mythicSet = "emn"; //TODO move latest set into config file or something, or read it from the page somehow		
+		
+		String urlname = cname.toLowerCase().replaceAll("[^a-z]", "");
+		String url = "http://www.mythicspoiler.com/"+mythicSet+"/cards/"+urlname+".jpg";
+		if(ImageUtils.SaveImage(url, imgname, 1.0)){
+			return true;
+		}else{
+			System.out.println("Couldn't load from " + url);
 		}
 		
 		if(mythicSpoilerPage == null){
@@ -55,7 +56,7 @@ public class MythicSpoilerRetriever extends CardRetriever{
 		
 		Matcher matcher = regex.matcher(mythicSpoilerPage);
 		if(matcher.find()){			
-			String url = "http://www.mythicspoiler.com/"+matcher.group(1);
+			url = "http://www.mythicspoiler.com/"+matcher.group(1);
 			ImageUtils.SaveImage(url, imgname, 1.0);
 			return true;
 		}
