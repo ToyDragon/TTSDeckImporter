@@ -124,8 +124,16 @@ public class ImageUtils {
 		return null;
 	}
 	
-	public static void SaveImage(String rawurl, String destFile, double compressionLevel){
-		SaveImage(ImageFromUrl(rawurl), destFile, compressionLevel);
+	public static boolean SaveImage(String rawurl, String destFile, double compressionLevel){
+		BufferedImage source = null;
+		try{
+			source = ImageFromUrl(rawurl);
+			if(source != null){
+				SaveImage(source, destFile, compressionLevel);
+				return true;
+			}
+		}catch(Exception e){}
+		return false;
 	}
 	
 	public static void SaveImage(BufferedImage source, String dest, double compressionLevel){

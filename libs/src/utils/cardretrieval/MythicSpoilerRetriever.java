@@ -33,10 +33,11 @@ public class MythicSpoilerRetriever extends CardRetriever{
 		if(card.set != null){			
 			String urlname = cname.toLowerCase().replaceAll("[^a-z]", "");
 			String url = "http://www.mythicspoiler.com/"+card.set+"/cards/"+urlname+".jpg";
-			try{
-				ImageUtils.SaveImage(url, imgname, 1.0);
+			if(ImageUtils.SaveImage(url, imgname, 1.0)){
 				return true;
-			}catch(Exception e){}
+			}else{
+				System.out.println("Couldn't load from " + url);
+			}
 		}
 		
 		if(mythicSpoilerPage == null){
