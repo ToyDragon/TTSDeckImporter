@@ -1,0 +1,85 @@
+{
+  "Groups": [
+    {
+      "ReleaseDate": "2016/04/08",
+      "Title":"Shadows over Inistrad Starter Decks",
+      "Decks":[
+        {
+          "Title":"Ghostly Tide",
+          "FrontCard":"Rattlechains",
+          "DeckID":"djmaukdmrpfdqteb"
+        },{
+          "Title":"Unearthed Secrets",
+          "FrontCard":"Erdwal Illuminator",
+          "DeckID":"zqmawruoeffuksty"
+        },{
+          "Title":"Vampiric Thirst",
+          "FrontCard":"Ravenous Bloodseeker",
+          "DeckID":"niupalkdkeylhknv"
+        },{
+          "Title":"Angelic Fury",
+          "FrontCard":"Devilthorn Fox",
+          "DeckID":"vknolalrqtdtdffl"
+        },{
+          "Title":"Horrific Visions",
+          "FrontCard":"Groundskeeper",
+          "DeckID":"vwthdtfdigmcbyik"
+        }
+      ]
+    },{
+      "ReleaseDate": "2016/02/26",
+      "Title":"Duel Decks: Blessed vs. Cursed",
+      "Decks":[
+        {
+          "Title": "Blessed",
+          "FrontCard": "Geist of Saint Traft",
+          "DeckID": "xqrsrhexbhcuqaax"
+        },{
+          "Title": "Cursed",
+          "FrontCard": "Mindwrack Demon",
+          "DeckID": "kdsdgcfllyvifbyn"
+        }
+      ]
+    },{
+      "ReleaseDate": "2016/01/22",
+      "Title":"Oath of the Gatewatch Starter Decks",
+      "Decks":[
+        {
+          "Title":"Desperate Stand",
+          "FrontCard":"Munda's Vanguard",
+          "DeckID":"jeownynyyqwqjzkq"
+        },{
+          "Title":"Twisted Reality",
+          "FrontCard":"Deepfathom Skulker",
+          "DeckID":"dxvfrzkumanqccvt"
+        },{
+          "Title":"Vicious Cycle",
+          "FrontCard":"Dread Defiler",
+          "DeckID":"staypirkxpbneshu"
+        },{
+          "Title":"Surge of Resistance",
+          "FrontCard":"Tyrant of Valakut",
+          "DeckID":"niruvgsyhwhjgwvy"
+        },{
+          "Title":"Concerted Effort",
+          "FrontCard":"Gladehart Cavalry",
+          "DeckID":"stjglmytqiudntih"
+        }
+      ]
+    },{
+      "ReleaseDate": "2015/08/28",
+      "Title":"Duel Decks: Zendikar vs. Eldrazi",
+      "Decks":[
+        {
+          "Title": "Zendikar",
+          "FrontCard": "Avenger of Zendikar",
+          "DeckID": "rvtbfqdpyzorfksa"
+        },{
+          "Title": "Eldrazi",
+          "FrontCard": "Oblivion Sower",
+          "DeckID": "wwyqmkpnobopawnv"
+        }
+      ]
+    }
+  ]
+}

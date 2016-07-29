@@ -105,7 +105,7 @@ public class ImageUtils {
 			}
 			
 			if(!success){
-				deck.cardList.remove(i);
+				deck.cardList.remove(card);
 			}
 		}
 	

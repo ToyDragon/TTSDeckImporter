@@ -30,6 +30,15 @@ public class MythicSpoilerRetriever extends CardRetriever{
 		
 		if(new File(imgname).exists()){return true;}
 		
+		if(card.set != null){			
+			String urlname = cname.toLowerCase().replaceAll("[^a-z]", "");
+			String url = "http://www.mythicspoiler.com/"+card.set+"/cards/"+urlname+".jpg";
+			try{
+				ImageUtils.SaveImage(url, imgname, 1.0);
+				return true;
+			}catch(Exception e){}
+		}
+		
 		if(mythicSpoilerPage == null){
 			mythicSpoilerPage = FrogUtils.GetHTML("http://www.mythicspoiler.com/");
 		}String processedName = cname.replaceAll("[^a-zA-Z]","").toLowerCase();
@@ -49,6 +58,7 @@ public class MythicSpoilerRetriever extends CardRetriever{
 			ImageUtils.SaveImage(url, imgname, 1.0);
 			return true;
 		}
+		System.out.println("Failed at " + imgname);
 		return false;
 	}
 }

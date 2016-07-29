@@ -14,10 +14,8 @@ $(document).ready(function(){
 
 	$('body').on('drop', function(e){
 		e.preventDefault();
-        var dataTransfer = e.dataTransfer || e.originalEvent.dataTransfer;
-		console.log('Got a drop ' + JSON.stringify(dataTransfer));
+    var dataTransfer = e.dataTransfer || e.originalEvent.dataTransfer;
 		var files = dataTransfer.files;
-		console.log('files: ' + JSON.stringify(files));
 		for(var i = 0; i < files.length; i++){
 			var file = files[i];
 			var reader = new FileReader();
@@ -50,65 +48,72 @@ $(document).ready(function(){
 		}
 		UpdateSections();
 	});
-	
+
 	$('#generate').click(function(){
 		$('body').addClass('loading');
-		var list = 'MAINBOARD\n'+$('.userlist.mainboard').val();
-		if(isActive[1]){
-			list += '\nSIDEBOARD\n'+$('.userlist.sideboard').val();
-		}
-		if(isActive[2]){
-			list += '\nCOMMANDER\n'+$('.userlist.commander').val();
-		}
-		
-		var backURL = $('#backURL').val().trim();
-		var hiddenURL = $('#hideURL').val().trim();
-		var deckName = $('#deckName').val().trim().length > 0?$('#deckName').val().trim():'frogtown_deck';
-		var coolify = $('#coolify').hasClass('btn-success');
-		var compression = $(".qualityButtons .btn-info").attr("value");
-		var name = $('#deckName').val().trim();
-		
-		var reqobj = {};
-		reqobj.decklist = list;
-		reqobj.backURL = backURL;
-		reqobj.hiddenURL = hiddenURL;
-		reqobj.deckName = deckName;
-		reqobj.coolify = coolify;
-		reqobj.compression = compression;
-		reqobj.name = name;
-		
-		$.ajax({
-			type: 'POST',
-			url: '/newdeck',
-			data: reqobj,
-			timeout: 10000,
-		}).done(function(dataraw){
-			var data = JSON.parse(dataraw);
-			if(data.status == 0){
-				window.location = '/deck.html?deck='+data.name+'.json&name='+deckName;
-			}else{
-				console.log(data);
-				badLines = {};
-				var errMsg = data.errObj.message;
-				if(data.errObj && data.errObj.badCards){
-					for(var erri = 0; erri < data.errObj.badCards.length; erri++){
-						badLines[data.errObj.badCards[erri]]=true;
-					}
-				}
-
-				console.log(data.errObj);
-				$('.error').text(errMsg);
-				
-				$('.userlist').each(function(i, src){ UpdateErrors($(src)); });
-				$('body').removeClass('loading');
-				$('.error').removeClass('hidden');
-			}
-		}).fail(function(){
+		if($('.userlist.mainboard').val().trim().length == 0){
 			$('body').removeClass('loading');
 			$('.error').removeClass('hidden');
 
-			$('.error').text('Server is down :(');
-		});
+			$('.error').text('Too few cards!');
+		}else{
+			var list = 'MAINBOARD\n'+$('.userlist.mainboard').val();
+			if(isActive[1]){
+				list += '\nSIDEBOARD\n'+$('.userlist.sideboard').val();
+			}
+			if(isActive[2]){
+				list += '\nCOMMANDER\n'+$('.userlist.commander').val();
+			}
+
+			var backURL = $('#backURL').val().trim();
+			var hiddenURL = $('#hideURL').val().trim();
+			var deckName = $('#deckName').val().trim().length > 0?$('#deckName').val().trim():'frogtown_deck';
+			var coolify = $('#coolify').hasClass('btn-success');
+			var compression = $('.qualityButtons .btn-info').attr('value');
+			var name = $('#deckName').val().trim();
+
+			var reqobj = {};
+			reqobj.decklist = list;
+			reqobj.backURL = backURL;
+			reqobj.hiddenURL = hiddenURL;
+			reqobj.deckName = deckName;
+			reqobj.coolify = coolify;
+			reqobj.compression = compression;
+			reqobj.name = name;
+
+			$.ajax({
+				type: 'POST',
+				url: '/newdeck',
+				data: reqobj,
+				timeout: 10000,
+			}).done(function(dataraw){
+				var data = JSON.parse(dataraw);
+				if(data.status == 0){
+					window.location = '/deck.html?deck='+data.name+'.json&name='+deckName;
+				}else{
+					console.log(data);
+					badLines = {};
+					var errMsg = data.errObj.message;
+					if(data.errObj && data.errObj.badCards){
+						for(var erri = 0; erri < data.errObj.badCards.length; erri++){
+							badLines[data.errObj.badCards[erri]]=true;
+						}
+					}
+
+					console.log(data.errObj);
+					$('.error').text(errMsg);
+
+					$('.userlist').each(function(i, src){ UpdateErrors($(src)); });
+					$('body').removeClass('loading');
+					$('.error').removeClass('hidden');
+				}
+			}).fail(function(){
+				$('body').removeClass('loading');
+				$('.error').removeClass('hidden');
+
+				$('.error').text('Server is down :(');
+			});
+		}
 	});
 
 	function LoadDeck(deck){
@@ -175,7 +180,7 @@ $(document).ready(function(){
 				if(isChrome){
 					errorval += curLines[i] + '\n';
 				}else{
-					errorval += '*\n'; 
+					errorval += '*\n';
 				}
 			}else{
 				errorval += '\n';
