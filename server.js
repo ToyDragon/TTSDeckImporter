@@ -62,7 +62,7 @@ function HandleError(reqObj, message, object){
 };
 
 function HandleSuccess(reqObj, deckId){
-	reqObj.res.end(JSON.stringify({name:deckId,status:0}));
+	reqObj.res.end(JSON.stringify({deckId:deckId,status:0}));
 	if(reqObj.isDraft) logger.logDraft(reqObj.req.body);
 	else logger.logDeck(reqObj.req.body);
 

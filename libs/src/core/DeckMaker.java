@@ -37,7 +37,10 @@ public class DeckMaker {
 	public static void main(String[] args){
 		FrogUtils.gson = new Gson();
 		
-		if(args.length > 0 && args[0].equals("debug")) FrogUtils.DEBUG = true;
+		if(args.length > 0 && args[0].equals("debug")){
+			System.out.println("Debug mode enabled");
+			FrogUtils.DEBUG = true;
+		}
 		if(!Config.LoadConfig()){
 			ExitFailure("Error loading from config file");
 		}
@@ -59,7 +62,7 @@ public class DeckMaker {
 		running = true;
 		while(running){
 			try {
-				clientSocket = serverSocket.accept();
+ 				clientSocket = serverSocket.accept();
 				clientScanner = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
 				clientWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
 				try{
@@ -78,7 +81,10 @@ public class DeckMaker {
 	
 	public static String ReadLine(BufferedReader reader){
 		try{
-			return reader.readLine();
+			String value;
+			value = reader.readLine();
+			FrogUtils.Debug("Read line: " + value);
+			return value;
 		}catch(Exception e){}
 		return "";
 	}
@@ -89,8 +95,9 @@ public class DeckMaker {
 	}
 	
 	public static void HandleClient(BufferedReader clientScanner, BufferedWriter clientWriter){
-		String response;
+		FrogUtils.Debug("Handling request");
 		
+		String response;
 		response = ReadLine(clientScanner);
 		if(response.equals("deck")){
 			HandleDeck(clientScanner, clientWriter);
@@ -105,6 +112,7 @@ public class DeckMaker {
 	}
 	
 	public static void HandleDeck(BufferedReader clientScanner, BufferedWriter clientWriter){
+		FrogUtils.Debug("Request is for deck");
 		Deck newDeck = new Deck();
 		
 		newDeck.deckId = ReadLine(clientScanner);
@@ -115,6 +123,7 @@ public class DeckMaker {
 		try{
 			newDeck.compressionLevel = Double.parseDouble(clientScanner.readLine());
 		}catch(Exception e){}
+		FrogUtils.Debug("Received deck parameters");
 
 		ReadDeckList(newDeck, clientScanner);
 		FrogUtils.Debug("Deck with " + newDeck.cardList.size() + " cards and " + newDeck.transformList.size() + " transforms");
@@ -234,11 +243,10 @@ public class DeckMaker {
 				card.multiverseId = multiverseId;
 				card.set = set;
 				card.line = line;
-	
-				newDeck.add(card);
 			}
 			
 			card.amounts[board] += amt;
+			newDeck.add(card);
 		}catch(Exception e){
 			FrogUtils.Debug("Unable to read line:" + line);
 			e.printStackTrace();

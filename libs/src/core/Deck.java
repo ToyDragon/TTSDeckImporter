@@ -51,17 +51,19 @@ public class Deck {
 	}
 	
 	public void add(Card card){
-		card.transformName = Transform.nameToTransformMap.get(card.name);
-		if(card.transformName != null){
-			card.transformCardKey = Card.getCardKey(card.transformName, card.set, card.printing, card.language);
-			transformList.add(card);
-		}
-		cardList.add(card);
-		
-		ArrayList<Token> cardTokens = Token.cardToTokenMap.get(card.name);
-		if(cardTokens != null){
-			for(Token token : cardTokens){
-				tokens.add(token);
+		if(!cardList.contains(card)){
+			card.transformName = Transform.nameToTransformMap.get(card.name);
+			if(card.transformName != null){
+				card.transformCardKey = Card.getCardKey(card.transformName, card.set, card.printing, card.language);
+				transformList.add(card);
+			}
+			cardList.add(card);
+			
+			ArrayList<Token> cardTokens = Token.cardToTokenMap.get(card.name);
+			if(cardTokens != null){
+				for(Token token : cardTokens){
+					tokens.add(token);
+				}
 			}
 		}
 	}

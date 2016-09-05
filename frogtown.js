@@ -40,16 +40,16 @@ exports.HandleDraft = function(reqObj, success, error){
 
 	client.write('draft\r\n');
 	client.write(deckId + '\r\n');
-	client.write(clean(req.body.set, true) + '\r\n');
-	client.write(clean(req.body.n) + '\r\n');
+  client.write(clean(req.body.set, true) + '\r\n');
+  client.write(clean(req.body.n) + '\r\n');
 }
 
 exports.HandleDeck = function(reqObj, success, error){
 	var req = reqObj.req;
-	var res = reqObj.res;
+  var res = reqObj.res;
 	var decklist = req.body.decklist + '\r\nENDDECK';
 	var deckId = getDeckID();
-	
+
 	var backURL = clean(req.body.backURL);
 	var hiddenURL = clean(req.body.hiddenURL);
 	var compression = clean(req.body.compression);
@@ -57,11 +57,11 @@ exports.HandleDeck = function(reqObj, success, error){
 	var coolifyBasic = !!req.body.coolify;
 
 	console.log('Handling deck...');
-	
-	var client = net.connect({port: config.port});
 
+	var client = net.connect({port: config.port});
+  var deckId = getDeckID();
 	var errorOccured = false;
-	
+
 	client.on('error', function(e){
 		errorOccured = true;
 		console.log('Error: ' + e.code);
@@ -79,7 +79,7 @@ exports.HandleDeck = function(reqObj, success, error){
 				if(error)error(reqObj, null, errObj);
 			}else if(success){
 				console.log('Done with deck');
-				success(reqObj,deckId); 
+				success(reqObj, deckId);
 			}
 		}
 		errorOccured = false;
@@ -91,13 +91,14 @@ exports.HandleDeck = function(reqObj, success, error){
 		data += decoder.write(buffer);
 	});
 
+	console.log('About to write "deck"');
 	client.write('deck\r\n');
-	client.write(deckId + '\r\n');
-	client.write(deckName + '\r\n');
-	client.write(backURL + '\r\n');
-	client.write(hiddenURL + '\r\n');
-	client.write(coolifyBasic + '\r\n');
-	client.write(compression + '\r\n');
-	client.write(decklist + '\r\n');
-	client.write('ENDDECK\r\n');
+  client.write(deckId + '\r\n');
+  client.write(deckName + '\r\n');
+  client.write(backURL + '\r\n');
+  client.write(hiddenURL + '\r\n');
+  client.write(coolifyBasic + '\r\n');
+  client.write(compression + '\r\n');
+  client.write(decklist + '\r\n');
+  client.write('ENDDECK\r\n');
 };

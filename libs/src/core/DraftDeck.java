@@ -22,7 +22,9 @@ public class DraftDeck extends Deck{
 	public int curRarity;
 	
 	public void add(Card card){
-		cardsByRarity.get(curRarity).add(card);
+		if(!cardsByRarity.get(curRarity).contains(card)){
+			cardsByRarity.get(curRarity).add(card);
+		}
 		super.add(card);
 	}
 }
