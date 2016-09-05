@@ -49,6 +49,122 @@ $(document).ready(function(){
 		UpdateSections();
 	});
 
+	function ParseLine(line){
+		var lineRegex = /([0-9]*)[x\s]*([^\s\[\]\{\}\<\>][^\[\]\{\}<>]*)([\[\]\{\}<>].+)?/;
+		var setRegex = /\[(\w+)\]/;
+		var langRegex = /\{(\w+)\}/;
+		var printingRegex = /<(\w+)>/;
+
+		var lineData = null;
+
+		var results = lineRegex.exec(line.toLowerCase());
+		if(results && results.length == 4){
+			var rawCount = results[1];
+			var rawName = results[2];
+			var rawExtras = results[3];
+
+			var count = Number(rawCount);
+			if(isNaN(count) || count <= 0) count = 1;
+
+			var cardKey = rawName;
+
+			if(rawExtras){
+				var setResults = setRegex.exec(rawExtras);
+				if(setResults && setResults.length == 2){
+					var cardSet = setResults[1];
+					cardKey += setResults[0];
+				}
+				var langResults = langRegex.exec(rawExtras);
+				if(langResults && langResults.length == 2){
+					var cardLang = langResults[1];
+					cardKey += langResults[0];
+				}
+				var printingResults = printingRegex.exec(rawExtras);
+				if(printingResults && printingResults.length == 2){
+					var cardPrinting = printingResults[1];
+					cardKey += printingResults[0];
+				}
+			}
+
+			var lineData = {
+				cardKey: cardKey,
+				cardName: rawName,
+				cardSet: cardSet,
+				cardLang: cardLang,
+				cardPrinting: cardPrinting,
+				count: count
+			};
+		}
+
+		return lineData;
+	}
+
+	function BuildKeyMap(rawList){
+		var keyMap = {
+			//"lightning bolt[set]{language}<printing>": {
+			//  name: "lightning bolt",
+			//  setCode: "set",
+			//  languageCode: "language",
+			//  printing: "printing",
+			//  count: 4
+		  //}
+		};
+
+		var lines = rawList.split("\n");
+		for(var i = 0; i < lines.length; i++){
+			var cardData = ParseLine(lines[i]);
+			if(cardData){
+				var cardKey = cardData.cardKey;
+				if(!keyMap[cardKey]){
+					keyMap[cardKey] = {
+						name: cardData.cardName,
+						setCode: cardData.cardSet,
+						languageCode: cardData.cardLang,
+						printing: cardData.cardPrinting,
+						count: 0
+					};
+				}
+				keyMap[cardKey].count += cardData.count;
+			}
+		}
+
+		return keyMap;
+	}
+
+	function BuildOneBoard(boardType, rawList){
+		var cards = [];
+
+		var keyMap = BuildKeyMap(rawList);
+		for(var cardKey in keyMap){
+			cards.push(keyMap[cardKey]);
+		}
+
+		var board = {
+			boardType: boardType,
+			cards: cards
+		}
+
+		return board;
+	}
+
+	function BuildAllBoards(){
+		var boards = [];
+
+		var mainboard = BuildOneBoard(1, $('.userlist.mainboard').val());
+		boards.push(mainboard);
+
+		if(isActive[1]){
+			var sideboard = BuildOneBoard(2, $('.userlist.sideboard').val());
+			boards.push(sideboard);
+		}
+		if(isActive[2]){
+				var commander = BuildOneBoard(3, $('.userlist.commander').val());
+				boards.push(commander);
+		}
+
+		return boards;
+	}
+
 	$('#generate').click(function(){
 		$('body').addClass('loading');
 		if($('.userlist.mainboard').val().trim().length == 0){
@@ -59,10 +175,10 @@ $(document).ready(function(){
 		}else{
 			var list = 'MAINBOARD\n'+$('.userlist.mainboard').val();
 			if(isActive[1]){
-				list += '\nSIDEBOARD\n'+$('.userlist.sideboard').val();
+			        list += '\nSIDEBOARD\n'+$('.userlist.sideboard').val();
 			}
 			if(isActive[2]){
-				list += '\nCOMMANDER\n'+$('.userlist.commander').val();
+			        list += '\nCOMMANDER\n'+$('.userlist.commander').val();
 			}
 
 			var backURL = $('#backURL').val().trim();
@@ -81,6 +197,16 @@ $(document).ready(function(){
 			reqobj.compression = compression;
 			reqobj.name = name;
 
+			/*
+			var reqobj = {
+				backURL: $('#backURL').val().trim(),
+				hiddenURL: $('#hideURL').val().trim(),
+				coolify: $('#coolify').hasClass('btn-success'),
+				compression: $('.qualityButtons .btn-info').attr('value'),
+				boards: BuildAllBoards()
+			};
+			*/
+
 			$.ajax({
 				type: 'POST',
 				url: '/newdeck',
@@ -89,7 +215,8 @@ $(document).ready(function(){
 			}).done(function(dataraw){
 				var data = JSON.parse(dataraw);
 				if(data.status == 0){
-					window.location = '/deck.html?deck='+data.name+'.json&name='+deckName;
+					var deckName = $('#deckName').val().trim().length > 0?$('#deckName').val().trim():'frogtown_deck';
+					window.location = '/deck.html?deck='+data.deckId+'.json&name='+deckName;
 				}else{
 					console.log(data);
 					badLines = {};
