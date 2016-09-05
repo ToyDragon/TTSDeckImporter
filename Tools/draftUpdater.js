@@ -41,12 +41,12 @@ var load_sets = function(file_name){
 		try{
 			save_set(allSets[key]);
 		}catch(e){
-			console.log('Couldn\'t build '+allSets[key].name);
+			console.log('Couldn\'t build '+allSets[key].name + ' because ' + e);
 		}
 	}
 	setList.sort(function(a,b){return a.date == b.date ? 0 : -(a.date > b.date) || 1;})
+
 	fs.writeFileSync(SET_DIR + 'setlist', JSON.stringify(setList));
-	var StringDecoder = require('string_decoder').StringDecoder;
 	BuildSet(0, setList);
 }
 
@@ -73,7 +73,7 @@ function BuildSet(index, setList){
 }
 
 function isNotFrontFace(card){
-	return !card.number.match(/[0-9]+a?$/)
+	return card.number && !card.number.match(/[0-9]+a?$/)
 }
 
 var clean_card_name = function(name){
@@ -140,10 +140,10 @@ var clean_card_name = function(name){
 }
 
 var save_set = function(set){
-	set.name = set.name.replace(':','');
+	set.name = set.name.replace(/[:"]/g,"");
 	if(!set.magicCardsInfoCode)set.magicCardsInfoCode=set.code.toLowerCase();
 
-	console.log('Writing to ' + SET_DIR+set.name);
+	//console.log('Writing to ' + SET_DIR+set.name);
 	var file = ''
 	file += 'Name\n';
 	file += set.name+'\n';
@@ -158,6 +158,8 @@ var save_set = function(set){
 		set.booster.forEach(function(e){
 			if(Array.isArray(e) && e[0]=='power nine') e = 'Special';
 			if(set.code == 'ME4' && e == 'urza land') e = 'Special';
+			if(set.code == 'EMN' && e == 'common,double faced rare,double faced mythic rare') e = 'common';
+			if(set.code == 'EMN' && e == 'double faced common,double faced uncommon') e = 'common';
 			counts[e] = (counts[e] || 0) + 1;
 		});
 		file += 'Booster\n';
@@ -202,7 +204,9 @@ var save_set = function(set){
 			type:set.type
 		});
 	}else{
-		console.log('Not writing ' + set.name);
+		var reason = (count < 20 && 'Not enough cards in set (' + count + ')') || 'No booster description';
+		console.log('Not writing ' + set.name + ' because: ' + reason);
+		console.log(set.magicCardsInfoCode);
 	}
 }
 
