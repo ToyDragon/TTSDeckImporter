@@ -42,14 +42,14 @@ $(document).ready(function(){
 		if(n <= 0 || n > 24){
 			$('#packCount').addClass('error');
 			$('#packErr').text('Must be between 1 and 24');
-			error = true;	
+			error = true;
 		}
 		if(!error){
 			$('body').addClass('loading');
 			var reqobj = {};
 			reqobj.set = set;
 			reqobj.n = n;
-			
+
 			$.ajax({
 				type: 'POST',
 				url: '/newdraft',
@@ -57,15 +57,15 @@ $(document).ready(function(){
 				timeout: 10000,
 			}).done(function(dataraw){
 				var data = JSON.parse(dataraw);
-				if(data.status == 0){
-					window.location = '/draftresults.html?deck='+data.name;
+				if(data.status === 0){
+					window.location = '/draftresults.html?deck='+data.deckId;
 				}else{
 					console.log(data);
 					var errMsg = data.errObj.message;
 
 					console.log(data.errObj);
 					$('#packErr').text(errMsg);
-					
+
 					$('body').removeClass('loading');
 					$('#packErr').removeClass('hidden');
 				}
