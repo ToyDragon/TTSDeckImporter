@@ -36,7 +36,7 @@ function notifyDeck(){
 	if(new Date() > nextDailySummary){
 		var deckStats = {};
 		deckStats.drafts = draftsToday;
-		
+
 		var uniqueNames = {};
 
 		var amtCommander = 0;
@@ -164,7 +164,7 @@ exports.logDeck = function(body, badCards){
 		}
 		decksToday.push(deckObj);
 		notifyDeck();
-	}catch(err){console.log(err);}
+	}catch(err){}
 };
 
 exports.logDraft = function(body){
