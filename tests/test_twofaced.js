@@ -48,6 +48,7 @@ exports.RunTest = function(cb){
 		tester.Test(input, expectedOutput, cb);
 	}catch(err){
 		console.log('Error: ' + err);
+		console.log('Error: ' + err.stack);
 		cb(false);
 	}
 }
