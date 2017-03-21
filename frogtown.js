@@ -54,7 +54,9 @@ exports.HandleDeck = function(reqObj, success, error){
 	var hiddenURL = clean(req.body.hiddenURL);
 	var compression = clean(req.body.compression);
 	var deckName = clean(req.body.name, true);
-	var coolifyBasic = !!req.body.coolify;
+	var test = true;
+	var coolifyBasic = clean(req.body.coolify);
+	var artifyBasic = clean(req.body.artify);
 
 	console.log('Handling deck...');
 
@@ -98,6 +100,7 @@ exports.HandleDeck = function(reqObj, success, error){
   client.write(backURL + '\r\n');
   client.write(hiddenURL + '\r\n');
   client.write(coolifyBasic + '\r\n');
+  client.write(artifyBasic +'\r\n');
   client.write(compression + '\r\n');
   client.write(decklist + '\r\n');
   client.write('ENDDECK\r\n');
