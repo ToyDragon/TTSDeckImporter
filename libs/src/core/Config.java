@@ -1,8 +1,12 @@
 package core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import helpers.Pair;
 import utils.FrogUtils;
 
 public class Config {
@@ -33,6 +37,7 @@ public class Config {
 	public static String[][] hardUrls;
 	public static String[][] hardNameCharacters;
 	public static String[][] mythicErrors;
+	public static Map<String, ArrayList<Pair<String, String>>> fullArtMap;
 	
 	public static boolean LoadConfig(){
 		try{
@@ -48,7 +53,6 @@ public class Config {
 
 			tokenListDir = configObject.getAsJsonPrimitive("tokenListDir").getAsString();
 			//System.out.println("TEST: " + configObject.getAsJsonPrimitive("tokenListDir"));
-			String test = "1" + "2";
 			transformMapDir = configObject.getAsJsonPrimitive("transformMapDir").getAsString();
 
 			hostUrlPrefix = configObject.getAsJsonPrimitive("hostUrlPrefix").getAsString();
@@ -85,6 +89,27 @@ public class Config {
 						harNameObj.get("hard").getAsString(),
 						harNameObj.get("easy").getAsString()
 				};
+			}
+			
+			JsonArray fullArtLandConfigArr = configObject.getAsJsonArray("fullArtLands");
+			fullArtMap = new HashMap<String, ArrayList<Pair<String, String>>>();
+			for(int i = 0; i < fullArtLandConfigArr.size(); i++) {
+				ArrayList<Pair<String, String>> pairList = new ArrayList<Pair<String, String>>();
+				
+				String landName = fullArtLandConfigArr.get(i).getAsJsonObject().get("landType").getAsString();
+				JsonArray cardsArr = fullArtLandConfigArr.get(i).getAsJsonObject().get("cards").getAsJsonArray();
+
+				for(int j = 0; j < cardsArr.size(); j++) {
+					JsonObject setObj = cardsArr.get(j).getAsJsonObject(); //printings are grouped by set
+					String setName = setObj.get("set").getAsString();
+					JsonArray printingsArr = setObj.getAsJsonArray("printings"); //array of printings for each set
+					for(int k = 0; k < printingsArr.size(); k++) {
+						String printing = printingsArr.get(k).getAsString();
+						Pair<String, String> pair = new Pair<String, String>(setName, printing);
+						pairList.add(pair);
+					}
+				}
+				fullArtMap.put(landName, pairList);
 			}
 		}catch(Exception e){
 			e.printStackTrace();

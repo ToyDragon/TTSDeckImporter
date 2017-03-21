@@ -12,3 +12,4 @@ libs/src/utils/cardretrieval/CardRetriever.java
 libs/src/utils/cardretrieval/GathererRetriever.java
 libs/src/utils/cardretrieval/MagicCardsInfoRetriever.java
 libs/src/utils/cardretrieval/MythicSpoilerRetriever.java
+libs/src/helpers/Pair.java
