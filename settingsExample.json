@@ -78,5 +78,37 @@
 			"name": "tandemtactics",
 			"correction": "unisonstrike"
 		}
+	],
+	"fullArtLands": [
+		{
+			"landType" : "swamp",
+			"cards" : 	[	{"set" : "uh", "printings" : ["138"]},
+							{"set" : "zen", "printings" : ["260b", "261b", "262b", "263b", "264b"]}
+						]
+		},
+		{
+			"landType" : "island",
+			"cards" : 	[	{"set" : "uh", "printings" : ["137"]},
+							{"set" : "zen", "printings" : ["234", "235", "236", "237"]}
+						]
+		},
+		{
+			"landType" : "mountain",
+			"cards" : 	[	{"set" : "uh", "printings" : ["139"]},
+							{"set" : "zen", "printings" : ["265b", "266b", "267b", "268b", "269b"]}
+						]
+		},
+		{
+			"landType" : "plains",
+			"cards" : 	[	{"set" : "uh", "printings" : ["136"]},
+							{"set" : "zen", "printings" : ["250b", "251b", "252b", "253b", "254b"]}
+						]	
+		},
+		{
+			"landType" : "forest",
+			"cards" : 	[	{"set" : "uh", "printings" : ["140"]},
+							{"set" : "zen", "printings" : ["270b", "271b", "272b", "273b", "274b"]}
+						]
+		}
 	]
 }
