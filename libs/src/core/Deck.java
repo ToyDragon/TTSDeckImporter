@@ -73,7 +73,8 @@ public class Deck {
 		String[] coolSets = {"uh","guru","al","zen"};
 		for(int i = cardList.size()-1; i >= 0; i--){
 			Card card = cardList.get(i);
-			if(card.set == null && card.language == null && card.printing == null){
+			if((card.set == null || card.set.isEmpty()) && (card.language == null || card.language.isEmpty())
+					&& (card.printing == null || card.printing.isEmpty())) {
 				for(String basicName : basics){
 					if(card.name.equalsIgnoreCase(basicName)){
 						int[][] newAmts = new int[card.amounts.length][coolSets.length];
