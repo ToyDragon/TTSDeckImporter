@@ -1,4 +1,4 @@
-{
+﻿{
 	"deckDir": "/datadrive/decks/",
 	"imageDir": "/datadrive/images/",
 	"setAssetDir": "/datadrive/setAssets/",
@@ -83,31 +83,36 @@
 		{
 			"landType" : "swamp",
 			"cards" : 	[	{"set" : "uh", "printings" : ["138"]},
-							{"set" : "zen", "printings" : ["260b", "261b", "262b", "263b", "264b"]}
+							{"set" : "bfz", "printings" : ["260b", "261b", "262b", "263b", "264b"]},
+							{"set" : "zen", "printings" : ["238", "239", "240", "241"]}
 						]
 		},
 		{
 			"landType" : "island",
 			"cards" : 	[	{"set" : "uh", "printings" : ["137"]},
+							{"set" : "bfz", "printings" : ["270b", "271b", "272b", "273b", "274b"]},
 							{"set" : "zen", "printings" : ["234", "235", "236", "237"]}
 						]
 		},
 		{
 			"landType" : "mountain",
 			"cards" : 	[	{"set" : "uh", "printings" : ["139"]},
-							{"set" : "zen", "printings" : ["265b", "266b", "267b", "268b", "269b"]}
+							{"set" : "bfz", "printings" : ["265b", "266b", "267b", "268b", "269b"]},
+							{"set" : "zen", "printings" : ["242", "243", "244", "245"]}
 						]
 		},
 		{
 			"landType" : "plains",
 			"cards" : 	[	{"set" : "uh", "printings" : ["136"]},
-							{"set" : "zen", "printings" : ["250b", "251b", "252b", "253b", "254b"]}
+							{"set" : "bfz", "printings" : ["250b", "251b", "252b", "253b", "254b"]},
+							{"set" : "zen", "printings" : ["230", "231", "232", "233"]}
 						]	
 		},
 		{
 			"landType" : "forest",
 			"cards" : 	[	{"set" : "uh", "printings" : ["140"]},
-							{"set" : "zen", "printings" : ["270b", "271b", "272b", "273b", "274b"]}
+							{"set" : "bfz", "printings" : ["270b", "271b", "272b", "273b", "274b"]},
+							{"set" : "zen", "printings" : ["246", "247", "248", "249"]}
 						]
 		}
 	]
