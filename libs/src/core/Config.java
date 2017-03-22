@@ -97,7 +97,7 @@ public class Config {
 				ArrayList<Pair<String, String>> printingList = new ArrayList<Pair<String, String>>();
 				
 				String landName = fullArtLandConfigArr.get(i).getAsJsonObject().get("landType").getAsString();
-				JsonArray printingInfoArr = fullArtLandConfigArr.get(i).getAsJsonObject().get("printInfo").getAsJsonArray(); //array of printInfos.  PrintInfos have sets and associated print numbers 
+				JsonArray printingInfoArr = fullArtLandConfigArr.get(i).getAsJsonObject().get("printingInfo").getAsJsonArray(); //array of printInfos.  PrintInfos have sets and associated print numbers 
 
 				for(int j = 0; j < printingInfoArr.size(); j++) {
 					JsonObject setObj = printingInfoArr.get(j).getAsJsonObject(); //printInfo's set
