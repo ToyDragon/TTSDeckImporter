@@ -1,4 +1,5 @@
 var tests = [
+	'fullart',
 	'allbolts',
 	'characters',
 	'twofaced',
