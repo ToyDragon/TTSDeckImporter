@@ -90,26 +90,26 @@ public class Config {
 						harNameObj.get("easy").getAsString()
 				};
 			}
-			
+						
 			JsonArray fullArtLandConfigArr = configObject.getAsJsonArray("fullArtLands");
 			fullArtMap = new HashMap<String, ArrayList<Pair<String, String>>>();
 			for(int i = 0; i < fullArtLandConfigArr.size(); i++) {
-				ArrayList<Pair<String, String>> pairList = new ArrayList<Pair<String, String>>();
+				ArrayList<Pair<String, String>> printingList = new ArrayList<Pair<String, String>>();
 				
 				String landName = fullArtLandConfigArr.get(i).getAsJsonObject().get("landType").getAsString();
-				JsonArray cardsArr = fullArtLandConfigArr.get(i).getAsJsonObject().get("cards").getAsJsonArray();
+				JsonArray printingInfoArr = fullArtLandConfigArr.get(i).getAsJsonObject().get("printInfo").getAsJsonArray(); //array of printInfos.  PrintInfos have sets and associated print numbers 
 
-				for(int j = 0; j < cardsArr.size(); j++) {
-					JsonObject setObj = cardsArr.get(j).getAsJsonObject(); //printings are grouped by set
+				for(int j = 0; j < printingInfoArr.size(); j++) {
+					JsonObject setObj = printingInfoArr.get(j).getAsJsonObject(); //printInfo's set
 					String setName = setObj.get("set").getAsString();
-					JsonArray printingsArr = setObj.getAsJsonArray("printings"); //array of printings for each set
-					for(int k = 0; k < printingsArr.size(); k++) {
-						String printing = printingsArr.get(k).getAsString();
-						Pair<String, String> pair = new Pair<String, String>(setName, printing);
-						pairList.add(pair);
+					JsonArray printNumberArr = setObj.getAsJsonArray("printNumbers"); //printInfo's arr of print numbers
+					for(int k = 0; k < printNumberArr.size(); k++) {
+						String printNumber = printNumberArr.get(k).getAsString();
+						Pair<String, String> printing = new Pair<String, String>(setName, printNumber); //each printing is defined by a set and printNumber pair
+						printingList.add(printing);
 					}
 				}
-				fullArtMap.put(landName, pairList);
+				fullArtMap.put(landName, printingList);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
