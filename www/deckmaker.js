@@ -1,6 +1,6 @@
 $(document).ready(function(){
-	var options = ['Cool Basic','Sideboard','Commander'];
-	var isActive = [true, false, false];
+	var options = ['Cool Basics', 'Full Art Basics', 'Sideboard','Commander'];
+	var isActive = [false, true, false, false];
 	var badLines = {};
 
 	var isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
@@ -31,6 +31,21 @@ $(document).ready(function(){
 		$('.qualityButtons button').removeClass('btn-info').addClass('btn-default');
 		$(event.currentTarget).addClass('btn-info').removeClass('btn-default');
 	});
+
+	$('.switchButton').click(function(event){
+		if($(event.currentTarget).hasClass('btn-default')) {
+			$('.switchButton').not(this).removeClass('btn-success').addClass('btn-default');
+		}
+
+		$('.switchButton').not(this).each(function() {
+			var btnText = $(this).text();
+			for(var i = 0; i < options.length; i++){
+				if(new RegExp(options[i]+'$').test(btnText)){
+					isActive[i] = $(this).hasClass('btn-success');
+				}
+			}	
+		});
+});
 
 	$('.toggleButton').click(function(event){
 		var src = $(event.currentTarget);
@@ -153,11 +168,11 @@ $(document).ready(function(){
 		var mainboard = BuildOneBoard(1, $('.userlist.mainboard').val());
 		boards.push(mainboard);
 
-		if(isActive[1]){
+		if(isActive[2]){
 			var sideboard = BuildOneBoard(2, $('.userlist.sideboard').val());
 			boards.push(sideboard);
 		}
-		if(isActive[2]){
+		if(isActive[3]){
 				var commander = BuildOneBoard(3, $('.userlist.commander').val());
 				boards.push(commander);
 		}
@@ -174,17 +189,18 @@ $(document).ready(function(){
 			$('.error').text('Too few cards!');
 		}else{
 			var list = 'MAINBOARD\n'+$('.userlist.mainboard').val();
-			if(isActive[1]){
+			if(isActive[2]){
 			        list += '\nSIDEBOARD\n'+$('.userlist.sideboard').val();
 			}
-			if(isActive[2]){
+			if(isActive[3]){
 			        list += '\nCOMMANDER\n'+$('.userlist.commander').val();
 			}
 
 			var backURL = $('#backURL').val().trim();
 			var hiddenURL = $('#hideURL').val().trim();
 			var deckName = $('#deckName').val().trim().length > 0?$('#deckName').val().trim():'frogtown_deck';
-			var coolify = $('#coolify').hasClass('btn-success');
+			var coolify = $('.coolify').hasClass('btn-success');
+			var artify = $('.artify').hasClass('btn-success');
 			var compression = $('.qualityButtons .btn-info').attr('value');
 			var name = $('#deckName').val().trim();
 
@@ -194,6 +210,7 @@ $(document).ready(function(){
 			reqobj.hiddenURL = hiddenURL;
 			reqobj.deckName = deckName;
 			reqobj.coolify = coolify;
+			reqobj.artify = artify;
 			reqobj.compression = compression;
 			reqobj.name = name;
 
@@ -330,8 +347,8 @@ $(document).ready(function(){
 
 	function UpdateSections(){
 		$(".optionalList").addClass("hidden");
-		if(isActive[1]) $("#sideboard").removeClass("hidden");
-		if(isActive[2]) $("#commander").removeClass("hidden");
+		if(isActive[2]) $("#sideboard").removeClass("hidden");
+		if(isActive[3]) $("#commander").removeClass("hidden");
 		UpdateTextareas()
 	}
 

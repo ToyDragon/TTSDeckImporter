@@ -120,6 +120,7 @@ public class DeckMaker {
 		newDeck.backUrl = ReadLine(clientScanner);
 		newDeck.hiddenUrl = ReadLine(clientScanner);
 		boolean coolifyBasics = ReadLine(clientScanner).equals("true");
+		boolean artifyBasics = ReadLine(clientScanner).equals("true");
 		try{
 			newDeck.compressionLevel = Double.parseDouble(clientScanner.readLine());
 		}catch(Exception e){}
@@ -133,7 +134,12 @@ public class DeckMaker {
 		if(newDeck.cardList.size() + newDeck.transformList.size() == 0){ errorMessage = "Too few cards!"; }
 		if(newDeck.cardList.size() + newDeck.transformList.size() >= 150){ errorMessage = "Too many different cards!"; }
 		if(errorMessage == null){
-			if(coolifyBasics)newDeck.Coolify();
+			if(coolifyBasics){
+				newDeck.Coolify();
+			}
+			else if (artifyBasics){
+				newDeck.Artify();
+			}
 	
 			ImageUtils.DownloadImages(newDeck);
 			FrogUtils.Debug("Downloaded images, with " + newDeck.unknownCards.size() + " unknown");
