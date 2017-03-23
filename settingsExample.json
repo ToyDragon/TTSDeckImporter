@@ -90,7 +90,7 @@
 		{
 			"landType" : "island",
 			"printingInfo" : 	[	{"set" : "uh", "printNumbers" : ["137"]},
-							{"set" : "bfz", "printNumbers" : ["270b", "271b", "272b", "273b", "274b"]},
+							{"set" : "bfz", "printNumbers" : ["255b", "256b", "257b", "258b", "259b"]},
 							{"set" : "zen", "printNumbers" : ["234", "235", "236", "237"]}
 						]
 		},
@@ -115,4 +115,4 @@
 							{"set" : "zen", "printNumbers" : ["246", "247", "248", "249"]}
 						]
 		}
-	]}
+]}
