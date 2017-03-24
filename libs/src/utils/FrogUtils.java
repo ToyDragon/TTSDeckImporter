@@ -70,6 +70,13 @@ public class FrogUtils {
 		return "";
 	}
 	
+	public static boolean IsNullOrEmpty(String string){
+		if(string == null || string == ""){
+			return true;
+		}
+		return false;
+	}
+	
 	public static String ReplaceHardChars(String source){
 		for(String[] hardPair : Config.hardNameCharacters){
 			source = source.replaceAll("\\Q"+hardPair[0]+"\\E", hardPair[1]);

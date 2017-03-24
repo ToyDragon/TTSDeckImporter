@@ -2,9 +2,11 @@ package core;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 
 import cardbuddies.Token;
 import cardbuddies.Transform;
+import helpers.Pair;
 
 public class Deck {
 	
@@ -68,6 +70,52 @@ public class Deck {
 		}
 	}
 	
+	public void Artify() {
+		Map<String, ArrayList<Pair<String, String>>> fullArtLands;
+		fullArtLands = Config.fullArtMap;
+		
+		for (int i = cardList.size() - 1; i >= 0; i-- ) {
+			Card card = cardList.get(i);
+
+			if(FrogUtils.IsNullOrEmpty(card.set) && FrogUtils.IsNullOrEmpty(card.language) && FrogUtils.IsNullOrEmpty(card.printing)){
+				if(fullArtLands.containsKey(card.name)) {
+					ArrayList<Pair<String, String>> pairList = fullArtLands.get(card.name);
+					
+					int[][] newAmts = new int[card.amounts.length][pairList.size()];
+					
+					for(int j= 0; j< card.amounts.length; j++) {
+						for(int k=0; k < card.amounts[j]; k++) {
+							newAmts[j][(int) (Math.random() * pairList.size())]++;
+						}
+					}
+					
+					for (int j = 0; j < newAmts.length; j++) {
+						for (int k = 0; k < newAmts[j].length; k++) {
+							if (newAmts[j][k] == 0)
+								continue;
+		
+							String set = pairList.get(k).getX();
+							String printing = pairList.get(k).getY();
+							String cardKey = Card.getCardKey(card.name, set, printing, null);
+							Card coolBasic = getCard(cardKey);
+							if (coolBasic == null) {
+								coolBasic = new Card();
+								coolBasic.name = card.name;
+								coolBasic.cardKey = cardKey;
+								coolBasic.set = set;
+								coolBasic.printing = printing;
+
+								add(coolBasic);
+							}
+							coolBasic.amounts[j] += newAmts[j][k];
+						}
+					}
+					cardList.remove(i);
+				}
+			}
+		}
+	}
+
 	public void Coolify(){		
 		String[] basics = {"island","forest","mountain","swamp","plains"};
 		String[] coolSets = {"uh","guru","al","zen"};
